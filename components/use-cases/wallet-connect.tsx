@@ -1,3 +1,4 @@
+'use client';
 import {
     APTOS_CONNECT_ACCOUNT_URL,
     AboutAptosConnect,
@@ -13,20 +14,19 @@ import {
 } from "@aptos-labs/wallet-adapter-react";
 import { ArrowLeft, ArrowRight, ChevronDown, Copy, LogOut, User } from "lucide-react";
 import { useCallback, useState } from "react";
+import { toast } from 'react-toastify';
+import { Button } from '../ui/button';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '../ui/dropdown-menu';
+import { DialogHeader, Dialog, DialogTrigger, DialogContent, DialogTitle } from '../ui/dialog';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '../ui/collapsible';
 
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { useToast } from "@/components/ui/use-toast";
+
 
 export function WalletSelector() {
+    
     const { account, connected, disconnect, wallet } = useWallet();
-    const { toast } = useToast();
+    const notifySuccess = (message: string) => toast.success(message);
+    const notifyError = (message: string) => toast.error(message);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
 
     const closeDialog = useCallback(() => setIsDialogOpen(false), []);
@@ -35,16 +35,9 @@ export function WalletSelector() {
         if (!account?.address) return;
         try {
             await navigator.clipboard.writeText(account.address);
-            toast({
-                title: "Success",
-                description: "Copied wallet address to clipboard.",
-            });
+            notifySuccess("Copied wallet address to clipboard.");
         } catch {
-            toast({
-                variant: "destructive",
-                title: "Error",
-                description: "Failed to copy wallet address.",
-            });
+            notifyError("Failed to copy wallet address.");
         }
     }, [account?.address, toast]);
 
@@ -86,16 +79,15 @@ interface ConnectWalletDialogProps {
 function ConnectWalletDialog({ close }: ConnectWalletDialogProps) {
     const { wallets = [] } = useWallet();
 
-    const location = useLocation();
-
-    const isPublicMintPage = location.pathname !== "/create-collection" && location.pathname !== "/my-collections";
+    
 
     const { aptosConnectWallets, availableWallets, installableWallets } = groupAndSortWallets(wallets);
 
     const hasAptosConnectWallets = !!aptosConnectWallets.length;
+    const isPublicMintPage = true;
 
     return (
-        <DialogContent className="max-h-screen overflow-auto">
+        <DialogContent className="max-h-screen overflow-auto bg-white">
             <AboutAptosConnect renderEducationScreen={renderEducationScreen}>
                 {/* AptosConnect does not support file uploads, so we only show it on the public mint page when people want to mint an NFT */}
                 {isPublicMintPage ? (
