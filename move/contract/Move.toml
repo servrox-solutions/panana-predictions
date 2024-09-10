@@ -1,0 +1,14 @@
+[package]
+name = "AptosOracleV3"
+version = "0.2.0"
+upgrade_policy = "compatible"
+
+[addresses]
+panana="_"
+switchboard = "0xb91d3fef0eeb4e685dc85e739c7d3e2968784945be4424e92e2f86e2418bf271"
+
+[dependencies]
+MoveStdlib = { git = "https://github.com/aptos-labs/aptos-core.git", subdir = "aptos-move/framework/move-stdlib/", rev = "testnet" }
+AptosFramework = { git = "https://github.com/aptos-labs/aptos-core.git", subdir = "aptos-move/framework/aptos-framework/", rev = "testnet" }
+AptosStdlib = { git = "https://github.com/aptos-labs/aptos-core.git", subdir = "aptos-move/framework/aptos-stdlib/", rev = "testnet" }
+Switchboard = { git = "https://github.com/switchboard-xyz/aptos-sdk.git", subdir = "move/switchboard/testnet/", rev = "main" }
