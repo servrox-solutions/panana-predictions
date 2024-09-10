@@ -1,0 +1,44 @@
+{
+  "CodeGPT.apiKey": "OpenAI",
+  "[javascript]": {
+    "editor.formatOnSave": true
+  },
+  "[javascriptreact]": {
+    "editor.formatOnSave": true
+  },
+  "[typescript]": {
+    "editor.defaultFormatter": "denoland.vscode-deno"
+  },
+  "[typescriptreact]": {
+    "editor.formatOnSave": true
+  },
+  "deno.enablePaths": [
+    "supabase/functions"
+  ],
+  "deno.lint": true,
+  "deno.unstable": true,
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit"
+  },
+  "editor.formatOnSave": true,
+  "editor.formatOnType": true,
+  "eslint.options": {
+    "extensions": [
+      ".js",
+      ".jsx",
+      ".html",
+      ".ts",
+      ".tsx"
+    ]
+  },
+  "eslint.validate": [
+    "javascript",
+    "javascriptreact",
+    "typescript",
+    "typescriptreact",
+    "html"
+  ],
+  "files.autoSave": "onFocusChange",
+  "git.inputValidationSubjectLength": 100,
+  "typescript.enablePromptUseWorkspaceTsdk": true
+}
