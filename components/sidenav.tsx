@@ -1,12 +1,6 @@
 import Link from "next/link";
 
 import { Banana, Home, LineChart, Settings, Medal } from "lucide-react";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "./ui/tooltip";
 import { headers } from "next/headers";
 import { SidenavItem } from "./sidenav-item";
 
