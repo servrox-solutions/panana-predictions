@@ -30,6 +30,7 @@ import {
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Sheet, SheetContent, SheetTrigger } from "./ui/sheet";
+import { WalletSelector } from "./use-cases/wallet-connect";
 
 export function Header() {
   return (
@@ -115,6 +116,7 @@ export function Header() {
           className="w-full rounded-lg bg-background pl-8 md:w-[200px] lg:w-[336px]"
         />
       </div>
+      <WalletSelector />
       <ModeToggle />
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
