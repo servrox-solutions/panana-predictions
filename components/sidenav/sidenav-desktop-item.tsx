@@ -7,23 +7,24 @@ import {
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from "./ui/tooltip";
+} from "../ui/tooltip";
 import { cn } from "@/lib/utils";
 import { usePathname } from "next/navigation";
+import { cloneElement } from "react";
 
-export interface SidenavItemProps {
+export interface SidenavDesktopItemProps {
   path: string;
   preSelected?: boolean;
   icon: JSX.Element;
   name: string;
 }
 
-export function SidenavItem({
+export function SidenavDesktopItem({
   path,
   preSelected,
   icon,
   name,
-}: SidenavItemProps) {
+}: SidenavDesktopItemProps) {
   const pathname = usePathname();
 
   return (
@@ -38,7 +39,7 @@ export function SidenavItem({
                 (pathname && pathname === path && "bg-accent")
             )}
           >
-            {icon}
+            {cloneElement(icon, { className: "h-5 w-5" })}
             <span className="sr-only">{name}</span>
           </Link>
         </TooltipTrigger>
