@@ -15,7 +15,6 @@ import {
   Package,
   Users2,
   LineChart,
-  Search,
   User,
 } from "lucide-react";
 import { ModeToggle } from "./mode-toggle";
@@ -28,7 +27,6 @@ import {
   BreadcrumbPage,
 } from "./ui/breadcrumb";
 import { Button } from "./ui/button";
-import { Input } from "./ui/input";
 import { Sheet, SheetContent, SheetTrigger } from "./ui/sheet";
 import { WalletSelector } from "./use-cases/wallet-connect";
 
@@ -37,6 +35,7 @@ export function Header() {
     <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-background px-4 sm:static sm:h-auto sm:border-0 sm:bg-transparent sm:px-6">
       <link
         rel="icon"
+        // href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><style>text { filter: invert(1) grayscale(100%); } @media (prefers-color-scheme: dark) { text { filter: invert(0) grayscale(100%); } }</style><text y=%22.9em%22 font-size=%2290%22>🍌</text></svg>"
         href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🍌</text></svg>"
       />
       <Sheet>
@@ -113,12 +112,12 @@ export function Header() {
         </BreadcrumbList>
       </Breadcrumb>
       <div className="relative ml-auto flex-1 md:grow-0">
-        <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+        {/* <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
         <Input
           type="search"
           placeholder="Search..."
           className="w-full rounded-lg bg-background pl-8 md:w-[200px] lg:w-[336px]"
-        />
+        /> */}
       </div>
       <WalletSelector />
       <ModeToggle />

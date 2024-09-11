@@ -7,14 +7,12 @@
     "editor.formatOnSave": true
   },
   "[typescript]": {
-    "editor.defaultFormatter": "denoland.vscode-deno"
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
   "[typescriptreact]": {
     "editor.formatOnSave": true
   },
-  "deno.enablePaths": [
-    "supabase/functions"
-  ],
+  "deno.enablePaths": ["supabase/functions"],
   "deno.lint": true,
   "deno.unstable": true,
   "editor.codeActionsOnSave": {
@@ -23,13 +21,7 @@
   "editor.formatOnSave": true,
   "editor.formatOnType": true,
   "eslint.options": {
-    "extensions": [
-      ".js",
-      ".jsx",
-      ".html",
-      ".ts",
-      ".tsx"
-    ]
+    "extensions": [".js", ".jsx", ".html", ".ts", ".tsx"]
   },
   "eslint.validate": [
     "javascript",

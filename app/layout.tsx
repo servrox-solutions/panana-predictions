@@ -3,6 +3,7 @@ import localFont from "next/font/local";
 import "./globals.css";
 import { WalletProvider } from "@/components/providers/wallet-provider";
 import { ThemeProvider } from "@/components/providers/theme-provider";
+import { TelegramProvider } from "@/components/providers/telegram-provider";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -37,7 +38,9 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <WalletProvider>{children}</WalletProvider>
+          <WalletProvider>
+            <TelegramProvider>{children}</TelegramProvider>
+          </WalletProvider>
         </ThemeProvider>
       </body>
     </html>

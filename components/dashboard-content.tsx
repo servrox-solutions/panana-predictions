@@ -47,6 +47,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import Link from "next/link";
 
 export function DashboardContent() {
   return (
@@ -62,7 +63,9 @@ export function DashboardContent() {
               </CardDescription>
             </CardHeader>
             <CardFooter>
-              <Button>Create New Order</Button>
+              <Link href="test">
+                <Button>Test Page</Button>
+              </Link>
             </CardFooter>
           </Card>
           <Card x-chunk="dashboard-05-chunk-1">

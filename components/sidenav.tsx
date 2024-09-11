@@ -1,13 +1,19 @@
 import Link from "next/link";
 
-import { Banana, Home, LineChart, Settings, Medal } from "lucide-react";
+import {
+  Banana,
+  Home,
+  LineChart,
+  Settings,
+  Medal,
+  FlaskConical,
+} from "lucide-react";
 import { headers } from "next/headers";
 import { SidenavItem } from "./sidenav-item";
 
 export function Sidenav() {
   const headerList = headers();
   const pathname = headerList.get("x-current-path");
-  console.log("✨", pathname);
 
   const items = [
     {
@@ -24,6 +30,11 @@ export function Sidenav() {
       name: "Ranking",
       icon: <Medal className="h-5 w-5" />,
       path: "/ranking",
+    },
+    {
+      name: "Test",
+      icon: <FlaskConical className="h-5 w-5" />,
+      path: "/test",
     },
   ];
 
