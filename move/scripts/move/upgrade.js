@@ -1,8 +1,11 @@
 require("dotenv").config();
+const fs = require("node:fs");
+const yaml = require("js-yaml");
 const cli = require("@aptos-labs/ts-sdk/dist/common/cli/index.js");
 
-const profileName = `${process.env.PROJECT_NAME}-${process.env.NEXT_PUBLIC_APP_NETWORK}`;
-
+const config = yaml.load(fs.readFileSync("./.aptos/config.yaml", "utf8"));
+const profile = `${process.env.PROJECT_NAME}-${process.env.NEXT_PUBLIC_APP_NETWORK}`;
+const accountAddress = config["profiles"][profile]["account"];
 async function publish() {
 
   const moduleAddress = process.env.AUTOMATED_SET_MODULE_ADDRESS;
@@ -36,9 +39,9 @@ async function publish() {
     packageDirectoryPath: "move/contract",
     objectAddress: moduleAddress,
     namedAddresses: {
-      panana: moduleAddress,
+      owner: accountAddress,
     },
-    profile: profileName,
+    profile,
   });
 }
 publish();

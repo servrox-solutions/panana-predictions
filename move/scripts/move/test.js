@@ -8,7 +8,7 @@ async function test() {
   await move.test({
     packageDirectoryPath: "move/contract",
     namedAddresses: {
-      panana: "0x100",
+      owner: "0x100",
     },
   });
 }

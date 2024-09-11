@@ -1,10 +1,9 @@
 [package]
-name = "AptosOracleV3"
-version = "0.2.0"
-upgrade_policy = "compatible"
+name = "AptosOracleV4"
+version = "0.3.0"
 
 [addresses]
-panana="_"
+owner = "_"
 switchboard = "0xb91d3fef0eeb4e685dc85e739c7d3e2968784945be4424e92e2f86e2418bf271"
 
 [dependencies]

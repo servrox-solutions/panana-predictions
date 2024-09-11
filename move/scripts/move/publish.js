@@ -1,12 +1,13 @@
 require("dotenv").config();
+
 const fs = require("node:fs");
 const yaml = require("js-yaml");
 const cli = require("@aptos-labs/ts-sdk/dist/common/cli/index.js");
-const aptosSDK = require("@aptos-labs/ts-sdk")
 
 const config = yaml.load(fs.readFileSync("./.aptos/config.yaml", "utf8"));
-const profileName = `${process.env.PROJECT_NAME}-${process.env.NEXT_PUBLIC_APP_NETWORK}`;
-const accountAddress = config["profiles"][profileName]["account"];
+const profile = `${process.env.PROJECT_NAME}-${process.env.NEXT_PUBLIC_APP_NETWORK}`;
+const accountAddress = config["profiles"][profile]["account"];
+
 
 async function publish() {
 
@@ -35,9 +36,10 @@ async function publish() {
       addressName: "panana",
       namedAddresses: {
         // Publish module to new object, but since we create the object on the fly, we fill in the publisher's account address here
-        panana: accountAddress,
+        owner: accountAddress,
       },
-      profile: profileName,
+      profile,
+      extraArguments: ['--included-artifacts=none', "--assume-yes"]
     })
     .then((response) => {
       const filePath = ".env";
