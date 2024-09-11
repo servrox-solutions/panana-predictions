@@ -19,6 +19,7 @@ export const TelegramProvider = ({
   const [webApp, setWebApp] = useState<WebApp | null>(null);
 
   useEffect(() => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const app = (window as any).Telegram?.WebApp;
     if (app) {
       app.ready();
