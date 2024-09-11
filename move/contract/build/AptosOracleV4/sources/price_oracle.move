@@ -65,7 +65,7 @@ module panana::price_oracle {
         simple_map::add(&mut aggregators, key<address>(), @0x7ac62190ba57b945975146f3d8725430ad3821391070b965b38206fe4cec9fd5); 
 
         move_to(owner, Storage {
-            aggregators: simple_map::create<String, address>(),
+            aggregators,
             results: simple_map::create<String, Result>()
         })
     }
@@ -85,10 +85,12 @@ module panana::price_oracle {
         let results = &mut borrow_global_mut<Storage>(owner_addr).results;
         simple_map::add(results, key, Result { value: 0, dec: 0 });
     }
+
     fun is_registered(key: String): bool acquires Storage {
         let storage_ref = borrow_global<Storage>(owner());
         is_registered_internal(key, storage_ref)
     }
+
     fun is_registered_internal(key: String, storage: &Storage): bool {
         simple_map::contains_key(&storage.aggregators, &key)
     }

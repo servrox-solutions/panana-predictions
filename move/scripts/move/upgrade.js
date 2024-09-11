@@ -40,8 +40,10 @@ async function publish() {
     objectAddress: moduleAddress,
     namedAddresses: {
       owner: accountAddress,
+      panana: moduleAddress,
     },
     profile,
+    extraArguments: ['--included-artifacts=none', "--assume-yes"]
   });
 }
 publish();
