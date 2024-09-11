@@ -5,6 +5,11 @@ version = "0.3.0"
 [addresses]
 owner = "_"
 switchboard = "0xb91d3fef0eeb4e685dc85e739c7d3e2968784945be4424e92e2f86e2418bf271"
+switchbaord_feed_apt = "0x7ac62190ba57b945975146f3d8725430ad3821391070b965b38206fe4cec9fd5"
+switchbaord_feed_sol = "0xe2677e5bd7473c13b7a8849d463b0b920b9bb02e98bbb6e638992dcf02394688"
+switchbaord_feed_usdc = "0x1f7b23e6d81fa2102b2e994d2e54d26d116426c7dda5417925265f7b46f50c73"
+switchbaord_feed_btc = "0xc07d068fe17f67a85147702359b5819d226591307a5bb54139794f8931327e88"
+switchbaord_feed_eth = "0xcaccdee7954db165b1b0923a619b58808937dbf4afb19091fdbb7f0584f41da1"
 
 [dependencies]
 MoveStdlib = { git = "https://github.com/aptos-labs/aptos-core.git", subdir = "aptos-move/framework/move-stdlib/", rev = "testnet" }

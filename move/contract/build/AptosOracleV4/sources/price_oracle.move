@@ -61,8 +61,12 @@ module panana::price_oracle {
     public entry fun initialize(owner: &signer) {
         assert!(!exists<Storage>(signer::address_of(owner)), E_STORAGE_ALREADY_EXISTS);
         let aggregators: SimpleMap<String,address> = simple_map::create();
-        simple_map::add(&mut aggregators, key<APT>(), @0x7ac62190ba57b945975146f3d8725430ad3821391070b965b38206fe4cec9fd5); 
-        simple_map::add(&mut aggregators, key<address>(), @0x7ac62190ba57b945975146f3d8725430ad3821391070b965b38206fe4cec9fd5); 
+        simple_map::add(&mut aggregators, key<APT>(), @switchbaord_feed_apt); 
+        simple_map::add(&mut aggregators, key<SOL>(), @switchbaord_feed_sol); 
+        simple_map::add(&mut aggregators, key<USDC>(), @switchbaord_feed_usdc); 
+        simple_map::add(&mut aggregators, key<BTC>(), @switchbaord_feed_btc); 
+        simple_map::add(&mut aggregators, key<ETH>(), @switchbaord_feed_eth); 
+
 
         move_to(owner, Storage {
             aggregators,
