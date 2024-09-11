@@ -1,15 +1,15 @@
 require("dotenv").config();
+
 const fs = require("node:fs");
 const yaml = require("js-yaml");
 const cli = require("@aptos-labs/ts-sdk/dist/common/cli/index.js");
-const aptosSDK = require("@aptos-labs/ts-sdk")
 
-// const config = yaml.load(fs.readFileSync("./.aptos/config.yaml", "utf8"));
-const address = `${process.env.PROJECT_NAME}-${process.env.NEXT_PUBLIC_APP_NETWORK}`;
-// const accountAddress =
-//   config["profiles"][`${process.env.PROJECT_NAME}-${process.env.NEXT_PUBLIC_APP_NETWORK}`]["account"];
+const config = yaml.load(fs.readFileSync("./.aptos/config.yaml", "utf8"));
+const profile = `${process.env.PROJECT_NAME}-${process.env.NEXT_PUBLIC_APP_NETWORK}`;
+const accountAddress = config["profiles"][profile]["account"];
 
 async function compile() {
+  console.log(profile);
 
   // const aptosConfig = new aptosSDK.AptosConfig({ network: process.env.NEXT_PUBLIC_APP_NETWORK })
   // const aptos = new aptosSDK.Aptos(aptosConfig)
@@ -25,12 +25,13 @@ async function compile() {
 
 
   const move = new cli.Move();
-
+  console.log(accountAddress)
   await move.compile({
     packageDirectoryPath: "move/contract",
     namedAddresses: {
-      panana: address
-    }
+      owner: accountAddress
+    },
+    profile,
     // namedAddresses: {
     //   // Publish module to account address
     //   launchpad_addr: accountAddress,
