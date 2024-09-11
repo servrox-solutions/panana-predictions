@@ -15,7 +15,6 @@ import {
   Package,
   Users2,
   LineChart,
-  Search,
   User,
 } from "lucide-react";
 import { ModeToggle } from "./mode-toggle";
@@ -28,7 +27,6 @@ import {
   BreadcrumbPage,
 } from "./ui/breadcrumb";
 import { Button } from "./ui/button";
-import { Input } from "./ui/input";
 import { Sheet, SheetContent, SheetTrigger } from "./ui/sheet";
 import { WalletSelector } from "./use-cases/wallet-connect";
 
