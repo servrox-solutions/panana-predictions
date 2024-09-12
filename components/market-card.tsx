@@ -21,6 +21,13 @@ import { Clock, DollarSign, ArrowUp, ArrowDown, Users } from "lucide-react";
 import { TruncatedText } from "./truncated-text";
 import { Market } from "./types/market";
 
+import { useForm, Controller } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useWallet } from "@aptos-labs/wallet-adapter-react";
+import { getAptosClient } from "@/lib/get-aptos-client";
+import { InputGenerateTransactionPayloadData } from "@aptos-labs/ts-sdk";
+
 function formatDuration(seconds: number): string {
   const absSeconds = Math.abs(seconds);
   const days = Math.floor(absSeconds / 86400);
@@ -54,27 +61,92 @@ export function MarketCard({ market }: { market: Market }) {
     },
   } = market;
 
-  const [betDirection, setBetDirection] = useState<"up" | "down" | null>(null);
-  const [betAmount, setBetAmount] = useState<number>(min_bet);
   const [message, setMessage] = useState<string | null>(null);
   const [now, setNow] = useState(Date.now() / 1000);
+  const [isPending, setIsPending] = useState(false);
 
   useEffect(() => {
     const timer = setInterval(() => setNow(Date.now() / 1000), 1000);
     return () => clearInterval(timer);
   }, []);
 
-  const handleBet = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!betDirection) {
-      setMessage("Please select a bet direction");
+  // Wallet and transaction handling
+  const { account, signAndSubmitTransaction } = useWallet();
+
+  // Define the Zod schema for form validation
+  const betSchema = z.object({
+    betDirection: z.enum(["up", "down"], {
+      required_error: "Please select a bet direction",
+    }),
+    betAmount: z
+      .string()
+      .min(1, "Bet amount is required")
+      .refine((val) => !isNaN(Number(val)), "Bet amount must be a number")
+      .transform((val) => Number(val))
+      .refine(
+        (val) => val >= min_bet,
+        `Bet amount must be at least ${min_bet}`
+      ),
+  });
+
+  type BetFormValues = z.infer<typeof betSchema>;
+
+  const {
+    register,
+    handleSubmit,
+    control,
+    formState: { errors },
+  } = useForm<BetFormValues>({
+    resolver: zodResolver(betSchema),
+  });
+
+  const handleBet = async (data: BetFormValues) => {
+    setMessage(null);
+
+    if (!account) {
+      setMessage("Please connect your wallet!");
       return;
     }
-    if (betAmount < min_bet) {
-      setMessage(`Bet amount must be at least ${min_bet}`);
-      return;
+
+    setIsPending(true);
+
+    try {
+      const aptosClient = getAptosClient();
+
+      // const moduleAddress =
+      //   "0x6913ef234d0f7d880e6e808d493e84227e3d6347674d1e11e22366ccd0f14e2a";
+
+      const payload: InputGenerateTransactionPayloadData = {
+        // type: "entry_function_payload",
+        // function: `${moduleAddress}::market::place_bet`,
+        function: `"0x6913ef234d0f7d880e6e808d493e84227e3d6347674d1e11e22366ccd0f14e2a::market::place_bet"`,
+        typeArguments: [
+          `0x6913ef234d0f7d880e6e808d493e84227e3d6347674d1e11e22366ccd0f14e2a::price_oracle::BTC`,
+        ],
+        functionArguments: [
+          // `0x${key}`,
+          `0x4e19e11ee04ac5f16169720de8e2a004602207b32847bd4b31af1337f017e342`,
+          data.betDirection === "up",
+          data.betAmount.toString(), // Amount as string
+        ],
+      };
+
+      // Sign and submit the transaction
+      const transactionResponse = await signAndSubmitTransaction({
+        data: payload,
+      });
+
+      // Wait for transaction confirmation
+      await aptosClient.waitForTransaction(transactionResponse.hash);
+
+      setMessage(`Transaction submitted! Hash: ${transactionResponse.hash}`);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      console.error("Transaction failed:", error);
+      setMessage(`Failed to place bet: ${error.message}`);
+    } finally {
+      setIsPending(false);
     }
-    setMessage(`Placed a ${betDirection} bet of ${betAmount} on market ${key}`);
   };
 
   const startDiff = start_time - now;
@@ -95,6 +167,7 @@ export function MarketCard({ market }: { market: Market }) {
       </CardHeader>
       <CardContent className="grid gap-4">
         <div className="grid grid-cols-2 gap-2 text-sm">
+          {/* Existing market details */}
           <div className="flex items-center justify-between">
             <span className="font-medium flex items-center">
               <DollarSign className="h-4 w-4 text-muted-foreground mr-1" />
@@ -104,6 +177,7 @@ export function MarketCard({ market }: { market: Market }) {
               <TruncatedText text={start_price.toString()} maxLength={15} />
             </span>
           </div>
+          {/* Start Time */}
           <div className="flex items-center justify-between">
             <span className="font-medium flex items-center">
               <Clock className="h-4 w-4 text-muted-foreground mr-1" />
@@ -122,6 +196,7 @@ export function MarketCard({ market }: { market: Market }) {
               </PopoverContent>
             </Popover>
           </div>
+          {/* End Time */}
           <div className="flex items-center justify-between">
             <span className="font-medium flex items-center">
               <Clock className="h-4 w-4 text-muted-foreground mr-1" />
@@ -140,6 +215,7 @@ export function MarketCard({ market }: { market: Market }) {
               </PopoverContent>
             </Popover>
           </div>
+          {/* Minimum Bet */}
           <div className="flex items-center justify-between">
             <span className="font-medium flex items-center">
               <DollarSign className="h-4 w-4 text-muted-foreground mr-1" />
@@ -149,6 +225,7 @@ export function MarketCard({ market }: { market: Market }) {
           </div>
         </div>
         <div className="grid grid-cols-2 gap-2 text-sm">
+          {/* Up Bets Sum */}
           <div className="flex items-center justify-between">
             <span className="font-medium flex items-center">
               <ArrowUp className="h-4 w-4 text-green-500 mr-1" />
@@ -156,6 +233,7 @@ export function MarketCard({ market }: { market: Market }) {
             </span>
             <span className="text-muted-foreground">{up_bets_sum}</span>
           </div>
+          {/* Down Bets Sum */}
           <div className="flex items-center justify-between">
             <span className="font-medium flex items-center">
               <ArrowDown className="h-4 w-4 text-red-500 mr-1" />
@@ -163,6 +241,7 @@ export function MarketCard({ market }: { market: Market }) {
             </span>
             <span className="text-muted-foreground">{down_bets_sum}</span>
           </div>
+          {/* Up Betters */}
           <div className="flex items-center justify-between">
             <span className="font-medium flex items-center">
               <Users className="h-4 w-4 text-muted-foreground mr-1" />
@@ -170,6 +249,7 @@ export function MarketCard({ market }: { market: Market }) {
             </span>
             <span className="text-muted-foreground">{up_bets.size}</span>
           </div>
+          {/* Down Betters */}
           <div className="flex items-center justify-between">
             <span className="font-medium flex items-center">
               <Users className="h-4 w-4 text-muted-foreground mr-1" />
@@ -178,45 +258,70 @@ export function MarketCard({ market }: { market: Market }) {
             <span className="text-muted-foreground">{down_bets.size}</span>
           </div>
         </div>
-        <form onSubmit={handleBet} className="space-y-4">
+        {/* Betting Form */}
+        <form onSubmit={handleSubmit(handleBet)} className="space-y-4">
           <div className="flex items-center space-x-4">
+            {/* Bet Direction */}
             <div className="flex items-center justify-between">
               <Label>Bet Direction</Label>
-              <RadioGroup
-                onValueChange={(value) =>
-                  setBetDirection(value as "up" | "down")
-                }
-                className="flex space-x-4"
-              >
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="up" id={`up-${key}`} />
-                  <Label htmlFor={`up-${key}`} className="flex items-center">
-                    <ArrowUp className="h-4 w-4 text-green-500 mr-1" />
-                    Up
-                  </Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="down" id={`down-${key}`} />
-                  <Label htmlFor={`down-${key}`} className="flex items-center">
-                    <ArrowDown className="h-4 w-4 text-red-500 mr-1" />
-                    Down
-                  </Label>
-                </div>
-              </RadioGroup>
+              <Controller
+                name="betDirection"
+                control={control}
+                defaultValue={undefined}
+                render={({ field }) => (
+                  <RadioGroup
+                    value={field.value}
+                    onValueChange={field.onChange}
+                    className="flex space-x-4"
+                  >
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="up" id={`up-${key}`} />
+                      <Label
+                        htmlFor={`up-${key}`}
+                        className="flex items-center"
+                      >
+                        <ArrowUp className="h-4 w-4 text-green-500 mr-1" />
+                        Up
+                      </Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="down" id={`down-${key}`} />
+                      <Label
+                        htmlFor={`down-${key}`}
+                        className="flex items-center"
+                      >
+                        <ArrowDown className="h-4 w-4 text-red-500 mr-1" />
+                        Down
+                      </Label>
+                    </div>
+                  </RadioGroup>
+                )}
+              />
             </div>
+            {errors.betDirection && (
+              <p className="text-red-500 text-sm">
+                {errors.betDirection.message}
+              </p>
+            )}
+            {/* Bet Amount */}
             <div className="space-y-2 flex-1">
               <Label htmlFor={`betAmount-${key}`}>Bet Amount</Label>
               <Input
                 id={`betAmount-${key}`}
                 type="number"
                 min={min_bet}
-                value={betAmount}
-                onChange={(e) => setBetAmount(Number(e.target.value))}
+                step="1"
+                {...register("betAmount")}
               />
+              {errors.betAmount && (
+                <p className="text-red-500 text-sm">
+                  {errors.betAmount.message}
+                </p>
+              )}
             </div>
           </div>
-          <Button type="submit" className="w-full">
-            Place Bet
+          <Button type="submit" className="w-full" disabled={isPending}>
+            {isPending ? "Placing Bet..." : "Place Bet"}
           </Button>
         </form>
         {message && <p className="text-sm text-muted-foreground">{message}</p>}
