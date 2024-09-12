@@ -1,11 +1,11 @@
 module panana::price_oracle {
     use std::signer;
     use std::string::String;
-    use aptos_framework::type_info;
     use panana::math128;
     use switchboard::aggregator;
     use switchboard::math;
-    use aptos_std::simple_map::{SimpleMap,Self};
+    use aptos_std::simple_map;
+    use panana::utils;
 
     const E_STORAGE_ALREADY_EXISTS: u64 = 0;        // Error when Storage already exists during initialization
     const E_WRONG_OWNER: u64 = 1;                   // Error when the signer is not the expected owner
@@ -20,13 +20,11 @@ module panana::price_oracle {
     struct USDC {}
     struct BTC {}
     struct ETH {}
-    
 
     struct Result has store, copy, drop {
         value: u128,
         dec: u8
     }
-
 
     struct Owner has store, copy, drop, key{
         a: address
@@ -49,39 +47,40 @@ module panana::price_oracle {
         result: u128
     }
 
-    fun owner(): address {
-        @owner
-    }
+    // TODO: remove this in the final product
+    fun init_module(sender: &signer) {
+        let aggregators = &mut simple_map::create<String, address>();
+        let results = &mut simple_map::create<String, Result>();
+        let key = utils::key<APT>();
+        simple_map::add(aggregators, key, @switchbaord_feed_apt);
+        simple_map::add(results, key, Result { value: 0, dec: 0 });
 
-    public entry fun get_owner(owner: &signer) {
-        move_to(owner, Owner{a: owner()});
+        move_to(sender, Storage {
+            aggregators: *aggregators,
+            results: *results
+        });
     }
-
 
     public entry fun initialize(owner: &signer) {
         assert!(!exists<Storage>(signer::address_of(owner)), E_STORAGE_ALREADY_EXISTS);
-        let aggregators: SimpleMap<String,address> = simple_map::create();
-        simple_map::add(&mut aggregators, key<APT>(), @switchbaord_feed_apt); 
-        simple_map::add(&mut aggregators, key<SOL>(), @switchbaord_feed_sol); 
-        simple_map::add(&mut aggregators, key<USDC>(), @switchbaord_feed_usdc); 
-        simple_map::add(&mut aggregators, key<BTC>(), @switchbaord_feed_btc); 
-        simple_map::add(&mut aggregators, key<ETH>(), @switchbaord_feed_eth); 
-
 
         move_to(owner, Storage {
-            aggregators,
+            aggregators: simple_map::create<String, address>(),
             results: simple_map::create<String, Result>()
-        })
-    }
+        });
 
-    fun key<C>(): String {
-        type_info::type_name<C>()
+        // TODO: remove this in the final product
+        // add_aggregator<APT>(owner, @switchbaord_feed_apt);
+        // add_aggregator<SOL>(owner, @switchbaord_feed_sol);
+        // add_aggregator<USDC>(owner, @switchbaord_feed_usdc);
+        // add_aggregator<BTC>(owner, @switchbaord_feed_btc);
+        // add_aggregator<ETH>(owner, @switchbaord_feed_eth);
     }
 
     public entry fun add_aggregator<C>(owner: &signer, aggregator: address) acquires Storage {
-        let owner_addr = owner();
+        let owner_addr = utils::owner();
         assert!(signer::address_of(owner) == owner_addr, E_WRONG_OWNER);
-        let key = key<C>();
+        let key = utils::key<C>();
         assert!(exists<Storage>(owner_addr), E_STORAGE_DOES_NOT_EXIST);
         assert!(!is_registered(key), E_AGGREGATOR_ALREADY_REGISTERED);
         let aggrs = &mut borrow_global_mut<Storage>(owner_addr).aggregators;
@@ -91,7 +90,7 @@ module panana::price_oracle {
     }
 
     fun is_registered(key: String): bool acquires Storage {
-        let storage_ref = borrow_global<Storage>(owner());
+        let storage_ref = borrow_global<Storage>(utils::owner());
         is_registered_internal(key, storage_ref)
     }
 
@@ -105,8 +104,8 @@ module panana::price_oracle {
         (value, dec)
     }
     fun price_internal(key: String): (u128, u8) acquires Storage {
-        let owner_addr = owner();
-        assert!(exists<Storage>(owner_addr), E_WRONG_OWNER);
+        let owner_addr = utils::owner();
+        assert!(exists<Storage>(owner_addr), E_STORAGE_DOES_NOT_EXIST);
         assert!(is_registered(key), E_ASSET_NOT_REGISTERED);
         let aggrs = &borrow_global<Storage>(owner_addr).aggregators;
         let aggregator_addr = simple_map::borrow<String, address>(aggrs, &key);
@@ -118,22 +117,22 @@ module panana::price_oracle {
         (value, dec)
     }
     public fun cached_price<C>(_account: &signer): (u128, u8) acquires Storage {
-        let results = &borrow_global<Storage>(owner()).results;
-        let result = simple_map::borrow(results, &key<C>());
+        let results = &borrow_global<Storage>(utils::owner()).results;
+        let result = simple_map::borrow(results, &utils::key<C>());
         (result.value, result.dec)
     }
     public fun cached_price_entry<C>(account: &signer) acquires Storage {
         cached_price<C>(account);
     }
     public fun price<C>(_account: &signer): (u128, u8) acquires Storage {
-        price_internal(key<C>())
+        price_internal(utils::key<C>())
     }
     public entry fun price_entry<C>(account: &signer) acquires Storage {
         price<C>(account);
     }
     
     public entry fun volume<C>(account: &signer, amount: u128) acquires Storage, Volume {
-        let (value, dec) = price_internal(key<C>());
+        let (value, dec) = price_internal(utils::key<C>());
         let numerator = amount * value;
         let result = numerator / math128::pow_10((dec as u128));
         let account_addr = signer::address_of(account);
@@ -152,7 +151,7 @@ module panana::price_oracle {
         };
     }
     public entry fun to_amount<C>(account: &signer, volume: u128) acquires Storage, Amount {
-        let (value, dec) = price_internal(key<C>());
+        let (value, dec) = price_internal(utils::key<C>());
         let numerator = volume * math128::pow_10((dec as u128));
         let result = numerator / value;
         let account_addr = signer::address_of(account);

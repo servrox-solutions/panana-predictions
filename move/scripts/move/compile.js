@@ -29,7 +29,8 @@ async function compile() {
   await move.compile({
     packageDirectoryPath: "move/contract",
     namedAddresses: {
-      owner: accountAddress
+      owner: accountAddress,
+      panana: accountAddress,
     },
     profile,
     // namedAddresses: {
