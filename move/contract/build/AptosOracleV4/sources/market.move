@@ -29,12 +29,12 @@ module panana::market {
 
     const MIN_OPEN_DURATION_SEC: u64 = 60 * 10; // minimum open duration for a market is 10 minutes
 
-    struct BetInfo has store {
+    struct BetInfo has store, drop {
         amount: u64,
         bet_up: bool, // true if the user is betting that the price will go up
     }
 
-    struct MarketFee has store {
+    struct MarketFee has store, drop {
         nominator: u64,
         denominator: u64,
     }
@@ -181,8 +181,6 @@ module panana::market {
 
         // Transfer amount to this contract as a bet deposit
         aptos_account::transfer(account, object::object_address(&market_obj), amount);
-        // Send Fees to marketplace
-        aptos_account::transfer(account, object::owner(market_obj), amount * market_ref.fee.nominator / market_ref.fee.denominator);
         if (bet_up) {
             market_ref.up_bets_sum = market_ref.up_bets_sum + amount;
         } else {
@@ -235,33 +233,50 @@ module panana::market {
         } else {
             &market_ref.down_bets
         };
+        let total_pool = market_ref.up_bets_sum + market_ref.down_bets_sum;
+        let winning_pool = if (price_up) market_ref.up_bets_sum else market_ref.down_bets_sum;
 
         // Distribute rewards
-        let total_bets = market_ref.down_bets_sum + market_ref.up_bets_sum;
+        // let total_bets = market_ref.down_bets_sum + market_ref.up_bets_sum;
 
-        distribute_rewards(market_addr, winners, total_bets);
+        distribute_rewards(market_addr, winners, total_pool, winning_pool, &market_ref.fee);
 
         // TODO: decide if we want to keep the old markets or delete them
         // Destroy the market
         // move_from<Market>();
     }
 
-    fun distribute_rewards(market_addr: address, winners: &simple_map::SimpleMap<address, BetInfo>, total_bets: u64) acquires ObjectController {
+    fun distribute_rewards(market_addr: address, winners: &simple_map::SimpleMap<address, BetInfo>, total_pool: u64, winning_pool: u64, fee: &MarketFee) acquires ObjectController {
+        let market_extend_ref = &borrow_global<ObjectController>(market_addr).extend_ref;
+        let market_signer = object::generate_signer_for_extending(market_extend_ref);
+
+        calculate_and_send_rewards(winners, total_pool, winning_pool, fee, |winner, amount, idx| coin::transfer<AptosCoin>(&market_signer, winner, amount));
+
+        // Send remaining balance (=fees) to marketplace
+        let remaining_balance = coin::balance<AptosCoin>(market_addr);
+        let market_obj = object::address_to_object<ObjectCore>(market_addr);
+        aptos_account::transfer(&market_signer, object::owner(market_obj), remaining_balance);
+    }
+
+    inline fun calculate_and_send_rewards(winners: &simple_map::SimpleMap<address, BetInfo>, total_pool: u64, winning_pool: u64, fee: &MarketFee, payout: |address, u64, u64|) {
         let keys = simple_map::keys(winners);
         let len = vector::length(&keys);
         let i = 0;
-
         // Reward each winner proportionally to their bet
         while (i < len) {
             let winner_addr = *vector::borrow(&keys, i);
             let bet_info = simple_map::borrow(winners, &winner_addr);
-            let reward = bet_info.amount * total_bets / bet_info.amount;
 
-            let market_extend_ref = &borrow_global<ObjectController>(market_addr).extend_ref;
-            let market_signer = object::generate_signer_for_extending(market_extend_ref);
-            coin::transfer<AptosCoin>(&market_signer, winner_addr, reward);
+            let scale: u256 = 100_000_000_000;
+            let scaled_bet_amount = (bet_info.amount as u256) * scale;
+            let fractional_reward = scaled_bet_amount / (winning_pool as u256);
+            let reward_before_fee = ((fractional_reward * (total_pool as u256) / scale) as u64);
+
+            let reward_after_fee = reward_before_fee - (reward_before_fee * fee.nominator / fee.denominator);
+
+            payout(winner_addr, reward_after_fee, i);
             i = i + 1;
-        }
+        };
     }
 
     #[test_only]
@@ -435,7 +450,6 @@ module panana::market {
         assert!(created_market.up_bets_sum == min_bet, 2);
         assert!(created_market.down_bets_sum == 0, 3);
         assert!(coin::balance<AptosCoin>(*created_market_address) == min_bet, 12);
-        assert!(coin::balance<AptosCoin>(marketplace_address) == 200, 13);
 
         place_bet(user2, market_object, false, min_bet + 1);
         let created_market = borrow_global<Market>(*created_market_address);
@@ -445,7 +459,6 @@ module panana::market {
         assert!(created_market.down_bets_sum == min_bet + 1, 6);
         assert!(created_market.up_bets_sum == min_bet, 7);
         assert!(coin::balance<AptosCoin>(*created_market_address) == min_bet + min_bet + 1, 14);
-        assert!(coin::balance<AptosCoin>(marketplace_address) == (min_bet + min_bet + 1) * fee_nominator / fee_denominator, 15);
 
 
         // if user bets twice, the amounts should be added
@@ -457,7 +470,6 @@ module panana::market {
         assert!(created_market.up_bets_sum == min_bet * 2, 10);
         assert!(created_market.down_bets_sum == min_bet + 1, 11);
         assert!(coin::balance<AptosCoin>(*created_market_address) == (min_bet * 2) + min_bet + 1, 14);
-        assert!(coin::balance<AptosCoin>(marketplace_address) == (min_bet * 2 + min_bet + 1) * fee_nominator / fee_denominator, 15);
     }
 
     #[expected_failure(abort_code = E_BET_TOO_LOW)]
@@ -588,7 +600,7 @@ module panana::market {
     }
 
     #[test(aptos_framework = @aptos_framework, owner = @0x100, user = @0x200, user2 = @0x300, apt_aggr = @0x111AAA)]
-    fun test_marketplace_payout(owner: &signer, aptos_framework: &signer, user: &signer, user2: &signer, apt_aggr: &signer) acquires Marketplace, Market, ObjectController {
+    fun test_marketplace_payout(owner: &signer, aptos_framework: &signer, user: &signer, user2: &signer, apt_aggr: &signer) acquires Marketplace, ObjectController {
         account::create_account_for_test(signer::address_of(aptos_framework));
         block::initialize_for_test(aptos_framework, 1);
         timestamp::set_time_has_started_for_testing(aptos_framework);
@@ -614,11 +626,9 @@ module panana::market {
         coin::destroy_burn_cap(burn);
         coin::destroy_mint_cap(mint);
 
-        place_bet(user, market_object, true, min_bet);
-        assert!(coin::balance<AptosCoin>(signer::address_of(user2)) == 0, 1);
-        assert!(coin::balance<AptosCoin>(marketplace_address) != 0, 2);
+        aptos_account::transfer(user, marketplace_address, 1234);
         payout_marketplace(owner, object::address_to_object<Marketplace<APT>>(marketplace_address), signer::address_of(user2));
-        assert!(coin::balance<AptosCoin>(signer::address_of(user2)) == min_bet * fee_nominator / fee_denominator, 3);
+        assert!(coin::balance<AptosCoin>(signer::address_of(user2)) == 1234, 3);
         assert!(coin::balance<AptosCoin>(marketplace_address) == 0, 4);
     }
 
@@ -784,45 +794,96 @@ module panana::market {
 
         let (burn, mint) = initialize_for_test(aptos_framework);
         let coins = coin::mint<AptosCoin>(1000000000, &mint);
+        let coins2 = coin::mint<AptosCoin>(2000000000, &mint);
         aptos_account::deposit_coins(signer::address_of(user), coins);
-        aptos_account::create_account(signer::address_of(user2));
+        aptos_account::deposit_coins(signer::address_of(user2), coins2);
 
         coin::destroy_burn_cap(burn);
         coin::destroy_mint_cap(mint);
 
+        place_bet(user, market_object, true, 1000000000);
+        place_bet(user2, market_object, false, 2000000000);
+
         timestamp::fast_forward_seconds(MIN_OPEN_DURATION_SEC + 1);
         resolve_market<APT>(user, market_object);
+
+        assert!(coin::balance<AptosCoin>(signer::address_of(user)) == 0, 1);
+        assert!(coin::balance<AptosCoin>(signer::address_of(user2)) == 2700000000, 2);
+        assert!(coin::balance<AptosCoin>(marketplace_address) == 300000000, 3);
     }
 
-    // #[expected_failure(abort_code = E_MARKET_STILL_OPEN)]
-    // #[test(aptos_framework = @aptos_framework, owner = @0x100, user = @0x200, user2 = @0x300, apt_aggr = @0x111AAA)]
-    // fun test_resolve_market_still_open(owner: &signer, aptos_framework: &signer, user: &signer, user2: &signer, apt_aggr: &signer) acquires Marketplace, Market, ObjectController {
-    //     account::create_account_for_test(signer::address_of(aptos_framework));
-    //     block::initialize_for_test(aptos_framework, 1);
-    //     timestamp::set_time_has_started_for_testing(aptos_framework);
-    //
-    //     let start_price = 100;
-    //     let marketplace_address = init_marketplace<APT>(owner, apt_aggr, start_price);
-    //     debug::print(&marketplace_address);
-    //     let min_bet = 2000;
-    //     let end_time = MIN_OPEN_DURATION_SEC;
-    //     let fee_nominator = 10;
-    //     let fee_denominator = 100;
-    //     create_market<APT>(owner, end_time, min_bet, fee_nominator, fee_denominator);
-    //
-    //     let open_markets = open_markets<APT>(marketplace_address);
-    //     let created_market_address = vector::borrow(&open_markets, 0);
-    //     let market_object = object::address_to_object<Market>(*created_market_address);
-    //
-    //     let (burn, mint) = initialize_for_test(aptos_framework);
-    //     let coins = coin::mint<AptosCoin>(1000000000, &mint);
-    //     aptos_account::deposit_coins(signer::address_of(user), coins);
-    //     aptos_account::create_account(signer::address_of(user2));
-    //
-    //     coin::destroy_burn_cap(burn);
-    //     coin::destroy_mint_cap(mint);
-    //
-    //     timestamp::fast_forward_seconds(MIN_OPEN_DURATION_SEC);
-    //     resolve_market<APT>(user, market_object);
-    // }
+    #[test]
+    fun test_calculate_and_send_rewards() {
+        let winners = simple_map::create<address, BetInfo>();
+        simple_map::add(&mut winners, @0xA, BetInfo{amount: 100000000, bet_up: true});
+        simple_map::add(&mut winners, @0xB, BetInfo{amount: 200000000, bet_up: true});
+        simple_map::add(&mut winners, @0xC, BetInfo{amount: 300000000, bet_up: true});
+        simple_map::add(&mut winners, @0xD, BetInfo{amount: 400000000, bet_up: true});
+        simple_map::add(&mut winners, @0xE, BetInfo{amount: 500000000, bet_up: true});
+
+
+        let winning_pool = 1500000000;
+        let total_pool = 2400000000;
+
+
+        let expected_winners  = simple_map::keys(&winners);
+        let expected_payout  = &mut vector::empty<u64>();
+        vector::push_back(expected_payout, 156800000);
+        vector::push_back(expected_payout, 313600000);
+        vector::push_back(expected_payout, 470400000);
+        vector::push_back(expected_payout, 627200000);
+        vector::push_back(expected_payout, 784000000);
+
+        calculate_and_send_rewards(&winners, total_pool, winning_pool, &MarketFee {
+            nominator: 2,
+            denominator: 100,
+        }, |winner, payout, idx| {
+            assert!(*vector::borrow(&expected_winners, idx) == winner, 0);
+            assert!(*vector::borrow(expected_payout, idx) == payout, 1);
+        });
+    }
+
+    #[test]
+    fun test_calculate_and_send_rewards_no_opponent() {
+        let winners = simple_map::create<address, BetInfo>();
+        simple_map::add(&mut winners, @0xA, BetInfo{amount: 100000000000000, bet_up: true});
+
+        let winning_pool = 100000000000000;
+        let total_pool = 100000000000000;
+
+        let expected_winners  = simple_map::keys(&winners);
+        let expected_payout  = &mut vector::empty<u64>();
+        vector::push_back(expected_payout, 98000000000000);
+
+        calculate_and_send_rewards(&winners, total_pool, winning_pool, &MarketFee {
+            nominator: 2,
+            denominator: 100,
+        }, |winner, payout, idx| {
+            assert!(*vector::borrow(&expected_winners, idx) == winner, 0);
+            assert!(*vector::borrow(expected_payout, idx) == payout, 1);
+        });
+    }
+
+    #[test]
+    fun test_calculate_and_send_rewards_no_opponent_two_players() {
+        let winners = simple_map::create<address, BetInfo>();
+        simple_map::add(&mut winners, @0xA, BetInfo{amount: 100000000000, bet_up: true});
+        simple_map::add(&mut winners, @0xB, BetInfo{amount: 200000000000, bet_up: true});
+
+        let winning_pool = 300000000000;
+        let total_pool = 300000000000;
+
+        let expected_winners  = simple_map::keys(&winners);
+        let expected_payout  = &mut vector::empty<u64>();
+        vector::push_back(expected_payout, 98000000000);
+        vector::push_back(expected_payout, 195999999999); // scaling floating point issue with big numbers
+
+        calculate_and_send_rewards(&winners, total_pool, winning_pool, &MarketFee {
+            nominator: 2,
+            denominator: 100,
+        }, |winner, payout, idx| {
+            assert!(*vector::borrow(&expected_winners, idx) == winner, 0);
+            assert!(*vector::borrow(expected_payout, idx) == payout, 1);
+        });
+    }
 }
