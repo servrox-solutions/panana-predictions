@@ -1,9 +1,9 @@
-import MarketComponent from "@/components/market-card";
+import MarketOrganizer from "@/components/market-organizer";
 
 export default function Markets() {
   return (
     <div className="pl-4">
-      <MarketComponent />
+      <MarketOrganizer />
     </div>
   );
 }

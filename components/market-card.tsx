@@ -13,53 +13,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Clock, DollarSign, ArrowUp, ArrowDown, Users } from "lucide-react";
+import { Market } from "./types/market";
+import { TruncatedText } from "./truncated-text";
 
-interface BetInfo {
-  amount: number;
-  timestamp: number;
-}
-
-interface Market {
-  key: string;
-  store: {
-    start_price: bigint;
-    start_time: number;
-    end_time: number;
-    min_bet: number;
-    up_bets_sum: number;
-    down_bets_sum: number;
-    up_bets: Map<string, BetInfo>;
-    down_bets: Map<string, BetInfo>;
-  };
-}
-
-const defaultMarket: Market = {
-  key: "SAMPLE_MARKET_001",
-  store: {
-    start_price: BigInt("1000000000000000000"),
-    start_time: Date.now() / 1000 - 3600, // 1 hour ago
-    end_time: Date.now() / 1000 + 3600, // 1 hour from now
-    min_bet: 100,
-    up_bets_sum: 5000,
-    down_bets_sum: 4500,
-    up_bets: new Map([
-      ["0x123", { amount: 1000, timestamp: Date.now() / 1000 - 1800 }],
-      ["0x456", { amount: 2000, timestamp: Date.now() / 1000 - 900 }],
-    ]),
-    down_bets: new Map([
-      ["0x789", { amount: 1500, timestamp: Date.now() / 1000 - 2700 }],
-      ["0xabc", { amount: 1000, timestamp: Date.now() / 1000 - 1350 }],
-    ]),
-  },
-};
-
-export default function MarketComponent({
-  market = defaultMarket,
-}: {
-  market?: Market;
-}) {
+export function MarketCard({ market }: { market: Market }) {
   const {
     key,
+    tradingPair,
     store: {
       start_price,
       start_time,
@@ -86,79 +46,93 @@ export default function MarketComponent({
       setMessage(`Bet amount must be at least ${min_bet}`);
       return;
     }
-    setMessage(`Placed a ${betDirection} bet of ${betAmount}`);
-    // Here you would typically call an API to place the bet
+    setMessage(`Placed a ${betDirection} bet of ${betAmount} on market ${key}`);
   };
 
   return (
-    <Card className="w-full max-w-2xl">
+    <Card className="w-full">
       <CardHeader>
-        <CardTitle>Market: {key}</CardTitle>
+        <CardTitle className="flex justify-between items-center">
+          <span>Market: {key}</span>
+          <span className="text-lg font-semibold bg-primary text-primary-foreground px-2 py-1 rounded">
+            {tradingPair}
+          </span>
+        </CardTitle>
         <CardDescription>
           Market details and betting information
         </CardDescription>
       </CardHeader>
-      <CardContent className="grid gap-6">
-        <div className="grid grid-cols-2 gap-4">
-          <div className="flex items-center space-x-2">
-            <DollarSign className="h-4 w-4 text-muted-foreground" />
-            <span className="text-sm font-medium">Start Price:</span>
-            <span className="text-sm text-muted-foreground">
-              {start_price.toString()}
+      <CardContent className="grid gap-4">
+        <div className="grid grid-cols-2 gap-2 text-sm">
+          <div className="flex items-center justify-between">
+            <span className="font-medium flex items-center">
+              <DollarSign className="h-4 w-4 text-muted-foreground mr-1" />
+              Start Price:
+            </span>
+            <span className="text-muted-foreground">
+              <TruncatedText text={start_price.toString()} maxLength={15} />
             </span>
           </div>
-          <div className="flex items-center space-x-2">
-            <Clock className="h-4 w-4 text-muted-foreground" />
-            <span className="text-sm font-medium">Start Time:</span>
-            <span className="text-sm text-muted-foreground">
-              {new Date(start_time * 1000).toLocaleString()}
+          <div className="flex items-center justify-between">
+            <span className="font-medium flex items-center">
+              <Clock className="h-4 w-4 text-muted-foreground mr-1" />
+              Start Time:
+            </span>
+            <span className="text-muted-foreground">
+              <TruncatedText
+                text={new Date(start_time * 1000).toLocaleString()}
+                maxLength={20}
+              />
             </span>
           </div>
-          <div className="flex items-center space-x-2">
-            <Clock className="h-4 w-4 text-muted-foreground" />
-            <span className="text-sm font-medium">End Time:</span>
-            <span className="text-sm text-muted-foreground">
-              {new Date(end_time * 1000).toLocaleString()}
+          <div className="flex items-center justify-between">
+            <span className="font-medium flex items-center">
+              <Clock className="h-4 w-4 text-muted-foreground mr-1" />
+              End Time:
+            </span>
+            <span className="text-muted-foreground">
+              <TruncatedText
+                text={new Date(end_time * 1000).toLocaleString()}
+                maxLength={20}
+              />
             </span>
           </div>
-          <div className="flex items-center space-x-2">
-            <DollarSign className="h-4 w-4 text-muted-foreground" />
-            <span className="text-sm font-medium">Minimum Bet:</span>
-            <span className="text-sm text-muted-foreground">{min_bet}</span>
+          <div className="flex items-center justify-between">
+            <span className="font-medium flex items-center">
+              <DollarSign className="h-4 w-4 text-muted-foreground mr-1" />
+              Minimum Bet:
+            </span>
+            <span className="text-muted-foreground">{min_bet}</span>
           </div>
         </div>
-        <div className="grid grid-cols-2 gap-4">
-          <div className="flex flex-col space-y-2">
-            <div className="flex items-center space-x-2">
-              <ArrowUp className="h-4 w-4 text-green-500" />
-              <span className="text-sm font-medium">Up Bets Sum:</span>
-              <span className="text-sm text-muted-foreground">
-                {up_bets_sum}
-              </span>
-            </div>
-            <div className="flex items-center space-x-2">
-              <Users className="h-4 w-4 text-muted-foreground" />
-              <span className="text-sm font-medium">Up Betters:</span>
-              <span className="text-sm text-muted-foreground">
-                {up_bets.size}
-              </span>
-            </div>
+        <div className="grid grid-cols-2 gap-2 text-sm">
+          <div className="flex items-center justify-between">
+            <span className="font-medium flex items-center">
+              <ArrowUp className="h-4 w-4 text-green-500 mr-1" />
+              Up Bets Sum:
+            </span>
+            <span className="text-muted-foreground">{up_bets_sum}</span>
           </div>
-          <div className="flex flex-col space-y-2">
-            <div className="flex items-center space-x-2">
-              <ArrowDown className="h-4 w-4 text-red-500" />
-              <span className="text-sm font-medium">Down Bets Sum:</span>
-              <span className="text-sm text-muted-foreground">
-                {down_bets_sum}
-              </span>
-            </div>
-            <div className="flex items-center space-x-2">
-              <Users className="h-4 w-4 text-muted-foreground" />
-              <span className="text-sm font-medium">Down Betters:</span>
-              <span className="text-sm text-muted-foreground">
-                {down_bets.size}
-              </span>
-            </div>
+          <div className="flex items-center justify-between">
+            <span className="font-medium flex items-center">
+              <ArrowDown className="h-4 w-4 text-red-500 mr-1" />
+              Down Bets Sum:
+            </span>
+            <span className="text-muted-foreground">{down_bets_sum}</span>
+          </div>
+          <div className="flex items-center justify-between">
+            <span className="font-medium flex items-center">
+              <Users className="h-4 w-4 text-muted-foreground mr-1" />
+              Up Betters:
+            </span>
+            <span className="text-muted-foreground">{up_bets.size}</span>
+          </div>
+          <div className="flex items-center justify-between">
+            <span className="font-medium flex items-center">
+              <Users className="h-4 w-4 text-muted-foreground mr-1" />
+              Down Betters:
+            </span>
+            <span className="text-muted-foreground">{down_bets.size}</span>
           </div>
         </div>
         <form onSubmit={handleBet} className="space-y-4">
@@ -172,15 +146,15 @@ export default function MarketComponent({
                 className="flex space-x-4"
               >
                 <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="up" id="up" />
-                  <Label htmlFor="up" className="flex items-center">
+                  <RadioGroupItem value="up" id={`up-${key}`} />
+                  <Label htmlFor={`up-${key}`} className="flex items-center">
                     <ArrowUp className="h-4 w-4 text-green-500 mr-1" />
                     Up
                   </Label>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="down" id="down" />
-                  <Label htmlFor="down" className="flex items-center">
+                  <RadioGroupItem value="down" id={`down-${key}`} />
+                  <Label htmlFor={`down-${key}`} className="flex items-center">
                     <ArrowDown className="h-4 w-4 text-red-500 mr-1" />
                     Down
                   </Label>
@@ -188,9 +162,9 @@ export default function MarketComponent({
               </RadioGroup>
             </div>
             <div className="space-y-2 flex-1">
-              <Label htmlFor="betAmount">Bet Amount</Label>
+              <Label htmlFor={`betAmount-${key}`}>Bet Amount</Label>
               <Input
-                id="betAmount"
+                id={`betAmount-${key}`}
                 type="number"
                 min={min_bet}
                 value={betAmount}
