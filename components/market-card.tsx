@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Card,
   CardContent,
@@ -8,13 +8,35 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Button } from "@/components/ui/button";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { Clock, DollarSign, ArrowUp, ArrowDown, Users } from "lucide-react";
-import { Market } from "./types/market";
 import { TruncatedText } from "./truncated-text";
+import { Market } from "./types/market";
+
+function formatDuration(seconds: number): string {
+  const absSeconds = Math.abs(seconds);
+  const days = Math.floor(absSeconds / 86400);
+  const hours = Math.floor((absSeconds % 86400) / 3600);
+  const minutes = Math.floor((absSeconds % 3600) / 60);
+  const remainingSeconds = Math.floor(absSeconds % 60);
+
+  const parts = [];
+  if (days > 0) parts.push(`${days}d`);
+  if (hours > 0) parts.push(`${hours}h`);
+  if (minutes > 0) parts.push(`${minutes}m`);
+  if (remainingSeconds > 0 || parts.length === 0)
+    parts.push(`${remainingSeconds}s`);
+
+  return parts.join(" ");
+}
 
 export function MarketCard({ market }: { market: Market }) {
   const {
@@ -35,6 +57,12 @@ export function MarketCard({ market }: { market: Market }) {
   const [betDirection, setBetDirection] = useState<"up" | "down" | null>(null);
   const [betAmount, setBetAmount] = useState<number>(min_bet);
   const [message, setMessage] = useState<string | null>(null);
+  const [now, setNow] = useState(Date.now() / 1000);
+
+  useEffect(() => {
+    const timer = setInterval(() => setNow(Date.now() / 1000), 1000);
+    return () => clearInterval(timer);
+  }, []);
 
   const handleBet = (e: React.FormEvent) => {
     e.preventDefault();
@@ -48,6 +76,9 @@ export function MarketCard({ market }: { market: Market }) {
     }
     setMessage(`Placed a ${betDirection} bet of ${betAmount} on market ${key}`);
   };
+
+  const startDiff = start_time - now;
+  const endDiff = end_time - now;
 
   return (
     <Card className="w-full">
@@ -67,42 +98,54 @@ export function MarketCard({ market }: { market: Market }) {
           <div className="flex items-center justify-between">
             <span className="font-medium flex items-center">
               <DollarSign className="h-4 w-4 text-muted-foreground mr-1" />
-              Start Price:
+              Start Price
             </span>
-            <span className="text-muted-foreground">
+            <span className="text-muted-foreground block">
               <TruncatedText text={start_price.toString()} maxLength={15} />
             </span>
           </div>
           <div className="flex items-center justify-between">
             <span className="font-medium flex items-center">
               <Clock className="h-4 w-4 text-muted-foreground mr-1" />
-              Start Time:
+              Start
             </span>
-            <span className="text-muted-foreground">
-              <TruncatedText
-                text={new Date(start_time * 1000).toLocaleString()}
-                maxLength={20}
-              />
-            </span>
+            <Popover>
+              <PopoverTrigger asChild>
+                <span className="text-muted-foreground block cursor-help underline decoration-dotted">
+                  {startDiff > 0
+                    ? `In ${formatDuration(startDiff)}`
+                    : `${formatDuration(startDiff)} ago`}
+                </span>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto">
+                {new Date(start_time * 1000).toLocaleString()}
+              </PopoverContent>
+            </Popover>
           </div>
           <div className="flex items-center justify-between">
             <span className="font-medium flex items-center">
               <Clock className="h-4 w-4 text-muted-foreground mr-1" />
-              End Time:
+              End
             </span>
-            <span className="text-muted-foreground">
-              <TruncatedText
-                text={new Date(end_time * 1000).toLocaleString()}
-                maxLength={20}
-              />
-            </span>
+            <Popover>
+              <PopoverTrigger asChild>
+                <span className="text-muted-foreground block cursor-help underline decoration-dotted">
+                  {endDiff > 0
+                    ? `In ${formatDuration(endDiff)}`
+                    : `${formatDuration(endDiff)} ago`}
+                </span>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto">
+                {new Date(end_time * 1000).toLocaleString()}
+              </PopoverContent>
+            </Popover>
           </div>
           <div className="flex items-center justify-between">
             <span className="font-medium flex items-center">
               <DollarSign className="h-4 w-4 text-muted-foreground mr-1" />
-              Minimum Bet:
+              Minimum Bet
             </span>
-            <span className="text-muted-foreground">{min_bet}</span>
+            <span className="text-muted-foreground block">{min_bet}</span>
           </div>
         </div>
         <div className="grid grid-cols-2 gap-2 text-sm">
@@ -137,7 +180,7 @@ export function MarketCard({ market }: { market: Market }) {
         </div>
         <form onSubmit={handleBet} className="space-y-4">
           <div className="flex items-center space-x-4">
-            <div className="space-y-2">
+            <div className="flex items-center justify-between">
               <Label>Bet Direction</Label>
               <RadioGroup
                 onValueChange={(value) =>
