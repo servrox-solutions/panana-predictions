@@ -18,7 +18,7 @@ import {
   BreadcrumbPage,
 } from "./ui/breadcrumb";
 import { Button } from "./ui/button";
-import { WalletSelector } from "./use-cases/wallet-connect";
+import { WalletSelector } from "./wallet-connect";
 import { SidenavMobile } from "./sidenav/sidenav-mobile";
 import EmojiCanvas from "./emoji-canvas";
 

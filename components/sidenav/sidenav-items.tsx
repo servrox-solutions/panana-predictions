@@ -1,4 +1,10 @@
-import { Home, LineChart, Medal, FlaskConical } from "lucide-react";
+import {
+  Home,
+  LineChart,
+  Medal,
+  FlaskConical,
+  ChartCandlestick,
+} from "lucide-react";
 
 export interface SidenavItem {
   name: string;
@@ -11,6 +17,11 @@ export const sidenavItems: SidenavItem[] = [
     name: "Dashboard",
     icon: <Home />,
     path: "/",
+  },
+  {
+    name: "Markets",
+    icon: <ChartCandlestick />,
+    path: "/markets",
   },
   {
     name: "Analytics",

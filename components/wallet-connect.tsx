@@ -23,25 +23,25 @@ import {
 } from "lucide-react";
 import { useCallback, useState } from "react";
 import { toast } from "react-toastify";
-import { Button } from "../ui/button";
+import { Button } from "./ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "../ui/dropdown-menu";
+} from "./ui/dropdown-menu";
 import {
   DialogHeader,
   Dialog,
   DialogTrigger,
   DialogContent,
   DialogTitle,
-} from "../ui/dialog";
+} from "./ui/dialog";
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
-} from "../ui/collapsible";
+} from "./ui/collapsible";
 
 export function WalletSelector() {
   const { account, connected, disconnect, wallet } = useWallet();
@@ -113,7 +113,10 @@ function ConnectWalletDialog({ close }: ConnectWalletDialogProps) {
   const isPublicMintPage = true;
 
   return (
-    <DialogContent className="max-h-screen overflow-auto bg-white">
+    <DialogContent
+      className="max-h-screen overflow-auto backdrop-blur-md"
+      aria-describedby="Connect Wallet Dialog"
+    >
       <AboutAptosConnect renderEducationScreen={renderEducationScreen}>
         {/* AptosConnect does not support file uploads, so we only show it on the public mint page when people want to mint an NFT */}
         {isPublicMintPage ? (
