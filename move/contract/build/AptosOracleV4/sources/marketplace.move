@@ -18,7 +18,7 @@ module panana::marketplace {
     const E_UNAUTHORIZED: u64 = 1; // Error when the user is not authorized to perform an action
 
     struct Marketplace<phantom C> has key {
-        open_markets: vector<address> // contains all addresses of open markets
+        available_markets: vector<address> // contains all addresses of running and open markets
     }
 
     #[resource_group_member(group = aptos_framework::object::ObjectGroup)]
@@ -27,8 +27,8 @@ module panana::marketplace {
     }
 
     #[view]
-    public fun open_markets<C>(marketplace_address: address): vector<address> acquires Marketplace {
-        borrow_global<Marketplace<C>>(marketplace_address).open_markets
+    public fun available_markets<C>(marketplace_address: address): vector<address> acquires Marketplace {
+        borrow_global<Marketplace<C>>(marketplace_address).available_markets
     }
 
     #[view]
@@ -37,12 +37,13 @@ module panana::marketplace {
     }
 
     public(friend) fun add_open_market<C>(marketplace_address: address, market_addres: address) acquires Marketplace {
-        let open_markets = &mut borrow_global_mut<Marketplace<C>>(marketplace_address).open_markets;
+        let open_markets = &mut borrow_global_mut<Marketplace<C>>(marketplace_address).available_markets;
+        // TODO: check that every market exists only once and cannot be added multiple times
         vector::push_back(open_markets, market_addres);
     }
 
     public(friend) fun remove_open_market<C>(marketplace_address: address, market_address: address) acquires Marketplace {
-        let open_markets = &mut borrow_global_mut<Marketplace<C>>(marketplace_address).open_markets;
+        let open_markets = &mut borrow_global_mut<Marketplace<C>>(marketplace_address).available_markets;
         vector::remove_value(open_markets, &market_address);
     }
 
@@ -64,7 +65,7 @@ module panana::marketplace {
         move_to(
             marketplace_signer,
             Marketplace<C> {
-                open_markets: vector::empty<address>()
+                available_markets: vector::empty<address>()
             }
         );
 

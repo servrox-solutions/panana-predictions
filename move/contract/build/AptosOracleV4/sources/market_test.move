@@ -63,21 +63,21 @@ module panana::market_test {
         let fee_denominator = 100;
         market::create_market<APT>(owner, object::address_to_object<marketplace::Marketplace<APT>>(marketplace_address), end_time, min_bet, fee_nominator, fee_denominator);
 
-        let open_markets = marketplace::open_markets<APT>(marketplace_address);
+        let open_markets = marketplace::available_markets<APT>(marketplace_address);
         assert!(vector::length(&open_markets) == 1, 1);
         let created_market_address = vector::borrow(&open_markets, 0);
 
-        let (market_fee_nominator, market_fee_denominator) = market::fee(*created_market_address);
-        assert!(market::min_bet(*created_market_address) == min_bet, 2);
-        assert!(market::end_time(*created_market_address) == end_time, 3);
-        assert!(market::up_bets_sum(*created_market_address) == 0, 4);
-        assert!(market::down_bets_sum(*created_market_address) == 0, 5);
-        assert!(market::up_bets(*created_market_address) == 0, 6);
-        assert!(market::down_bets(*created_market_address) == 0, 7);
+        let (market_fee_nominator, market_fee_denominator) = market::fee<APT>(*created_market_address);
+        assert!(market::min_bet<APT>(*created_market_address) == min_bet, 2);
+        assert!(market::end_time<APT>(*created_market_address) == end_time, 3);
+        assert!(market::up_bets_sum<APT>(*created_market_address) == 0, 4);
+        assert!(market::down_bets_sum<APT>(*created_market_address) == 0, 5);
+        assert!(market::up_bets<APT>(*created_market_address) == 0, 6);
+        assert!(market::down_bets<APT>(*created_market_address) == 0, 7);
         assert!(market_fee_nominator == fee_nominator, 8);
         assert!(market_fee_denominator == fee_denominator, 9);
-        assert!(market::start_time(*created_market_address) == 0, 10);
-        assert!(market::start_price(*created_market_address) == start_price, 11);
+        assert!(market::start_time<APT>(*created_market_address) == 0, 10);
+        assert!(market::start_price<APT>(*created_market_address) == start_price, 11);
 
     }
 
@@ -131,9 +131,9 @@ module panana::market_test {
         let fee_denominator = 100;
         market::create_market<APT>(owner, object::address_to_object<marketplace::Marketplace<APT>>(marketplace_address), end_time, min_bet, fee_nominator, fee_denominator);
 
-        let open_markets = marketplace::open_markets<APT>(marketplace_address);
+        let open_markets = marketplace::available_markets<APT>(marketplace_address);
         let created_market_address = vector::borrow(&open_markets, 0);
-        let market_object = object::address_to_object<market::Market>(*created_market_address);
+        let market_object = object::address_to_object<market::Market<APT>>(*created_market_address);
 
         let (burn, mint) = initialize_for_test(aptos_framework);
         let coins = coin::mint<AptosCoin>(1000000000, &mint);
@@ -162,9 +162,9 @@ module panana::market_test {
         let fee_denominator = 100;
         market::create_market<APT>(owner, object::address_to_object<marketplace::Marketplace<APT>>(marketplace_address), end_time, min_bet, fee_nominator, fee_denominator);
 
-        let open_markets = marketplace::open_markets<APT>(marketplace_address);
+        let open_markets = marketplace::available_markets<APT>(marketplace_address);
         let created_market_address = vector::borrow(&open_markets, 0);
-        let market_object = object::address_to_object<market::Market>(*created_market_address);
+        let market_object = object::address_to_object<market::Market<APT>>(*created_market_address);
 
         let (burn, mint) = initialize_for_test(aptos_framework);
         let coins = coin::mint<AptosCoin>(1000000000, &mint);
@@ -194,9 +194,9 @@ module panana::market_test {
         let fee_denominator = 100;
         market::create_market<APT>(owner, object::address_to_object<marketplace::Marketplace<APT>>(marketplace_address), end_time, min_bet, fee_nominator, fee_denominator);
 
-        let open_markets = marketplace::open_markets<APT>(marketplace_address);
+        let open_markets = marketplace::available_markets<APT>(marketplace_address);
         let created_market_address = vector::borrow(&open_markets, 0);
-        let market_object = object::address_to_object<market::Market>(*created_market_address);
+        let market_object = object::address_to_object<market::Market<APT>>(*created_market_address);
 
         let (burn, mint) = initialize_for_test(aptos_framework);
         let coins = coin::mint<AptosCoin>(1000000000, &mint);
@@ -226,9 +226,9 @@ module panana::market_test {
         let fee_denominator = 100;
         market::create_market<APT>(owner, object::address_to_object<marketplace::Marketplace<APT>>(marketplace_address), end_time, min_bet, fee_nominator, fee_denominator);
 
-        let open_markets = marketplace::open_markets<APT>(marketplace_address);
+        let open_markets = marketplace::available_markets<APT>(marketplace_address);
         let created_market_address = vector::borrow(&open_markets, 0);
-        let market_object = object::address_to_object<market::Market>(*created_market_address);
+        let market_object = object::address_to_object<market::Market<APT>>(*created_market_address);
 
         let (burn, mint) = initialize_for_test(aptos_framework);
         let coins = coin::mint<AptosCoin>(1000000000, &mint);
@@ -257,9 +257,9 @@ module panana::market_test {
         let fee_denominator = 100;
         market::create_market<APT>(owner, object::address_to_object<marketplace::Marketplace<APT>>(marketplace_address), end_time, min_bet, fee_nominator, fee_denominator);
 
-        let open_markets = marketplace::open_markets<APT>(marketplace_address);
+        let open_markets = marketplace::available_markets<APT>(marketplace_address);
         let created_market_address = vector::borrow(&open_markets, 0);
-        let market_object = object::address_to_object<market::Market>(*created_market_address);
+        let market_object = object::address_to_object<market::Market<APT>>(*created_market_address);
 
         let (burn, mint) = initialize_for_test(aptos_framework);
         let coins = coin::mint<AptosCoin>(1000000000, &mint);
@@ -275,81 +275,7 @@ module panana::market_test {
         assert!(coin::balance<AptosCoin>(marketplace_address) == 0, 4);
     }
 
-    #[expected_failure(abort_code = market::E_INVALID_RESOLVE_MARKET_TYPE)]
-    #[test(aptos_framework = @aptos_framework, owner = @0x100, user = @0x200, user2 = @0x300, apt_aggr = @0x111AAA)]
-    fun test_resolve_market_invalid_market_type(owner: &signer, aptos_framework: &signer, user: &signer, user2: &signer, apt_aggr: &signer) {
-        account::create_account_for_test(signer::address_of(aptos_framework));
-        block::initialize_for_test(aptos_framework, 1);
-        timestamp::set_time_has_started_for_testing(aptos_framework);
-
-        let start_price = 100;
-        let marketplace_address = init_marketplace<APT>(owner, apt_aggr, start_price);
-
-        let min_bet = 2000;
-        let end_time = market::min_open_duration();
-        let fee_nominator = 10;
-        let fee_denominator = 100;
-        market::create_market<APT>(owner, object::address_to_object<marketplace::Marketplace<APT>>(marketplace_address), end_time, min_bet, fee_nominator, fee_denominator);
-
-        let open_markets = marketplace::open_markets<APT>(marketplace_address);
-        let created_market_address = vector::borrow(&open_markets, 0);
-        let market_object = object::address_to_object<market::Market>(*created_market_address);
-
-        let (burn, mint) = initialize_for_test(aptos_framework);
-        let coins = coin::mint<AptosCoin>(1000000000, &mint);
-        aptos_account::deposit_coins(signer::address_of(user), coins);
-        aptos_account::create_account(signer::address_of(user2));
-
-        coin::destroy_burn_cap(burn);
-        coin::destroy_mint_cap(mint);
-
-        market::resolve_market<BTC>(user, market_object);
-    }
-
-    #[expected_failure(abort_code = market::E_INVALID_RESOLVE_MARKET_TYPE)]
-    #[test(aptos_framework = @aptos_framework, owner = @0x100, user = @0x200, user2 = @0x300, apt_aggr = @0x111AAA, btc_aggr = @0x222BBB)]
-    fun test_resolve_market_invalid_resolve_market_type(owner: &signer, aptos_framework: &signer, user: &signer, user2: &signer, apt_aggr: &signer, btc_aggr: &signer) {
-        account::create_account_for_test(signer::address_of(aptos_framework));
-        block::initialize_for_test(aptos_framework, 1);
-        timestamp::set_time_has_started_for_testing(aptos_framework);
-
-        aggregator::new_test(apt_aggr, 100, 9, false);
-
-        price_oracle::initialize(owner);
-        price_oracle::add_aggregator<APT>(owner, signer::address_of(apt_aggr));
-        price_oracle::add_aggregator<BTC>(owner, signer::address_of(btc_aggr));
-
-        marketplace::create_marketplace<APT>(owner);
-        marketplace::create_marketplace<BTC>(owner);
-
-        let apt_marketplace_address =  object::create_object_address(
-            &signer::address_of(owner),
-            utils::type_of<marketplace::Marketplace<APT>>()
-        );
-
-        let min_bet = 2000;
-        let end_time = market::min_open_duration();
-        let fee_nominator = 10;
-        let fee_denominator = 100;
-        market::create_market<APT>(owner, object::address_to_object<marketplace::Marketplace<APT>>(apt_marketplace_address), end_time, min_bet, fee_nominator, fee_denominator);
-
-        let open_markets = marketplace::open_markets<APT>(apt_marketplace_address);
-        let created_market_address = vector::borrow(&open_markets, 0);
-        let market_object = object::address_to_object<market::Market>(*created_market_address);
-
-        let (burn, mint) = initialize_for_test(aptos_framework);
-        let coins = coin::mint<AptosCoin>(1000000000, &mint);
-        aptos_account::deposit_coins(signer::address_of(user), coins);
-        aptos_account::create_account(signer::address_of(user2));
-
-        coin::destroy_burn_cap(burn);
-        coin::destroy_mint_cap(mint);
-
-        timestamp::fast_forward_seconds(market::min_open_duration());
-        market::resolve_market<BTC>(user, market_object);
-    }
-
-    #[expected_failure(abort_code = market::E_MARKET_STILL_OPEN)]
+    #[expected_failure(abort_code = market::E_MARKET_STILL_AVAILABLE)]
     #[test(aptos_framework = @aptos_framework, owner = @0x100, user = @0x200, user2 = @0x300, apt_aggr = @0x111AAA)]
     fun test_resolve_market_still_open(owner: &signer, aptos_framework: &signer, user: &signer, user2: &signer, apt_aggr: &signer) {
         account::create_account_for_test(signer::address_of(aptos_framework));
@@ -365,9 +291,9 @@ module panana::market_test {
         let fee_denominator = 100;
         market::create_market<APT>(owner, object::address_to_object<marketplace::Marketplace<APT>>(marketplace_address), end_time, min_bet, fee_nominator, fee_denominator);
 
-        let open_markets = marketplace::open_markets<APT>(marketplace_address);
+        let open_markets = marketplace::available_markets<APT>(marketplace_address);
         let created_market_address = vector::borrow(&open_markets, 0);
-        let market_object = object::address_to_object<market::Market>(*created_market_address);
+        let market_object = object::address_to_object<market::Market<APT>>(*created_market_address);
 
         let (burn, mint) = initialize_for_test(aptos_framework);
         let coins = coin::mint<AptosCoin>(1000000000, &mint);
@@ -397,9 +323,9 @@ module panana::market_test {
         let fee_denominator = 100;
         market::create_market<APT>(owner, object::address_to_object<marketplace::Marketplace<APT>>(marketplace_address), end_time, min_bet, fee_nominator, fee_denominator);
 
-        let open_markets = marketplace::open_markets<APT>(marketplace_address);
+        let open_markets = marketplace::available_markets<APT>(marketplace_address);
         let created_market_address = vector::borrow(&open_markets, 0);
-        let market_object = object::address_to_object<market::Market>(*created_market_address);
+        let market_object = object::address_to_object<market::Market<APT>>(*created_market_address);
 
         let (burn, mint) = initialize_for_test(aptos_framework);
         let coins = coin::mint<AptosCoin>(1000000000, &mint);
@@ -430,9 +356,9 @@ module panana::market_test {
         let fee_denominator = 100;
         market::create_market<APT>(owner, object::address_to_object<marketplace::Marketplace<APT>>(marketplace_address), end_time, min_bet, fee_nominator, fee_denominator);
 
-        let open_markets = marketplace::open_markets<APT>(marketplace_address);
+        let open_markets = marketplace::available_markets<APT>(marketplace_address);
         let created_market_address = vector::borrow(&open_markets, 0);
-        let market_object = object::address_to_object<market::Market>(*created_market_address);
+        let market_object = object::address_to_object<market::Market<APT>>(*created_market_address);
 
         let (burn, mint) = initialize_for_test(aptos_framework);
         let coins = coin::mint<AptosCoin>(1000000000, &mint);
