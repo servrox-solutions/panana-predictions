@@ -9,13 +9,11 @@ module panana::marketplace_test {
     #[test_only]
     use std::signer;
     #[test_only]
-    use panana::marketplace::{Marketplace, create_marketplace, payout_marketplace, E_MARKETPLACE_ALREADY_EXISTS, E_UNAUTHORIZED};
+    use panana::marketplace;
     #[test_only]
     use panana::utils;
     #[test_only]
     use aptos_framework::object;
-    #[test_only]
-    use panana::marketplace;
     #[test_only]
     use aptos_framework::aptos_account;
     #[test_only]
@@ -29,7 +27,7 @@ module panana::marketplace_test {
 
         object::create_object_address(
             &signer::address_of(owner),
-            utils::type_of<Marketplace<C>>()
+            utils::type_of<marketplace::Marketplace<C>>()
         )
     }
 
@@ -41,11 +39,11 @@ module panana::marketplace_test {
         assert!(vector::is_empty(&open_markets), 0);
     }
 
-    #[expected_failure(abort_code = E_MARKETPLACE_ALREADY_EXISTS)]
+    #[expected_failure(abort_code = marketplace::E_MARKETPLACE_ALREADY_EXISTS)]
     #[test(owner = @0x100)]
     fun test_initialize_marketplace_double_creation(owner: &signer) {
-        create_marketplace<APT>(owner);
-        create_marketplace<APT>(owner);
+        marketplace::create_marketplace<APT>(owner);
+        marketplace::create_marketplace<APT>(owner);
     }
 
     #[test(aptos_framework = @aptos_framework, owner = @0x100, user = @0x200, user2 = @0x300)]
@@ -61,12 +59,12 @@ module panana::marketplace_test {
         coin::destroy_mint_cap(mint);
 
         aptos_account::transfer(user, marketplace_address, 1234);
-        payout_marketplace(owner, object::address_to_object<Marketplace<APT>>(marketplace_address), signer::address_of(user2));
+        marketplace::payout_marketplace(owner, object::address_to_object<marketplace::Marketplace<APT>>(marketplace_address), signer::address_of(user2));
         assert!(coin::balance<AptosCoin>(signer::address_of(user2)) == 1234, 3);
         assert!(coin::balance<AptosCoin>(marketplace_address) == 0, 4);
     }
 
-    #[expected_failure(abort_code = E_UNAUTHORIZED)]
+    #[expected_failure(abort_code = marketplace::E_UNAUTHORIZED)]
     #[test(aptos_framework = @aptos_framework, owner = @0x100, user = @0x200)]
     fun test_marketplace_payout_unauthorized(owner: &signer, aptos_framework: &signer, user: &signer) {
         let marketplace_address = init_marketplace<APT>(owner);
@@ -79,7 +77,7 @@ module panana::marketplace_test {
         coin::destroy_mint_cap(mint);
 
         aptos_account::transfer(user, marketplace_address, 1234);
-        payout_marketplace(user, object::address_to_object<Marketplace<APT>>(marketplace_address), signer::address_of(user));
+        marketplace::payout_marketplace(user, object::address_to_object<marketplace::Marketplace<APT>>(marketplace_address), signer::address_of(user));
     }
 
     #[test(owner = @0x100, market = @0xCAFE, market2 = @0xBAAF)]
@@ -112,5 +110,14 @@ module panana::marketplace_test {
 
         let market_address_after_close = vector::borrow(&open_markets_after_remove, 0);
         assert!(*market_address_after_close == signer::address_of(market2), 2);
+    }
+
+    #[expected_failure(abort_code = marketplace::E_MARKET_ALREADY_EXISTS)]
+    #[test(owner = @0x100, market = @0xCAFE)]
+    fun test_initialize_marketplace_add_market_twice(owner: &signer, market: &signer) {
+        let apt_marketplace_address = init_marketplace<APT>(owner);
+
+        panana::marketplace::add_open_market<APT>(apt_marketplace_address, signer::address_of(market));
+        panana::marketplace::add_open_market<APT>(apt_marketplace_address, signer::address_of(market));
     }
 }

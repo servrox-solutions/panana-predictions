@@ -17,8 +17,7 @@ module panana::market {
 
     const E_UNAUTHORIZED: u64 = 1; // Error when the user is not authorized to perform an action
     const E_INVALID_MARKET_CLOSING_TIME: u64 = 3; // Error if we try to create a marketplace with an invalid closing time
-    const E_ALREADY_BETTED_UP: u64 = 4; // Error if the user tries to bet down but has already betted up
-    const E_ALREADY_BETTED_DOWN: u64 = 5; // Error if the user tries to bet up but has already betted down
+    const E_INVALID_MARKET_OPENING_TIME: u64 = 4; // Error if we try to create a marketplace with an invalid closing time
     const E_MARKET_CLOSED: u64 = 6; // Error if user interacts with a market that is already closed
     const E_MARKET_STILL_AVAILABLE: u64 = 7; // Error if trying to perform an action on an open market which is inteded for closed markets only
     const E_BET_TOO_LOW: u64 = 8; // Error if the placed bet is lower than the minimum requried amount
@@ -28,11 +27,7 @@ module panana::market {
 
 
     const MIN_OPEN_DURATION_SEC: u64 = 60 * 10; // minimum open duration for a market is 10 minutes
-
-    struct BetInfo has store, drop, copy { // TODO: remove BetInfo struct
-        amount: u64,
-        bet_up: bool, // true if the user is betting that the price will go up
-    }
+    const EARLIEST_MARKET_OPENING_AFTER_SEC: u64 = 60 * 5; // the earliest a merket can start (5 minutes from now)
 
     struct MarketFee has store, drop {
         nominator: u64,
@@ -48,8 +43,8 @@ module panana::market {
         up_bets_sum: u64, // sum of all up bets
         down_bets_sum: u64, // sum of all down bets
         fee: MarketFee, // Fee for the marketplace after the market has been resolved
-        up_bets: simple_map::SimpleMap<address, BetInfo>, // map of users betting up
-        down_bets: simple_map::SimpleMap<address, BetInfo>, // map of users betting down
+        up_bets: simple_map::SimpleMap<address, u64>, // map of users betting up
+        down_bets: simple_map::SimpleMap<address, u64>, // map of users betting down
 
         user_votes: simple_map::SimpleMap<address, bool>, // a list of users who upvoted the market
         up_votes_sum: u64, // sum of all up votes
@@ -64,6 +59,11 @@ module panana::market {
     #[view]
     public fun min_open_duration(): u64 {
         MIN_OPEN_DURATION_SEC
+    }
+
+    #[view]
+    public fun earliest_market_opening_after_sec(): u64 {
+        EARLIEST_MARKET_OPENING_AFTER_SEC
     }
 
     #[view]
@@ -114,7 +114,7 @@ module panana::market {
         return if (!simple_map::contains_key(&up_bets, &user_address))
             option::none()
         else
-            option::some(simple_map::borrow(&up_bets, &user_address).amount)
+            option::some(*simple_map::borrow(&up_bets, &user_address))
     }
 
     #[view]
@@ -123,7 +123,7 @@ module panana::market {
         return if (!simple_map::contains_key(&down_bets, &user_address))
             option::none()
         else
-            option::some(simple_map::borrow(&down_bets, &user_address).amount)
+            option::some(*simple_map::borrow(&down_bets, &user_address))
     }
 
     #[view]
@@ -178,12 +178,13 @@ module panana::market {
         if (vote_up) *up_votes_sum = *up_votes_sum + 1 else *down_votes_sum = *down_votes_sum + 1;
     }
 
-    public entry fun create_market<C>(account: &signer, marketplace: Object<Marketplace<C>>, end_time: u64, min_bet: u64, fee_nominator: u64, fee_denominator: u64) {
+    public entry fun create_market<C>(account: &signer, marketplace: Object<Marketplace<C>>, start_time_timestamp: u64, end_time_timestamp: u64, min_bet: u64, fee_nominator: u64, fee_denominator: u64) {
         assert!(fee_denominator != 0, E_FEE_DENOMINATOR_NULL);
         let marketplace_address = object::object_address(&marketplace);
 
-        let start_time = timestamp::now_seconds(); // TODO: set start_time via param
-        assert!(end_time >= start_time + MIN_OPEN_DURATION_SEC, E_INVALID_MARKET_CLOSING_TIME);
+        let current_timestamp = timestamp::now_seconds();
+        assert!(start_time_timestamp >= current_timestamp + EARLIEST_MARKET_OPENING_AFTER_SEC, E_INVALID_MARKET_OPENING_TIME);
+        assert!(end_time_timestamp >= start_time_timestamp + MIN_OPEN_DURATION_SEC, E_INVALID_MARKET_CLOSING_TIME);
 
         let market_constructor_ref = &object::create_object(marketplace_address);
         let market_signer = object::generate_signer(market_constructor_ref);
@@ -195,8 +196,8 @@ module panana::market {
             Market<C> {
                 creator: signer::address_of(account),
                 start_price: (start_price as u64),
-                end_time,
-                start_time,
+                end_time: end_time_timestamp,
+                start_time: start_time_timestamp,
                 min_bet,
                 fee: MarketFee {
                     nominator: fee_nominator,
@@ -204,8 +205,8 @@ module panana::market {
                 },
                 up_bets_sum: 0,
                 down_bets_sum: 0,
-                up_bets: simple_map::create<address, BetInfo>(),
-                down_bets: simple_map::create<address, BetInfo>(),
+                up_bets: simple_map::create<address, u64>(),
+                down_bets: simple_map::create<address, u64>(),
                 up_votes_sum: 0,
                 down_votes_sum: 0,
                 user_votes: simple_map::new(),
@@ -230,23 +231,13 @@ module panana::market {
         let cur_time = timestamp::now_seconds();
         assert!(market_ref.end_time > cur_time, E_MARKET_CLOSED);
 
-        let has_betted_down = simple_map::contains_key(&market_ref.down_bets, &signer_address);
-        let has_betted_up = simple_map::contains_key(&market_ref.up_bets, &signer_address);
-
-        // user can either bet up or down and cannot change its decision afterwards
-        assert!(!(has_betted_down && bet_up), E_ALREADY_BETTED_DOWN); // TODO: user can bet up and down
-        assert!(!(has_betted_up && !bet_up), E_ALREADY_BETTED_UP);
-
         let bets = if (bet_up) &mut market_ref.up_bets else &mut market_ref.down_bets;
 
         if (!simple_map::contains_key(bets, &signer_address)) {
-            simple_map::add(bets, signer_address, BetInfo {
-                amount,
-                bet_up,
-            });
+            simple_map::add(bets, signer_address, amount);
         } else {
-            let bet_info = simple_map::borrow_mut(bets, &signer_address);
-            bet_info.amount = bet_info.amount + amount;
+            let user_bet = simple_map::borrow_mut(bets, &signer_address);
+            *user_bet = *user_bet + amount;
         };
 
         // Transfer amount to this contract as a bet deposit
@@ -270,60 +261,90 @@ module panana::market {
             E_INVALID_RESOLVE_MARKET_TYPE
         );
 
+        let market_address = object::object_address(&market_obj);
         let open_markets = marketplace::available_markets<C>(marketplace_address);
+        assert!(vector::contains(&open_markets, &market_address), E_MARKET_CLOSED);
 
-        assert!(vector::contains(&open_markets, &object::object_address(&market_obj)), E_MARKET_CLOSED);
-
-        let market_addr = object::object_address(&market_obj);
-        let market_ref = borrow_global<Market<C>>(market_addr);
+        let market_ref = borrow_global<Market<C>>(market_address);
 
         // Ensure the market's end time has passed
         assert!(is_market_available(market_ref), E_MARKET_STILL_AVAILABLE);
 
         // Get the end price from the oracle
         let (end_price, _) = price_oracle::price<C>(account);
+        let end_price_u64 = (end_price as u64);
 
-        // Calculate winners based on price change
-        let price_up = (end_price as u64) > market_ref.start_price;
-        let winners  = if (price_up) { // TODO: handle equal distribution
-            &market_ref.up_bets
+        if (end_price_u64 == market_ref.start_price) { // edge case: starting and end price are the same
+            dissolve_market(market_address, &market_ref.fee, &market_ref.up_bets, &market_ref.down_bets);
         } else {
-            &market_ref.down_bets
+            // Calculate winners based on price change
+            let price_up = (end_price as u64) > market_ref.start_price;
+
+            let winners = if (price_up) {
+                // price went up
+                &market_ref.up_bets
+            } else {
+                // price went down
+                &market_ref.down_bets
+            };
+
+            let total_pool = market_ref.up_bets_sum + market_ref.down_bets_sum;
+            let winning_pool = if (price_up) market_ref.up_bets_sum else market_ref.down_bets_sum;
+
+            distribute_rewards(market_address, winners, total_pool, winning_pool, &market_ref.fee);
         };
 
-        let total_pool = market_ref.up_bets_sum + market_ref.down_bets_sum;
-        let winning_pool = if (price_up) market_ref.up_bets_sum else market_ref.down_bets_sum;
-
-        distribute_rewards(market_addr, winners, total_pool, winning_pool, &market_ref.fee);
+        // Send remaining balance (=fees) to marketplace
+        let remaining_balance = coin::balance<AptosCoin>(market_address);
+        let market_extend_ref = &borrow_global<ObjectController>(market_address).extend_ref;
+        let market_signer = object::generate_signer_for_extending(market_extend_ref);
+        aptos_account::transfer(&market_signer, object::owner(market_obj), remaining_balance);
 
         // TODO: decide if we want to keep the old markets or delete them
         // Destroy the market
         // move_from<Market>();
     }
 
-    fun distribute_rewards(market_addr: address, winners: &simple_map::SimpleMap<address, BetInfo>, total_pool: u64, winning_pool: u64, fee: &MarketFee) acquires ObjectController {
-        let market_extend_ref = &borrow_global<ObjectController>(market_addr).extend_ref;
+    fun dissolve_market(market_address: address, fee: &MarketFee, up_bets: &simple_map::SimpleMap<address, u64>, down_bets: &simple_map::SimpleMap<address, u64>) acquires ObjectController {
+        let market_extend_ref = &borrow_global<ObjectController>(market_address).extend_ref;
+        let market_signer = object::generate_signer_for_extending(market_extend_ref);
+
+        payout_bets(up_bets, fee, |payout_address, amount| coin::transfer<AptosCoin>(&market_signer, payout_address, amount));
+        payout_bets(down_bets, fee, |payout_address, amount| coin::transfer<AptosCoin>(&market_signer, payout_address, amount));
+    }
+
+    inline fun payout_bets(bets: &simple_map::SimpleMap<address, u64>, fee: &MarketFee, payout: |address, u64|) {
+        let keys = simple_map::keys(bets);
+        let len = vector::length(&keys);
+        let i = 0;
+        while (i < len) {
+            let payout_addr = *vector::borrow(&keys, i);
+            let user_bet = simple_map::borrow(bets, &payout_addr);
+            let amount = *user_bet - (*user_bet * fee.nominator / fee.denominator);
+            payout(payout_addr, amount);
+            i = i + 1;
+        };
+    }
+
+
+    fun distribute_rewards(market_address: address, winners: &simple_map::SimpleMap<address, u64>, total_pool: u64, winning_pool: u64, fee: &MarketFee) acquires ObjectController {
+        let market_extend_ref = &borrow_global<ObjectController>(market_address).extend_ref;
         let market_signer = object::generate_signer_for_extending(market_extend_ref);
 
         calculate_and_send_rewards(winners, total_pool, winning_pool, fee, |winner, amount, idx| coin::transfer<AptosCoin>(&market_signer, winner, amount));
-
-        // Send remaining balance (=fees) to marketplace
-        let remaining_balance = coin::balance<AptosCoin>(market_addr);
-        let market_obj = object::address_to_object<ObjectCore>(market_addr);
-        aptos_account::transfer(&market_signer, object::owner(market_obj), remaining_balance);
     }
 
-    inline fun calculate_and_send_rewards(winners: &simple_map::SimpleMap<address, BetInfo>, total_pool: u64, winning_pool: u64, fee: &MarketFee, payout: |address, u64, u64|) {
+    inline fun calculate_and_send_rewards(winners: &simple_map::SimpleMap<address, u64>, total_pool: u64, winning_pool: u64, fee: &MarketFee, payout: |address, u64, u64|) {
         let keys = simple_map::keys(winners);
         let len = vector::length(&keys);
         let i = 0;
         // Reward each winner proportionally to their bet
         while (i < len) {
             let winner_addr = *vector::borrow(&keys, i);
-            let bet_info = simple_map::borrow(winners, &winner_addr);
+            let user_bet = simple_map::borrow(winners, &winner_addr);
 
             let scale: u256 = 100_000_000_000;
-            let scaled_bet_amount = (bet_info.amount as u256) * scale;
+            let scaled_bet_amount = (*user_bet as u256) * scale;
             let fractional_reward = scaled_bet_amount / (winning_pool as u256);
             let reward_before_fee = ((fractional_reward * (total_pool as u256) / scale) as u64);
 
@@ -336,12 +357,12 @@ module panana::market {
 
     #[test]
     fun test_calculate_and_send_rewards() {
-        let winners = simple_map::create<address, BetInfo>();
-        simple_map::add(&mut winners, @0xA, BetInfo{amount: 100000000, bet_up: true});
-        simple_map::add(&mut winners, @0xB, BetInfo{amount: 200000000, bet_up: true});
-        simple_map::add(&mut winners, @0xC, BetInfo{amount: 300000000, bet_up: true});
-        simple_map::add(&mut winners, @0xD, BetInfo{amount: 400000000, bet_up: true});
-        simple_map::add(&mut winners, @0xE, BetInfo{amount: 500000000, bet_up: true});
+        let winners = simple_map::create<address, u64>();
+        simple_map::add(&mut winners, @0xA, 100000000);
+        simple_map::add(&mut winners, @0xB, 200000000);
+        simple_map::add(&mut winners, @0xC, 300000000);
+        simple_map::add(&mut winners, @0xD, 400000000);
+        simple_map::add(&mut winners, @0xE, 500000000);
 
 
         let winning_pool = 1500000000;
@@ -367,8 +388,8 @@ module panana::market {
 
     #[test]
     fun test_calculate_and_send_rewards_no_opponent() {
-        let winners = simple_map::create<address, BetInfo>();
-        simple_map::add(&mut winners, @0xA, BetInfo{amount: 100000000000000, bet_up: true});
+        let winners = simple_map::create<address, u64>();
+        simple_map::add(&mut winners, @0xA, 100000000000000);
 
         let winning_pool = 100000000000000;
         let total_pool = 100000000000000;
@@ -388,9 +409,9 @@ module panana::market {
 
     #[test]
     fun test_calculate_and_send_rewards_no_opponent_two_players() {
-        let winners = simple_map::create<address, BetInfo>();
-        simple_map::add(&mut winners, @0xA, BetInfo{amount: 100000000000, bet_up: true});
-        simple_map::add(&mut winners, @0xB, BetInfo{amount: 200000000000, bet_up: true});
+        let winners = simple_map::create<address, u64>();
+        simple_map::add(&mut winners, @0xA,  100000000000);
+        simple_map::add(&mut winners, @0xB, 200000000000);
 
         let winning_pool = 300000000000;
         let total_pool = 300000000000;

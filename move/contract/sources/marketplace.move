@@ -16,6 +16,7 @@ module panana::marketplace {
 
     const E_MARKETPLACE_ALREADY_EXISTS: u64 = 0; // Error when the marketplace already exists
     const E_UNAUTHORIZED: u64 = 1; // Error when the user is not authorized to perform an action
+    const E_MARKET_ALREADY_EXISTS: u64 = 2; // Error when an existing market tries to register again
 
     struct Marketplace<phantom C> has key {
         available_markets: vector<address> // contains all addresses of running and open markets
@@ -36,10 +37,10 @@ module panana::marketplace {
         object::create_object_address(&account, utils::type_of<Marketplace<C>>())
     }
 
-    public(friend) fun add_open_market<C>(marketplace_address: address, market_addres: address) acquires Marketplace {
+    public(friend) fun add_open_market<C>(marketplace_address: address, market_address: address) acquires Marketplace {
         let open_markets = &mut borrow_global_mut<Marketplace<C>>(marketplace_address).available_markets;
-        // TODO: check that every market exists only once and cannot be added multiple times
-        vector::push_back(open_markets, market_addres);
+        assert!(!vector::contains(open_markets, &market_address), E_MARKET_ALREADY_EXISTS); // Should never happen
+        vector::push_back(open_markets, market_address);
     }
 
     public(friend) fun remove_open_market<C>(marketplace_address: address, market_address: address) acquires Marketplace {
