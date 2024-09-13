@@ -47,20 +47,6 @@ module panana::price_oracle {
         result: u128
     }
 
-    // TODO: remove this in the final product
-    fun init_module(sender: &signer) {
-        let aggregators = &mut simple_map::create<String, address>();
-        let results = &mut simple_map::create<String, Result>();
-        let key = utils::key<APT>();
-        simple_map::add(aggregators, key, @switchbaord_feed_apt);
-        simple_map::add(results, key, Result { value: 0, dec: 0 });
-
-        move_to(sender, Storage {
-            aggregators: *aggregators,
-            results: *results
-        });
-    }
-
     public entry fun initialize(owner: &signer) {
         assert!(!exists<Storage>(signer::address_of(owner)), E_STORAGE_ALREADY_EXISTS);
 
@@ -130,7 +116,7 @@ module panana::price_oracle {
     public entry fun price_entry<C>(account: &signer) acquires Storage {
         price<C>(account);
     }
-    
+
     public entry fun volume<C>(account: &signer, amount: u128) acquires Storage, Volume {
         let (value, dec) = price_internal(utils::key<C>());
         let numerator = amount * value;
