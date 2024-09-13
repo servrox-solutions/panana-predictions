@@ -5,12 +5,13 @@ module panana::market {
     use aptos_std::coin;
     use std::timestamp;
     use std::vector;
-    use std::object::{ObjectCore, Self};
+    use std::object;
     use std::option;
     use aptos_std::debug;
     use aptos_framework::object::{Object};
     use aptos_framework::aptos_account::{Self};
     use aptos_framework::aptos_coin::AptosCoin;
+    use aptos_framework::event;
     use panana::price_oracle;
     use panana::marketplace::{Marketplace, Self};
 
@@ -28,6 +29,7 @@ module panana::market {
 
     const MIN_OPEN_DURATION_SEC: u64 = 60 * 10; // minimum open duration for a market is 10 minutes
     const EARLIEST_MARKET_OPENING_AFTER_SEC: u64 = 60 * 5; // the earliest a merket can start (5 minutes from now)
+    const MAX_RESOLVE_MARKET_TIMESPAN: u64 = 10; // a market can be resolved until X seconds after it has been closed.
 
     struct MarketFee has store, drop {
         nominator: u64,
@@ -56,6 +58,26 @@ module panana::market {
         extend_ref: object::ExtendRef,
     }
 
+    // Emit whenever a new market is created
+    #[event]
+    struct CreateMarket<phantom C> has drop, store {
+        marketplace: Object<Marketplace<C>>,
+        market: Object<Market<C>>,
+        start_time_timestamp: u64,
+        end_time_timestamp: u64,
+    }
+
+    // Emit whenever a market is resolved
+    #[event]
+    struct ResolveMarket<phantom C> has drop, store {
+        marketplace: Object<Marketplace<C>>,
+        market: Object<Market<C>>,
+        start_time_timestamp: u64,
+        end_time_timestamp: u64,
+        market_cap: u64,
+        dissolved: bool,
+    }
+
     #[view]
     public fun min_open_duration(): u64 {
         MIN_OPEN_DURATION_SEC
@@ -64,6 +86,11 @@ module panana::market {
     #[view]
     public fun earliest_market_opening_after_sec(): u64 {
         EARLIEST_MARKET_OPENING_AFTER_SEC
+    }
+
+    #[view]
+    public fun max_resolve_market_timespan(): u64 {
+        MAX_RESOLVE_MARKET_TIMESPAN
     }
 
     #[view]
@@ -221,6 +248,13 @@ module panana::market {
         move_to(&market_signer, ObjectController { extend_ref });
 
         panana::marketplace::add_open_market<C>(marketplace_address, object::object_address(&market_object));
+
+        event::emit(CreateMarket{
+            marketplace,
+            market: market_object,
+            start_time_timestamp,
+            end_time_timestamp,
+        });
     }
 
     public entry fun place_bet<C>(account: &signer, market_obj: Object<Market<C>>, bet_up: bool, amount: u64) acquires Market {
@@ -270,11 +304,19 @@ module panana::market {
         // Ensure the market's end time has passed
         assert!(is_market_available(market_ref), E_MARKET_STILL_AVAILABLE);
 
+        // validate if the resolve timespan is still open
+        let current_timestamp = timestamp::now_seconds();
+        let resolve_time_passed = current_timestamp >= market_ref.end_time + MAX_RESOLVE_MARKET_TIMESPAN;
+
         // Get the end price from the oracle
         let (end_price, _) = price_oracle::price<C>(account);
         let end_price_u64 = (end_price as u64);
+        let equal_price_outcome = end_price_u64 == market_ref.start_price;
 
-        if (end_price_u64 == market_ref.start_price) { // edge case: starting and end price are the same
+        // if true, the market should dissolve and all users get their bets back
+        let should_dissolve = resolve_time_passed || equal_price_outcome;
+
+        if (should_dissolve) { // all betters get their money back (except marekt fees)
             dissolve_market(market_address, &market_ref.fee, &market_ref.up_bets, &market_ref.down_bets);
         } else {
             // Calculate winners based on price change
@@ -300,6 +342,16 @@ module panana::market {
         let market_signer = object::generate_signer_for_extending(market_extend_ref);
         aptos_account::transfer(&market_signer, object::owner(market_obj), remaining_balance);
 
+        panana::marketplace::remove_open_market<C>(marketplace_address, market_address);
+        event::emit(ResolveMarket{
+            marketplace: object::address_to_object(marketplace_address),
+            market: market_obj,
+            start_time_timestamp: market_ref.start_time,
+            end_time_timestamp: market_ref.end_time,
+            market_cap: market_ref.up_bets_sum + market_ref.down_bets_sum,
+            dissolved: should_dissolve,
+        });
+
         // TODO: decide if we want to keep the old markets or delete them
         // Destroy the market
         // move_from<Market>();
@@ -308,8 +360,6 @@ module panana::market {
     fun dissolve_market(market_address: address, fee: &MarketFee, up_bets: &simple_map::SimpleMap<address, u64>, down_bets: &simple_map::SimpleMap<address, u64>) acquires ObjectController {
         let market_extend_ref = &borrow_global<ObjectController>(market_address).extend_ref;
         let market_signer = object::generate_signer_for_extending(market_extend_ref);
-        debug::print(up_bets);
-        debug::print(down_bets);
 
         payout_bets(up_bets, fee, |payout_address, amount| coin::transfer<AptosCoin>(&market_signer, payout_address, amount));
         payout_bets(down_bets, fee, |payout_address, amount| coin::transfer<AptosCoin>(&market_signer, payout_address, amount));
@@ -430,5 +480,29 @@ module panana::market {
             assert!(*vector::borrow(&expected_winners, idx) == winner, 0);
             assert!(*vector::borrow(expected_payout, idx) == payout, 1);
         });
+    }
+
+    #[view]
+    #[test_only]
+    public fun test_create_market_event<C>(
+        marketplace: Object<Marketplace<C>>,
+        market: Object<Market<C>>,
+        start_time_timestamp: u64,
+        end_time_timestamp: u64,
+    ): CreateMarket<C> {
+        CreateMarket<C>{marketplace, market, start_time_timestamp, end_time_timestamp}
+    }
+
+    #[view]
+    #[test_only]
+    public fun test_resolve_market_event<C>(
+        marketplace: Object<Marketplace<C>>,
+        market: Object<Market<C>>,
+        start_time_timestamp: u64,
+        end_time_timestamp: u64,
+        market_cap: u64,
+        dissolved: bool,
+    ): ResolveMarket<C> {
+        ResolveMarket<C>{marketplace, market, start_time_timestamp, end_time_timestamp, market_cap, dissolved}
     }
 }

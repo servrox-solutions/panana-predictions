@@ -1,5 +1,6 @@
 #[test_only]
 module panana::market_test {
+    use aptos_framework::event;
     #[test_only]
     use std::signer;
     #[test_only]
@@ -75,7 +76,15 @@ module panana::market_test {
         assert!(market_fee_denominator == fee_denominator, 9);
         assert!(market::start_time<APT>(*created_market_address) == start_time, 10);
         assert!(market::start_price<APT>(*created_market_address) == start_price, 11);
-
+        assert!(
+            event::was_event_emitted(
+                &market::test_create_market_event<APT>(
+                    object::address_to_object<marketplace::Marketplace<APT>>(marketplace_address),
+                        object::address_to_object<market::Market<APT>>(*created_market_address),
+             market::start_time<APT>(*created_market_address),
+             market::end_time<APT>(*created_market_address),
+                )
+            ), 12);
     }
 
     #[expected_failure(abort_code = market::E_INVALID_MARKET_OPENING_TIME)]
@@ -337,6 +346,18 @@ module panana::market_test {
         assert!(coin::balance<AptosCoin>(signer::address_of(user)) == 0, 1);
         assert!(coin::balance<AptosCoin>(signer::address_of(user2)) == 2700000000, 2);
         assert!(coin::balance<AptosCoin>(marketplace_address) == 300000000, 3);
+        assert!(vector::length(&marketplace::available_markets<APT>(marketplace_address)) == 0, 4);
+        assert!(
+            event::was_event_emitted(
+                &market::test_resolve_market_event<APT>(
+                    object::address_to_object<marketplace::Marketplace<APT>>(marketplace_address),
+                    object::address_to_object<market::Market<APT>>(*created_market_address),
+                    market::start_time<APT>(*created_market_address),
+                    market::end_time<APT>(*created_market_address),
+                    1000000000 + 2000000000,
+                    false
+                )
+            ), 5);
     }
 
     #[test(aptos_framework = @aptos_framework, owner = @0x100, user = @0x200, user2 = @0x300, apt_aggr = @0x111AAA)]
@@ -377,6 +398,71 @@ module panana::market_test {
         assert!(coin::balance<AptosCoin>(signer::address_of(user)) == 900000000, 1);
         assert!(coin::balance<AptosCoin>(signer::address_of(user2)) == 1800000000, 2);
         assert!(coin::balance<AptosCoin>(marketplace_address) == 300000000, 3);
+        assert!(vector::length(&marketplace::available_markets<APT>(marketplace_address)) == 0, 4);
+        assert!(
+            event::was_event_emitted(
+                &market::test_resolve_market_event<APT>(
+                    object::address_to_object<marketplace::Marketplace<APT>>(marketplace_address),
+                    object::address_to_object<market::Market<APT>>(*created_market_address),
+                    market::start_time<APT>(*created_market_address),
+                    market::end_time<APT>(*created_market_address),
+                    1000000000 + 2000000000,
+                    true
+                )
+            ), 4);
+    }
+
+    #[test(aptos_framework = @aptos_framework, owner = @0x100, user = @0x200, user2 = @0x300, apt_aggr = @0x111AAA)]
+    fun test_resolve_market_dissolve_if_resolve_timespan_passed(owner: &signer, aptos_framework: &signer, user: &signer, user2: &signer, apt_aggr: &signer) {
+        account::create_account_for_test(signer::address_of(aptos_framework));
+        block::initialize_for_test(aptos_framework, 1);
+        timestamp::set_time_has_started_for_testing(aptos_framework);
+
+        let start_price = 100;
+        let marketplace_address = init_marketplace<APT>(owner, apt_aggr, start_price);
+
+        let min_bet = 2000;
+        let start_time = market::earliest_market_opening_after_sec();
+        let end_time = start_time + market::min_open_duration();
+        let fee_nominator = 10;
+        let fee_denominator = 100;
+        market::create_market<APT>(owner, object::address_to_object<marketplace::Marketplace<APT>>(marketplace_address), start_time, end_time, min_bet, fee_nominator, fee_denominator);
+
+        let open_markets = marketplace::available_markets<APT>(marketplace_address);
+        let created_market_address = vector::borrow(&open_markets, 0);
+        let market_object = object::address_to_object<market::Market<APT>>(*created_market_address);
+
+        let (burn, mint) = initialize_for_test(aptos_framework);
+        let coins = coin::mint<AptosCoin>(1000000000, &mint);
+        let coins2 = coin::mint<AptosCoin>(2000000000, &mint);
+        aptos_account::deposit_coins(signer::address_of(user), coins);
+        aptos_account::deposit_coins(signer::address_of(user2), coins2);
+
+        coin::destroy_burn_cap(burn);
+        coin::destroy_mint_cap(mint);
+
+        market::place_bet(user, market_object, true, 1000000000);
+        market::place_bet(user2, market_object, false, 2000000000);
+
+        timestamp::fast_forward_seconds(end_time + market::max_resolve_market_timespan());
+        aggregator::update_value(apt_aggr, start_price - 1, 9, false);
+        market::resolve_market<APT>(user, market_object);
+
+        assert!(coin::balance<AptosCoin>(signer::address_of(user)) == 900000000, 1);
+        assert!(coin::balance<AptosCoin>(signer::address_of(user2)) == 1800000000, 2);
+        assert!(coin::balance<AptosCoin>(marketplace_address) == 300000000, 3);
+        assert!(vector::length(&marketplace::available_markets<APT>(marketplace_address)) == 0, 4);
+        assert!(
+            event::was_event_emitted(
+                &market::test_resolve_market_event<APT>(
+                    object::address_to_object<marketplace::Marketplace<APT>>(marketplace_address),
+                    object::address_to_object<market::Market<APT>>(*created_market_address),
+                    market::start_time<APT>(*created_market_address),
+                    market::end_time<APT>(*created_market_address),
+                    1000000000 + 2000000000,
+                    true
+                )
+            ), 4);
     }
 
     #[test(aptos_framework = @aptos_framework, owner = @0x100, user = @0x200, apt_aggr = @0x111AAA)]
