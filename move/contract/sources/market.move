@@ -24,6 +24,7 @@ module panana::market {
     const E_BET_TOO_LOW: u64 = 8; // Error if the placed bet is lower than the minimum requried amount
     const E_FEE_DENOMINATOR_NULL: u64 = 9; // Error if the fee denominator is 0
     const E_INVALID_RESOLVE_MARKET_TYPE: u64 = 10; // Error if the resolved market type does not fit the market object
+    const E_INVALID_VOTE: u64 = 11; // Error if the user's vote is invalid
 
 
     const MIN_OPEN_DURATION_SEC: u64 = 60 * 10; // minimum open duration for a market is 10 minutes
@@ -49,6 +50,10 @@ module panana::market {
         fee: MarketFee, // Fee for the marketplace after the market has been resolved
         up_bets: simple_map::SimpleMap<address, BetInfo>, // map of users betting up
         down_bets: simple_map::SimpleMap<address, BetInfo>, // map of users betting down
+
+        user_votes: simple_map::SimpleMap<address, bool>, // a list of users who upvoted the market
+        up_votes_sum: u64, // sum of all up votes
+        down_votes_sum: u64, // sum of all down votes
     }
 
     #[resource_group_member(group = aptos_framework::object::ObjectGroup)]
@@ -133,6 +138,46 @@ module panana::market {
         simple_map::length(&down_bets)
     }
 
+
+    #[view]
+    public fun get_up_votes_sum<C>(market_address: address): u64 acquires Market {
+        borrow_global<Market<C>>(market_address).up_votes_sum
+    }
+
+    #[view]
+    public fun get_down_votes_sum<C>(market_address: address): u64 acquires Market {
+        borrow_global<Market<C>>(market_address).down_votes_sum
+    }
+
+    #[view]
+    public fun get_vote<C>(market_address: address, user_address: address): option::Option<bool> acquires Market {
+        let user_votes = borrow_global<Market<C>>(market_address).user_votes;
+        if (simple_map::contains_key(&user_votes, &user_address))
+            option::some(*simple_map::borrow(&user_votes, &user_address))
+        else
+            option::none<bool>()
+    }
+
+    public entry fun vote<C>(account: &signer, market: Object<Market<C>>, vote_up: bool) acquires Market {
+        let market_address = object::object_address(&market);
+        let account_address = signer::address_of(account);
+        let market = borrow_global_mut<Market<C>>(market_address);
+        let user_votes = &mut market.user_votes;
+        let down_votes_sum = &mut market.down_votes_sum;
+        let up_votes_sum = &mut market.up_votes_sum;
+
+        if (simple_map::contains_key(user_votes, &account_address)) {
+            let user_vote = simple_map::borrow_mut(user_votes, &account_address);
+            assert!(*user_vote != vote_up, E_INVALID_VOTE);
+            *user_vote = vote_up;
+            if (vote_up) *down_votes_sum = *down_votes_sum - 1 else *up_votes_sum = *up_votes_sum - 1;
+        } else {
+            simple_map::add(user_votes, account_address, vote_up);
+        };
+
+        if (vote_up) *up_votes_sum = *up_votes_sum + 1 else *down_votes_sum = *down_votes_sum + 1;
+    }
+
     public entry fun create_market<C>(account: &signer, marketplace: Object<Marketplace<C>>, end_time: u64, min_bet: u64, fee_nominator: u64, fee_denominator: u64) {
         assert!(fee_denominator != 0, E_FEE_DENOMINATOR_NULL);
         let marketplace_address = object::object_address(&marketplace);
@@ -161,6 +206,9 @@ module panana::market {
                 down_bets_sum: 0,
                 up_bets: simple_map::create<address, BetInfo>(),
                 down_bets: simple_map::create<address, BetInfo>(),
+                up_votes_sum: 0,
+                down_votes_sum: 0,
+                user_votes: simple_map::new(),
             }
         );
 

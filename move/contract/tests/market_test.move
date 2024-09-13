@@ -379,4 +379,78 @@ module panana::market_test {
         assert!(coin::balance<AptosCoin>(signer::address_of(user2)) == 2700000000, 2);
         assert!(coin::balance<AptosCoin>(marketplace_address) == 300000000, 3);
     }
+
+    #[test(aptos_framework = @aptos_framework, owner = @0x100, user = @0x200, apt_aggr = @0x111AAA)]
+    fun test_vote_market(owner: &signer, aptos_framework: &signer, user: &signer, apt_aggr: &signer) {
+        account::create_account_for_test(signer::address_of(aptos_framework));
+        block::initialize_for_test(aptos_framework, 1);
+        timestamp::set_time_has_started_for_testing(aptos_framework);
+
+        let start_price = 100;
+        let marketplace_address = init_marketplace<APT>(owner, apt_aggr, start_price);
+
+        let min_bet = 2000;
+        let end_time = market::min_open_duration();
+        let fee_nominator = 10;
+        let fee_denominator = 100;
+        market::create_market<APT>(owner, object::address_to_object<marketplace::Marketplace<APT>>(marketplace_address), end_time, min_bet, fee_nominator, fee_denominator);
+
+        let open_markets = marketplace::available_markets<APT>(marketplace_address);
+        let created_market_address = vector::borrow(&open_markets, 0);
+        let market_object = object::address_to_object<market::Market<APT>>(*created_market_address);
+
+        market::vote(user, market_object, true);
+        assert!(market::get_down_votes_sum<APT>(*created_market_address) == 0, 0);
+        assert!(market::get_up_votes_sum<APT>(*created_market_address) == 1, 0);
+    }
+
+    #[expected_failure(abort_code = market::E_INVALID_VOTE)]
+    #[test(aptos_framework = @aptos_framework, owner = @0x100, user = @0x200, apt_aggr = @0x111AAA)]
+    fun test_vote_market_twice(owner: &signer, aptos_framework: &signer, user: &signer, apt_aggr: &signer) {
+        account::create_account_for_test(signer::address_of(aptos_framework));
+        block::initialize_for_test(aptos_framework, 1);
+        timestamp::set_time_has_started_for_testing(aptos_framework);
+
+        let start_price = 100;
+        let marketplace_address = init_marketplace<APT>(owner, apt_aggr, start_price);
+
+        let min_bet = 2000;
+        let end_time = market::min_open_duration();
+        let fee_nominator = 10;
+        let fee_denominator = 100;
+        market::create_market<APT>(owner, object::address_to_object<marketplace::Marketplace<APT>>(marketplace_address), end_time, min_bet, fee_nominator, fee_denominator);
+
+        let open_markets = marketplace::available_markets<APT>(marketplace_address);
+        let created_market_address = vector::borrow(&open_markets, 0);
+        let market_object = object::address_to_object<market::Market<APT>>(*created_market_address);
+
+        market::vote(user, market_object, true);
+        market::vote(user, market_object, true);
+    }
+
+    #[test(aptos_framework = @aptos_framework, owner = @0x100, user = @0x200, apt_aggr = @0x111AAA)]
+    fun test_vote_market_change_vote(owner: &signer, aptos_framework: &signer, user: &signer, apt_aggr: &signer) {
+        account::create_account_for_test(signer::address_of(aptos_framework));
+        block::initialize_for_test(aptos_framework, 1);
+        timestamp::set_time_has_started_for_testing(aptos_framework);
+
+        let start_price = 100;
+        let marketplace_address = init_marketplace<APT>(owner, apt_aggr, start_price);
+
+        let min_bet = 2000;
+        let end_time = market::min_open_duration();
+        let fee_nominator = 10;
+        let fee_denominator = 100;
+        market::create_market<APT>(owner, object::address_to_object<marketplace::Marketplace<APT>>(marketplace_address), end_time, min_bet, fee_nominator, fee_denominator);
+
+        let open_markets = marketplace::available_markets<APT>(marketplace_address);
+        let created_market_address = vector::borrow(&open_markets, 0);
+        let market_object = object::address_to_object<market::Market<APT>>(*created_market_address);
+
+        market::vote(user, market_object, true);
+        market::vote(user, market_object, false);
+        assert!(market::get_down_votes_sum<APT>(*created_market_address) == 1, 0);
+        assert!(market::get_up_votes_sum<APT>(*created_market_address) == 0, 0);
+
+    }
 }
