@@ -4,7 +4,6 @@ module panana::market {
     use aptos_std::simple_map;
     use aptos_std::coin;
     use std::timestamp;
-    use std::vector;
     use std::object;
     use std::option;
     use aptos_std::debug;
@@ -14,6 +13,7 @@ module panana::market {
     use aptos_framework::event;
     use panana::price_oracle;
     use panana::marketplace::{Marketplace, Self};
+
 
 
     const E_UNAUTHORIZED: u64 = 1; // Error when the user is not authorized to perform an action
@@ -408,6 +408,10 @@ module panana::market {
             i = i + 1;
         };
     }
+
+
+    #[test_only]
+    use std::vector;
 
     #[test]
     fun test_calculate_and_send_rewards() {

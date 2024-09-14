@@ -1,7 +1,6 @@
 module panana::price_oracle {
     use std::signer;
     use std::string::String;
-    use panana::math128;
     use switchboard::aggregator;
     use switchboard::math;
     use aptos_std::simple_map;
@@ -35,17 +34,6 @@ module panana::price_oracle {
         results: simple_map::SimpleMap<String, Result>
     }
 
-    struct Volume<phantom C> has key, drop {
-        input: u128,
-        price: Result,
-        result: u128
-    }
-
-    struct Amount<phantom C> has key, drop {
-        input: u128,
-        price: Result,
-        result: u128
-    }
 
     public entry fun initialize(owner: &signer) {
         assert!(!exists<Storage>(signer::address_of(owner)), E_STORAGE_ALREADY_EXISTS);
@@ -117,49 +105,10 @@ module panana::price_oracle {
         price<C>(account);
     }
 
-    public entry fun volume<C>(account: &signer, amount: u128) acquires Storage, Volume {
-        let (value, dec) = price_internal(utils::key<C>());
-        let numerator = amount * value;
-        let result = numerator / math128::pow_10((dec as u128));
-        let account_addr = signer::address_of(account);
-        let result_res = Volume<C> {
-            input: amount,
-            price: Result { value, dec },
-            result: copy result,
-        };
-        if (exists<Volume<C>>(account_addr)) {
-            let res = borrow_global_mut<Volume<C>>(account_addr);
-            res.input = result_res.input;
-            res.price = result_res.price;
-            res.result = result_res.result;
-        } else {
-            move_to(account, result_res);
-        };
-    }
-    public entry fun to_amount<C>(account: &signer, volume: u128) acquires Storage, Amount {
-        let (value, dec) = price_internal(utils::key<C>());
-        let numerator = volume * math128::pow_10((dec as u128));
-        let result = numerator / value;
-        let account_addr = signer::address_of(account);
-        let result_res = Amount<C> {
-            input: volume,
-            price: Result { value, dec },
-            result: copy result,
-        };
-        if (exists<Amount<C>>(account_addr)) {
-            let res = borrow_global_mut<Amount<C>>(account_addr);
-            res.input = result_res.input;
-            res.price = result_res.price;
-            res.result = result_res.result;
-        } else {
-            move_to(account, result_res);
-        };
-    }
-
-    #[test_only]
-    use std::vector;
     #[test_only]
     use std::unit_test;
+    #[test_only]
+    use aptos_std::math128;
     #[test_only]
     use aptos_framework::account;
     #[test_only]
@@ -177,7 +126,7 @@ module panana::price_oracle {
 
         aggregator::new_test(acc1, 100, 0, false);
         let (val, dec, is_neg) = math::unpack(aggregator::latest_value(signer::address_of(acc1)));
-        assert!(val == 100 * math128::pow_10((dec as u128)), 0);
+        assert!(val == 100 * math128::pow(10, (dec as u128)), 0);
         assert!(dec == 9, 1);
         assert!(is_neg == false, 2);
     }
@@ -196,17 +145,17 @@ module panana::price_oracle {
         add_aggregator<USDC>(owner, signer::address_of(usdc_aggr));
 
         let (val, dec) = price<ETH>(owner);
-        assert!(val == math128::pow_10(9) * 1300, 0);
+        assert!(val == math128::pow(10, 9) * 1300, 0);
         assert!(dec == 9, 1);
         let (val, dec) = cached_price<ETH>(owner);
-        assert!(val == math128::pow_10(9) * 1300, 2);
+        assert!(val == math128::pow(10, 9) * 1300, 2);
         assert!(dec == 9, 3);
 
         let (val, dec) = price<USDC>(owner);
-        assert!(val == math128::pow_10(9) * 99 / 100, 0);
+        assert!(val == math128::pow(10, 9) * 99 / 100, 0);
         assert!(dec == 9, 1);
         let (val, dec) = cached_price<USDC>(owner);
-        assert!(val == math128::pow_10(9) * 99 / 100, 2);
+        assert!(val == math128::pow(10, 9) * 99 / 100, 2);
         assert!(dec == 9, 3);
     }
 }
