@@ -25,14 +25,15 @@ module panana::market {
     const E_INVALID_RESOLVE_MARKET_TYPE: u64 = 10; // Error if the resolved market type does not fit the market object
     const E_INVALID_VOTE: u64 = 11; // Error if the user's vote is invalid
     const E_MARKET_RUNNING: u64 = 12; // Error if user interacts with a market that is already closed
+    const E_PRICE_DELTA_DENOMINATOR_NULL: u64 = 13; // Error if the price denominator is null but the user bet on up or down
 
 
     const MIN_OPEN_DURATION_SEC: u64 = 60 * 10; // minimum open duration for a market is 10 minutes
     const EARLIEST_MARKET_OPENING_AFTER_SEC: u64 = 60 * 5; // the earliest a merket can start (5 minutes from now)
     const MAX_RESOLVE_MARKET_TIMESPAN: u64 = 10; // a market can be resolved until X seconds after it has been closed.
 
-    struct MarketFee has store, drop {
-        nominator: u64,
+    struct Percentage has store, drop {
+        numerator: u64,
         denominator: u64,
     }
 
@@ -44,7 +45,9 @@ module panana::market {
         min_bet: u64, // minimum bet amount for each player
         up_bets_sum: u64, // sum of all up bets
         down_bets_sum: u64, // sum of all down bets
-        fee: MarketFee, // Fee for the marketplace after the market has been resolved
+        fee: Percentage, // Fee for the marketplace after the market has been resolved
+        price_up: option::Option<bool>, // if set, the market must go up/down the price_delta
+        price_delta: Percentage, // The delta the price has to change either up or down to win this market
         up_bets: simple_map::SimpleMap<address, u64>, // map of users betting up
         down_bets: simple_map::SimpleMap<address, u64>, // map of users betting down
 
@@ -130,7 +133,7 @@ module panana::market {
 
     #[view]
     public fun fee<C>(market_address: address): (u64, u64) acquires Market {
-        let nominator = borrow_global<Market<C>>(market_address).fee.nominator;
+        let nominator = borrow_global<Market<C>>(market_address).fee.numerator;
         let denominator= borrow_global<Market<C>>(market_address).fee.denominator;
         (nominator, denominator)
     }
@@ -205,8 +208,20 @@ module panana::market {
         if (vote_up) *up_votes_sum = *up_votes_sum + 1 else *down_votes_sum = *down_votes_sum + 1;
     }
 
-    public entry fun create_market<C>(account: &signer, marketplace: Object<Marketplace<C>>, start_time_timestamp: u64, end_time_timestamp: u64, min_bet: u64, fee_nominator: u64, fee_denominator: u64) {
+    public entry fun create_market<C>(
+        account: &signer,
+        marketplace: Object<Marketplace<C>>,
+        start_time_timestamp: u64,
+        end_time_timestamp: u64,
+        min_bet: u64,
+        price_up: option::Option<bool>, // the amount the price should go up; can be left out and every change will win
+        price_delta_numerator: u64,
+        price_delta_denominator: u64,
+        fee_numerator: u64,
+        fee_denominator: u64,
+    ) {
         assert!(fee_denominator != 0, E_FEE_DENOMINATOR_NULL);
+        assert!(option::is_none(&price_up) || price_delta_denominator != 0, E_PRICE_DELTA_DENOMINATOR_NULL);
         let marketplace_address = object::object_address(&marketplace);
 
         let current_timestamp = timestamp::now_seconds();
@@ -226,9 +241,14 @@ module panana::market {
                 end_time: end_time_timestamp,
                 start_time: start_time_timestamp,
                 min_bet,
-                fee: MarketFee {
-                    nominator: fee_nominator,
+                fee: Percentage {
+                    numerator: fee_numerator,
                     denominator: fee_denominator,
+                },
+                price_up,
+                price_delta: Percentage {
+                    numerator: price_delta_numerator,
+                    denominator: price_delta_denominator,
                 },
                 up_bets_sum: 0,
                 down_bets_sum: 0,
@@ -321,9 +341,21 @@ module panana::market {
             dissolve_market(market_address, &market_ref.fee, &market_ref.up_bets, &market_ref.down_bets);
         } else {
             // Calculate winners based on price change
-            let price_up = (end_price as u64) > market_ref.start_price;
 
-            let winners = if (price_up) {
+            let price_up_won = if (option::is_none(&market_ref.price_up)) {
+                (end_price as u64) > market_ref.start_price
+            } else {
+                let price_up = *market_ref.price_up.borrow();
+                let percentage = market_ref.start_price * market_ref.price_delta.numerator / market_ref.price_delta.denominator;
+
+                if (price_up) {
+                    (end_price as u64) >= market_ref.start_price + percentage
+                } else {
+                    (end_price as u64) <= market_ref.start_price - percentage
+                }
+            };
+
+            let winners = if (price_up_won) {
                 // price went up
                 &market_ref.up_bets
             } else {
@@ -332,7 +364,7 @@ module panana::market {
             };
 
             let total_pool = market_ref.up_bets_sum + market_ref.down_bets_sum;
-            let winning_pool = if (price_up) market_ref.up_bets_sum else market_ref.down_bets_sum;
+            let winning_pool = if (price_up_won) market_ref.up_bets_sum else market_ref.down_bets_sum;
 
             distribute_rewards(market_address, winners, total_pool, winning_pool, &market_ref.fee);
         };
@@ -358,7 +390,7 @@ module panana::market {
         // move_from<Market>();
     }
 
-    fun dissolve_market(market_address: address, fee: &MarketFee, up_bets: &simple_map::SimpleMap<address, u64>, down_bets: &simple_map::SimpleMap<address, u64>) acquires ObjectController {
+    fun dissolve_market(market_address: address, fee: &Percentage, up_bets: &simple_map::SimpleMap<address, u64>, down_bets: &simple_map::SimpleMap<address, u64>) acquires ObjectController {
         let market_extend_ref = &borrow_global<ObjectController>(market_address).extend_ref;
         let market_signer = object::generate_signer_for_extending(market_extend_ref);
 
@@ -366,28 +398,29 @@ module panana::market {
         payout_bets(down_bets, fee, |payout_address, amount| coin::transfer<AptosCoin>(&market_signer, payout_address, amount));
     }
 
-    inline fun payout_bets(bets: &simple_map::SimpleMap<address, u64>, fee: &MarketFee, payout: |address, u64|) {
+    inline fun payout_bets(bets: &simple_map::SimpleMap<address, u64>, fee: &Percentage, payout: |address, u64|) {
         let keys = bets.keys();
         let len = keys.length();
         let i = 0;
         while (i < len) {
             let payout_addr = *keys.borrow(i);
             let user_bet = bets.borrow(&payout_addr);
-            let amount = *user_bet - (*user_bet * fee.nominator / fee.denominator);
+            let amount = *user_bet - (*user_bet * fee.numerator / fee.denominator);
             payout(payout_addr, amount);
             i = i + 1;
         };
     }
 
 
-    fun distribute_rewards(market_address: address, winners: &simple_map::SimpleMap<address, u64>, total_pool: u64, winning_pool: u64, fee: &MarketFee) acquires ObjectController {
+    fun distribute_rewards(market_address: address, winners: &simple_map::SimpleMap<address, u64>, total_pool: u64, winning_pool: u64, fee: &Percentage
+    ) acquires ObjectController {
         let market_extend_ref = &borrow_global<ObjectController>(market_address).extend_ref;
         let market_signer = object::generate_signer_for_extending(market_extend_ref);
 
         calculate_and_send_rewards(winners, total_pool, winning_pool, fee, |winner, amount, idx| coin::transfer<AptosCoin>(&market_signer, winner, amount));
     }
 
-    inline fun calculate_and_send_rewards(winners: &simple_map::SimpleMap<address, u64>, total_pool: u64, winning_pool: u64, fee: &MarketFee, payout: |address, u64, u64|) {
+    inline fun calculate_and_send_rewards(winners: &simple_map::SimpleMap<address, u64>, total_pool: u64, winning_pool: u64, fee: &Percentage, payout: |address, u64, u64|) {
         let keys = winners.keys();
         let len = keys.length();
         let i = 0;
@@ -401,7 +434,7 @@ module panana::market {
             let fractional_reward = scaled_bet_amount / (winning_pool as u256);
             let reward_before_fee = ((fractional_reward * (total_pool as u256) / scale) as u64);
 
-            let reward_after_fee = reward_before_fee - (reward_before_fee * fee.nominator / fee.denominator);
+            let reward_after_fee = reward_before_fee - (reward_before_fee * fee.numerator / fee.denominator);
 
             payout(winner_addr, reward_after_fee, i);
             i = i + 1;
@@ -434,8 +467,8 @@ module panana::market {
         expected_payout.push_back(627200000);
         expected_payout.push_back(784000000);
 
-        calculate_and_send_rewards(&winners, total_pool, winning_pool, &MarketFee {
-            nominator: 2,
+        calculate_and_send_rewards(&winners, total_pool, winning_pool, &Percentage {
+            numerator: 2,
             denominator: 100,
         }, |winner, payout, idx| {
             assert!(*expected_winners.borrow(idx) == winner, 0);
@@ -455,8 +488,8 @@ module panana::market {
         let expected_payout  = &mut vector::empty<u64>();
         expected_payout.push_back(98000000000000);
 
-        calculate_and_send_rewards(&winners, total_pool, winning_pool, &MarketFee {
-            nominator: 2,
+        calculate_and_send_rewards(&winners, total_pool, winning_pool, &Percentage {
+            numerator: 2,
             denominator: 100,
         }, |winner, payout, idx| {
             assert!(*expected_winners.borrow(idx) == winner, 0);
@@ -478,8 +511,8 @@ module panana::market {
         expected_payout.push_back(98000000000);
         expected_payout.push_back(195999999999); // scaling floating point issue with big numbers
 
-        calculate_and_send_rewards(&winners, total_pool, winning_pool, &MarketFee {
-            nominator: 2,
+        calculate_and_send_rewards(&winners, total_pool, winning_pool, &Percentage {
+            numerator: 2,
             denominator: 100,
         }, |winner, payout, idx| {
             assert!(*expected_winners.borrow(idx) == winner, 0);
