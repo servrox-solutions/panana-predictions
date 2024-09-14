@@ -32,6 +32,7 @@ async function compile() {
       owner: accountAddress,
       panana: accountAddress,
     },
+    extraArguments: ['--compiler-version=2', '--language-version=2'],
     profile,
     // namedAddresses: {
     //   // Publish module to account address

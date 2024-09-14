@@ -36,7 +36,7 @@ module panana::marketplace_test {
         let apt_marketplace_address = init_marketplace<APT>(owner);
 
         let open_markets = marketplace::available_markets<APT>(apt_marketplace_address);
-        assert!(vector::is_empty(&open_markets), 0);
+        assert!(open_markets.is_empty(), 0);
     }
 
     #[expected_failure(abort_code = marketplace::E_MARKETPLACE_ALREADY_EXISTS)]
@@ -87,9 +87,9 @@ module panana::marketplace_test {
         panana::marketplace::add_open_market<APT>(apt_marketplace_address, signer::address_of(market));
         panana::marketplace::add_open_market<APT>(apt_marketplace_address, signer::address_of(market2));
         let open_markets = marketplace::available_markets<APT>(apt_marketplace_address);
-        assert!(vector::length(&open_markets) == 2, 0);
-        let market_address = vector::borrow(&open_markets, 0);
-        let market_address2 = vector::borrow(&open_markets, 1);
+        assert!(open_markets.length() == 2, 0);
+        let market_address = open_markets.borrow(0);
+        let market_address2 = open_markets.borrow(1);
         assert!(*market_address == signer::address_of(market), 1);
         assert!(*market_address2 == signer::address_of(market2), 1);
     }
@@ -102,13 +102,13 @@ module panana::marketplace_test {
         panana::marketplace::add_open_market<APT>(apt_marketplace_address, signer::address_of(market2));
 
         let open_markets = marketplace::available_markets<APT>(apt_marketplace_address);
-        assert!(vector::length(&open_markets) == 2, 0);
+        assert!(open_markets.length() == 2, 0);
 
         panana::marketplace::remove_open_market<APT>(apt_marketplace_address, signer::address_of(market));
         let open_markets_after_remove = marketplace::available_markets<APT>(apt_marketplace_address);
-        assert!(vector::length(&open_markets_after_remove) == 1, 1);
+        assert!(open_markets_after_remove.length() == 1, 1);
 
-        let market_address_after_close = vector::borrow(&open_markets_after_remove, 0);
+        let market_address_after_close = open_markets_after_remove.borrow(0);
         assert!(*market_address_after_close == signer::address_of(market2), 2);
     }
 

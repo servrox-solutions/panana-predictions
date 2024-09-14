@@ -39,7 +39,7 @@ async function publish() {
         owner: accountAddress,
       },
       profile,
-      extraArguments: ['--included-artifacts=none', "--assume-yes"]
+      extraArguments: ['--compiler-version=2', '--language-version=2', '--included-artifacts=none', "--assume-yes"]
     })
     .then((response) => {
       const filePath = ".env";

@@ -70,9 +70,9 @@ module panana::price_oracle {
         assert!(exists<Storage>(owner_addr), E_STORAGE_DOES_NOT_EXIST);
         assert!(!is_registered(key), E_AGGREGATOR_ALREADY_REGISTERED);
         let aggrs = &mut borrow_global_mut<Storage>(owner_addr).aggregators;
-        simple_map::add(aggrs, key, aggregator);
+        aggrs.add(key, aggregator);
         let results = &mut borrow_global_mut<Storage>(owner_addr).results;
-        simple_map::add(results, key, Result { value: 0, dec: 0 });
+        results.add(key, Result { value: 0, dec: 0 });
     }
 
     fun is_registered(key: String): bool acquires Storage {
@@ -81,7 +81,7 @@ module panana::price_oracle {
     }
 
     fun is_registered_internal(key: String, storage: &Storage): bool {
-        simple_map::contains_key(&storage.aggregators, &key)
+        storage.aggregators.contains_key(&key)
     }
 
     public fun price_from_aggregator(aggregator_addr: address): (u128, u8) {
@@ -94,17 +94,17 @@ module panana::price_oracle {
         assert!(exists<Storage>(owner_addr), E_STORAGE_DOES_NOT_EXIST);
         assert!(is_registered(key), E_ASSET_NOT_REGISTERED);
         let aggrs = &borrow_global<Storage>(owner_addr).aggregators;
-        let aggregator_addr = simple_map::borrow<String, address>(aggrs, &key);
+        let aggregator_addr = aggrs.borrow::<String, address>(&key);
         let (value, dec) = price_from_aggregator(*aggregator_addr);
         let results = &mut borrow_global_mut<Storage>(owner_addr).results;
-        let result = simple_map::borrow_mut(results, &key);
+        let result = results.borrow_mut(&key);
         result.value = value;
         result.dec = dec;
         (value, dec)
     }
     public fun cached_price<C>(_account: &signer): (u128, u8) acquires Storage {
         let results = &borrow_global<Storage>(utils::owner()).results;
-        let result = simple_map::borrow(results, &utils::key<C>());
+        let result = results.borrow(&utils::key<C>());
         (result.value, result.dec)
     }
     public fun cached_price_entry<C>(account: &signer) acquires Storage {
@@ -173,7 +173,7 @@ module panana::price_oracle {
         timestamp::set_time_has_started_for_testing(aptos_framework);
 
         let signers = unit_test::create_signers_for_testing(1);
-        let acc1 = vector::borrow(&signers, 0);
+        let acc1 = signers.borrow(0);
 
         aggregator::new_test(acc1, 100, 0, false);
         let (val, dec, is_neg) = math::unpack(aggregator::latest_value(signer::address_of(acc1)));
