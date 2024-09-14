@@ -1,5 +1,6 @@
 #[test_only]
 module panana::market_test {
+    use std::option;
     use aptos_framework::event;
     #[test_only]
     use std::signer;
@@ -203,6 +204,93 @@ module panana::market_test {
 
         timestamp::fast_forward_seconds(market::earliest_market_opening_after_sec() + market::min_open_duration());
         market::place_bet(user, market_object, true, min_bet);
+    }
+
+    #[expected_failure(abort_code = market::E_MARKET_RUNNING)]
+    #[test(aptos_framework = @aptos_framework, owner = @0x100, user = @0x200, apt_aggr = @0x111AAA)]
+    fun test_market_bet_running(owner: &signer, aptos_framework: &signer, user: &signer, apt_aggr: &signer)  {
+        account::create_account_for_test(signer::address_of(aptos_framework));
+        block::initialize_for_test(aptos_framework, 1);
+        timestamp::set_time_has_started_for_testing(aptos_framework);
+
+        let start_price = 100;
+        let marketplace_address = init_marketplace<APT>(owner, apt_aggr, start_price);
+
+        let min_bet = 2000;
+        let start_time = market::earliest_market_opening_after_sec();
+        let end_time = start_time + market::min_open_duration();
+        let fee_nominator = 10;
+        let fee_denominator = 100;
+        market::create_market<APT>(owner, object::address_to_object<marketplace::Marketplace<APT>>(marketplace_address), start_time, end_time, min_bet, fee_nominator, fee_denominator);
+
+        let open_markets = marketplace::available_markets<APT>(marketplace_address);
+        let created_market_address = vector::borrow(&open_markets, 0);
+        let market_object = object::address_to_object<market::Market<APT>>(*created_market_address);
+
+        let (burn, mint) = initialize_for_test(aptos_framework);
+        let coins = coin::mint<AptosCoin>(1000000000, &mint);
+
+        aptos_account::deposit_coins(signer::address_of(user), coins);
+
+        coin::destroy_burn_cap(burn);
+        coin::destroy_mint_cap(mint);
+
+        timestamp::fast_forward_seconds(market::earliest_market_opening_after_sec());
+        market::place_bet(user, market_object, true, min_bet);
+    }
+
+    #[test(aptos_framework = @aptos_framework, owner = @0x100, user = @0x200, user2 = @0x300, apt_aggr = @0x111AAA)]
+    fun test_market_bet(owner: &signer, aptos_framework: &signer, user: &signer, user2: &signer, apt_aggr: &signer)  {
+        account::create_account_for_test(signer::address_of(aptos_framework));
+        block::initialize_for_test(aptos_framework, 1);
+        timestamp::set_time_has_started_for_testing(aptos_framework);
+
+        let start_price = 100;
+        let marketplace_address = init_marketplace<APT>(owner, apt_aggr, start_price);
+
+        let min_bet = 2000;
+        let start_time = market::earliest_market_opening_after_sec();
+        let end_time = start_time + market::min_open_duration();
+        let fee_nominator = 10;
+        let fee_denominator = 100;
+        market::create_market<APT>(owner, object::address_to_object<marketplace::Marketplace<APT>>(marketplace_address), start_time, end_time, min_bet, fee_nominator, fee_denominator);
+
+        let open_markets = marketplace::available_markets<APT>(marketplace_address);
+        let created_market_address = vector::borrow(&open_markets, 0);
+        let market_object = object::address_to_object<market::Market<APT>>(*created_market_address);
+
+        let (burn, mint) = initialize_for_test(aptos_framework);
+        let coins = coin::mint<AptosCoin>(1000000000, &mint);
+        let coins2 = coin::mint<AptosCoin>(1000000000, &mint);
+
+        aptos_account::deposit_coins(signer::address_of(user), coins);
+        aptos_account::deposit_coins(signer::address_of(user2), coins2);
+
+        coin::destroy_burn_cap(burn);
+        coin::destroy_mint_cap(mint);
+
+        timestamp::fast_forward_seconds(market::earliest_market_opening_after_sec() - 1);
+        market::place_bet(user, market_object, true, min_bet);
+        assert!(market::up_bets<APT>(*created_market_address) == 1, 0);
+        assert!(market::down_bets<APT>(*created_market_address) == 0, 1);
+        assert!(option::extract(&mut market::up_bet<APT>(*created_market_address, signer::address_of(user))) == min_bet, 3);
+
+        market::place_bet(user2, market_object, true, 30000);
+        assert!(market::up_bets<APT>(*created_market_address) == 2, 0);
+        assert!(market::down_bets<APT>(*created_market_address) == 0, 1);
+        assert!(option::extract(&mut market::up_bet<APT>(*created_market_address, signer::address_of(user))) == min_bet, 3);
+        assert!(option::extract(&mut market::up_bet<APT>(*created_market_address, signer::address_of(user2))) == 30000, 3);
+
+        market::place_bet(user, market_object, false, 12345);
+        assert!(market::up_bets<APT>(*created_market_address) == 2, 0);
+        assert!(market::down_bets<APT>(*created_market_address) == 1, 1);
+        assert!(option::extract(&mut market::up_bet<APT>(*created_market_address, signer::address_of(user))) == min_bet, 3);
+        assert!(option::extract(&mut market::down_bet<APT>(*created_market_address, signer::address_of(user))) == 12345, 3);
+
+        market::place_bet(user2, market_object, true, 30000);
+        assert!(market::up_bets<APT>(*created_market_address) == 2, 0);
+        assert!(market::down_bets<APT>(*created_market_address) == 1, 1);
+        assert!(option::extract(&mut market::up_bet<APT>(*created_market_address, signer::address_of(user2))) == 60000, 3);
     }
 
     #[test(aptos_framework = @aptos_framework, owner = @0x100, user = @0x200, user2 = @0x300, apt_aggr = @0x111AAA)]

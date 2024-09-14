@@ -11,6 +11,7 @@ async function test() {
       owner: "0x100",
       panana: "0x123"
     },
+    extraArguments: ['--coverage']
   });
 }
 test();

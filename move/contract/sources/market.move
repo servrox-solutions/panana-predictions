@@ -25,6 +25,7 @@ module panana::market {
     const E_FEE_DENOMINATOR_NULL: u64 = 9; // Error if the fee denominator is 0
     const E_INVALID_RESOLVE_MARKET_TYPE: u64 = 10; // Error if the resolved market type does not fit the market object
     const E_INVALID_VOTE: u64 = 11; // Error if the user's vote is invalid
+    const E_MARKET_RUNNING: u64 = 12; // Error if user interacts with a market that is already closed
 
 
     const MIN_OPEN_DURATION_SEC: u64 = 60 * 10; // minimum open duration for a market is 10 minutes
@@ -264,6 +265,7 @@ module panana::market {
         assert!(amount >= market_ref.min_bet, E_BET_TOO_LOW);
         let cur_time = timestamp::now_seconds();
         assert!(market_ref.end_time > cur_time, E_MARKET_CLOSED);
+        assert!(market_ref.start_time > cur_time, E_MARKET_RUNNING);
 
         let bets = if (bet_up) &mut market_ref.up_bets else &mut market_ref.down_bets;
 
