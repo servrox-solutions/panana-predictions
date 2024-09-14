@@ -11,7 +11,6 @@ module panana::market {
     use aptos_framework::aptos_account::{Self};
     use aptos_framework::aptos_coin::AptosCoin;
     use aptos_framework::event;
-    use panana::price_oracle;
     use panana::marketplace::{Marketplace, Self};
 
 
@@ -217,7 +216,7 @@ module panana::market {
         let market_constructor_ref = &object::create_object(marketplace_address);
         let market_signer = object::generate_signer(market_constructor_ref);
 
-        let (start_price, _) = price_oracle::price<C>(account);
+        let start_price = panana::marketplace::latest_price<C>(marketplace_address);
 
         move_to(
             &market_signer,
@@ -290,7 +289,7 @@ module panana::market {
         market_ref.end_time < cur_time
     }
 
-    public entry fun resolve_market<C>(account: &signer, market_obj: Object<Market<C>>) acquires Market, ObjectController {
+    public entry fun resolve_market<C>(market_obj: Object<Market<C>>) acquires Market, ObjectController {
         let marketplace_address = object::owner(market_obj);
         assert!( // should never happen
             object::object_exists<Marketplace<C>>(marketplace_address),
@@ -311,7 +310,7 @@ module panana::market {
         let resolve_time_passed = current_timestamp >= market_ref.end_time + MAX_RESOLVE_MARKET_TIMESPAN;
 
         // Get the end price from the oracle
-        let (end_price, _) = price_oracle::price<C>(account);
+        let end_price = panana::marketplace::latest_price<C>(marketplace_address);
         let end_price_u64 = (end_price as u64);
         let equal_price_outcome = end_price_u64 == market_ref.start_price;
 

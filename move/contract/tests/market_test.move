@@ -1,11 +1,9 @@
 #[test_only]
 module panana::market_test {
-    use std::option;
+    #[test_only]
     use aptos_framework::event;
     #[test_only]
     use std::signer;
-    #[test_only]
-    use std::vector;
     #[test_only]
     use aptos_framework::aptos_account;
     #[test_only]
@@ -17,8 +15,6 @@ module panana::market_test {
     #[test_only]
     use aptos_framework::timestamp;
     #[test_only]
-    use panana::price_oracle;
-    #[test_only]
     use panana::marketplace;
     #[test_only]
     use panana::market;
@@ -29,7 +25,7 @@ module panana::market_test {
     #[test_only]
     use aptos_framework::block;
     #[test_only]
-    use panana::price_oracle::APT;
+    use panana::switchboard_asset::APT;
     #[test_only]
     use switchboard::aggregator;
 
@@ -37,10 +33,7 @@ module panana::market_test {
     fun init_marketplace<C>(owner: &signer, aggregator: &signer, start_price: u128): address {
         aggregator::new_test(aggregator, start_price, 9, false);
 
-        price_oracle::initialize(owner);
-        price_oracle::add_aggregator<C>(owner, signer::address_of(aggregator));
-
-        marketplace::create_marketplace<C>(owner);
+        marketplace::create_marketplace<C>(owner, signer::address_of(aggregator));
 
         marketplace::marketplace_address<C>(signer::address_of(owner))
     }
@@ -357,7 +350,7 @@ module panana::market_test {
         coin::destroy_mint_cap(mint);
 
         timestamp::fast_forward_seconds(market::min_open_duration());
-        market::resolve_market<APT>(user, market_object);
+        market::resolve_market<APT>(market_object);
     }
 
     #[expected_failure(abort_code = market::E_MARKET_CLOSED)]
@@ -392,7 +385,7 @@ module panana::market_test {
         // Don't know if this can ever happen naturally, but we have it covered.
         // Manually causing the error here.
         panana::marketplace::remove_open_market<APT>(marketplace_address, *created_market_address);
-        market::resolve_market<APT>(user, market_object);
+        market::resolve_market<APT>(market_object);
     }
 
     #[test(aptos_framework = @aptos_framework, owner = @0x100, user = @0x200, user2 = @0x300, apt_aggr = @0x111AAA)]
@@ -429,7 +422,7 @@ module panana::market_test {
 
         timestamp::fast_forward_seconds(market::earliest_market_opening_after_sec() + market::min_open_duration() + 1);
         aggregator::update_value(apt_aggr, start_price - 1, 9, false);
-        market::resolve_market<APT>(user, market_object);
+        market::resolve_market<APT>(market_object);
 
         assert!(coin::balance<AptosCoin>(signer::address_of(user)) == 0, 1);
         assert!(coin::balance<AptosCoin>(signer::address_of(user2)) == 2700000000, 2);
@@ -481,7 +474,7 @@ module panana::market_test {
         market::place_bet(user2, market_object, false, 2000000000);
 
         timestamp::fast_forward_seconds(market::earliest_market_opening_after_sec() + market::min_open_duration() + 1);
-        market::resolve_market<APT>(user, market_object);
+        market::resolve_market<APT>(market_object);
 
         assert!(coin::balance<AptosCoin>(signer::address_of(user)) == 900000000, 1);
         assert!(coin::balance<AptosCoin>(signer::address_of(user2)) == 1800000000, 2);
@@ -534,7 +527,7 @@ module panana::market_test {
 
         timestamp::fast_forward_seconds(end_time + market::max_resolve_market_timespan());
         aggregator::update_value(apt_aggr, start_price - 1, 9, false);
-        market::resolve_market<APT>(user, market_object);
+        market::resolve_market<APT>(market_object);
 
         assert!(coin::balance<AptosCoin>(signer::address_of(user)) == 900000000, 1);
         assert!(coin::balance<AptosCoin>(signer::address_of(user2)) == 1800000000, 2);

@@ -11,7 +11,7 @@ async function test() {
       owner: "0x100",
       panana: "0x123"
     },
-    extraArguments: ['--compiler-version=2', '--language-version=2', '--coverage']
+    extraArguments: ['--move-2', '--coverage']
   });
 }
 test();

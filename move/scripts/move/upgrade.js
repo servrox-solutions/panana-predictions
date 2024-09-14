@@ -43,7 +43,7 @@ async function publish() {
       panana: moduleAddress,
     },
     profile,
-    extraArguments: ['--compiler-version=2', '--language-version=2', '--included-artifacts=none', "--assume-yes"]
+    extraArguments: ['--move-2', '--included-artifacts=none', "--assume-yes"]
   });
 }
 publish();
