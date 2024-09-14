@@ -25,8 +25,10 @@ import { useForm, Controller } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useWallet } from "@aptos-labs/wallet-adapter-react";
-import { getAptosClient } from "@/lib/get-aptos-client";
-import { InputGenerateTransactionPayloadData } from "@aptos-labs/ts-sdk";
+
+import { aptos } from "@/lib/aptos";
+import { createEntryPayload } from "@thalalabs/surf";
+import { ABI } from "@/lib/abi";
 
 function formatDuration(seconds: number): string {
   const absSeconds = Math.abs(seconds);
@@ -111,33 +113,29 @@ export function MarketCard({ market }: { market: Market }) {
     setIsPending(true);
 
     try {
-      const aptosClient = getAptosClient();
+      const moduleAddress =
+        "0x6913ef234d0f7d880e6e808d493e84227e3d6347674d1e11e22366ccd0f14e2a";
 
-      // const moduleAddress =
-      //   "0x6913ef234d0f7d880e6e808d493e84227e3d6347674d1e11e22366ccd0f14e2a";
-
-      const payload: InputGenerateTransactionPayloadData = {
-        // type: "entry_function_payload",
-        // function: `${moduleAddress}::market::place_bet`,
-        function: `"0x6913ef234d0f7d880e6e808d493e84227e3d6347674d1e11e22366ccd0f14e2a::market::place_bet"`,
-        typeArguments: [
-          `0x6913ef234d0f7d880e6e808d493e84227e3d6347674d1e11e22366ccd0f14e2a::price_oracle::BTC`,
-        ],
+      const payload = createEntryPayload(ABI, {
+        function: "place_bet",
+        typeArguments: [`${moduleAddress}::price_oracle::BTC`],
         functionArguments: [
-          // `0x${key}`,
           `0x4e19e11ee04ac5f16169720de8e2a004602207b32847bd4b31af1337f017e342`,
           data.betDirection === "up",
-          data.betAmount.toString(), // Amount as string
+          data.betAmount.toString(),
         ],
-      };
+      });
 
-      // Sign and submit the transaction
       const transactionResponse = await signAndSubmitTransaction({
+        sender: account.address,
         data: payload,
       });
 
-      // Wait for transaction confirmation
-      await aptosClient.waitForTransaction(transactionResponse.hash);
+      const committedTransactionResponse = await aptos.waitForTransaction(
+        transactionResponse.hash
+      );
+
+      console.log("🍧", committedTransactionResponse);
 
       setMessage(`Transaction submitted! Hash: ${transactionResponse.hash}`);
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
