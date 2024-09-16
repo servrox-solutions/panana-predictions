@@ -11,8 +11,4 @@ module panana::utils {
     public fun type_of<C>(): vector<u8> {
         type_info::struct_name(&type_info::type_of<C>())
     }
-
-    public fun owner(): address {
-        @owner
-    }
 }

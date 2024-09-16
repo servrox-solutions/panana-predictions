@@ -1,11 +1,17 @@
 #[test_only]
 module panana::marketplace_test {
     #[test_only]
+    use aptos_framework::account;
+    #[test_only]
+    use aptos_framework::block;
+    #[test_only]
+    use aptos_framework::timestamp;
+    #[test_only]
+    use switchboard::aggregator;
+    #[test_only]
     use aptos_framework::aptos_coin::AptosCoin;
     #[test_only]
     use aptos_framework::coin;
-    #[test_only]
-    use std::vector;
     #[test_only]
     use std::signer;
     #[test_only]
@@ -19,11 +25,11 @@ module panana::marketplace_test {
     #[test_only]
     use aptos_framework::aptos_coin::initialize_for_test;
     #[test_only]
-    use panana::price_oracle::APT;
+    use panana::switchboard_asset::{APT, BTC};
 
     #[test_only]
     fun init_marketplace<C>(owner: &signer): address {
-        marketplace::create_marketplace<C>(owner);
+        marketplace::create_marketplace<C>(owner, @0xCAFE);
 
         object::create_object_address(
             &signer::address_of(owner),
@@ -36,14 +42,35 @@ module panana::marketplace_test {
         let apt_marketplace_address = init_marketplace<APT>(owner);
 
         let open_markets = marketplace::available_markets<APT>(apt_marketplace_address);
-        assert!(vector::is_empty(&open_markets), 0);
+        let marketplaces = marketplace::available_marketplaces(signer::address_of(owner));
+        assert!(open_markets.is_empty(), 0);
+        assert!(marketplaces.length() == 1, 1);
+
+        marketplace::create_marketplace<BTC>(owner, @0xCAFE);
+        let marketplaces = marketplace::available_marketplaces(signer::address_of(owner));
+        assert!(marketplaces.length() == 2, 1);
+    }
+
+    #[test(aptos_framework = @aptos_framework, owner = @0x100, agg = @0xAAA111)]
+    fun test_marketplace_latest_price(owner: &signer, aptos_framework: &signer, agg: &signer) {
+        account::create_account_for_test(signer::address_of(aptos_framework));
+        block::initialize_for_test(aptos_framework, 1);
+        timestamp::set_time_has_started_for_testing(aptos_framework);
+
+        aggregator::new_test(agg, 100, 9, false);
+        marketplace::create_marketplace<APT>(owner, signer::address_of(agg));
+        let marketplace_address = object::create_object_address(
+            &signer::address_of(owner),
+            utils::type_of<marketplace::Marketplace<APT>>()
+        );
+        assert!(panana::marketplace::latest_price<APT>(marketplace_address) == 100, 0);
     }
 
     #[expected_failure(abort_code = marketplace::E_MARKETPLACE_ALREADY_EXISTS)]
     #[test(owner = @0x100)]
     fun test_initialize_marketplace_double_creation(owner: &signer) {
-        marketplace::create_marketplace<APT>(owner);
-        marketplace::create_marketplace<APT>(owner);
+        marketplace::create_marketplace<APT>(owner, @0xCAFE);
+        marketplace::create_marketplace<APT>(owner, @0xCAFE);
     }
 
     #[test(aptos_framework = @aptos_framework, owner = @0x100, user = @0x200, user2 = @0x300)]
@@ -87,9 +114,9 @@ module panana::marketplace_test {
         panana::marketplace::add_open_market<APT>(apt_marketplace_address, signer::address_of(market));
         panana::marketplace::add_open_market<APT>(apt_marketplace_address, signer::address_of(market2));
         let open_markets = marketplace::available_markets<APT>(apt_marketplace_address);
-        assert!(vector::length(&open_markets) == 2, 0);
-        let market_address = vector::borrow(&open_markets, 0);
-        let market_address2 = vector::borrow(&open_markets, 1);
+        assert!(open_markets.length() == 2, 0);
+        let market_address = open_markets.borrow(0);
+        let market_address2 = open_markets.borrow(1);
         assert!(*market_address == signer::address_of(market), 1);
         assert!(*market_address2 == signer::address_of(market2), 1);
     }
@@ -102,13 +129,13 @@ module panana::marketplace_test {
         panana::marketplace::add_open_market<APT>(apt_marketplace_address, signer::address_of(market2));
 
         let open_markets = marketplace::available_markets<APT>(apt_marketplace_address);
-        assert!(vector::length(&open_markets) == 2, 0);
+        assert!(open_markets.length() == 2, 0);
 
         panana::marketplace::remove_open_market<APT>(apt_marketplace_address, signer::address_of(market));
         let open_markets_after_remove = marketplace::available_markets<APT>(apt_marketplace_address);
-        assert!(vector::length(&open_markets_after_remove) == 1, 1);
+        assert!(open_markets_after_remove.length() == 1, 1);
 
-        let market_address_after_close = vector::borrow(&open_markets_after_remove, 0);
+        let market_address_after_close = open_markets_after_remove.borrow(0);
         assert!(*market_address_after_close == signer::address_of(market2), 2);
     }
 

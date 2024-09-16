@@ -8,6 +8,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
+    "server": "bun server/index.ts",
     "move:init": "node ./move/scripts/init",
     "move:test": "node ./move/scripts/move/test",
     "move:compile": "node ./move/scripts/move/compile",

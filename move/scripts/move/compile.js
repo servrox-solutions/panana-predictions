@@ -25,13 +25,13 @@ async function compile() {
 
 
   const move = new cli.Move();
-  console.log(accountAddress)
   await move.compile({
     packageDirectoryPath: "move/contract",
     namedAddresses: {
       owner: accountAddress,
       panana: accountAddress,
     },
+    extraArguments: [],
     profile,
     // namedAddresses: {
     //   // Publish module to account address

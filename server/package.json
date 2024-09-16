@@ -1,0 +1,16 @@
+{
+  "name": "panana-server",
+  "module": "index.ts",
+  "type": "module",
+  "devDependencies": {
+    "@types/bun": "latest",
+    "@types/node-schedule": "^2.1.7"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "axios": "^1.7.7",
+    "node-schedule": "^2.1.1"
+  }
+}
