@@ -32,7 +32,7 @@ async function compile() {
       owner: accountAddress,
       panana: accountAddress,
     },
-    extraArguments: ['--move-2'],
+    extraArguments: [],
     profile,
     // namedAddresses: {
     //   // Publish module to account address
