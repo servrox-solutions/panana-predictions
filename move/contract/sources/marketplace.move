@@ -60,13 +60,13 @@ module panana::marketplace {
 
     public(friend) fun add_open_market<C>(marketplace_address: address, market_address: address) acquires Marketplace {
         let open_markets = &mut borrow_global_mut<Marketplace<C>>(marketplace_address).available_markets;
-        assert!(!open_markets.contains(&market_address), E_MARKET_ALREADY_EXISTS); // Should never happen
-        open_markets.push_back(market_address);
+        assert!(!vector::contains(open_markets, &market_address), E_MARKET_ALREADY_EXISTS); // Should never happen
+        vector::push_back(open_markets, market_address);
     }
 
     public(friend) fun remove_open_market<C>(marketplace_address: address, market_address: address) acquires Marketplace {
         let open_markets = &mut borrow_global_mut<Marketplace<C>>(marketplace_address).available_markets;
-        open_markets.remove_value(&market_address);
+        vector::remove_value(open_markets, &market_address);
     }
 
     public(friend) fun latest_price<C>(marketplace_address: address): u128 acquires Marketplace {
@@ -119,7 +119,7 @@ module panana::marketplace {
             });
         };
         let marketplaces = &mut borrow_global_mut<MarketplaceList>(account_address).marketplaces;
-        marketplaces.push_back(object::object_address(&marketplace_object));
+        vector::push_back(marketplaces, object::object_address(&marketplace_object));
     }
 
     public entry fun payout_marketplace<C>(account: &signer, marketplace: Object<Marketplace<C>>, recipient: address) acquires ObjectController {

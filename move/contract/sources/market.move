@@ -6,6 +6,7 @@ module panana::market {
     use std::timestamp;
     use std::object;
     use std::option;
+    use std::vector;
     use aptos_std::debug;
     use aptos_framework::object::{Object};
     use aptos_framework::aptos_account::{Self};
@@ -141,31 +142,31 @@ module panana::market {
     #[view]
     public fun up_bet<C>(market_address: address, user_address: address): option::Option<u64> acquires Market {
         let up_bets = borrow_global<Market<C>>(market_address).up_bets;
-        return if (!up_bets.contains_key(&user_address))
+        return if (!simple_map::contains_key(&up_bets, &user_address))
             option::none()
         else
-            option::some(*up_bets.borrow(&user_address))
+            option::some(*simple_map::borrow(&up_bets, &user_address))
     }
 
     #[view]
     public fun down_bet<C>(market_address: address, user_address: address): option::Option<u64> acquires Market {
         let down_bets  = borrow_global<Market<C>>(market_address).down_bets;
-        return if (!down_bets.contains_key(&user_address))
+        return if (!simple_map::contains_key(&down_bets, &user_address))
             option::none()
         else
-            option::some(*down_bets.borrow(&user_address))
+            option::some(*simple_map::borrow(&down_bets, &user_address))
     }
 
     #[view]
     public fun up_bets<C>(market_address: address): u64 acquires Market {
         let up_bets  = borrow_global<Market<C>>(market_address).up_bets;
-        up_bets.length()
+        simple_map::length(&up_bets)
     }
 
     #[view]
     public fun down_bets<C>(market_address: address): u64 acquires Market {
         let down_bets  = borrow_global<Market<C>>(market_address).down_bets;
-        down_bets.length()
+        simple_map::length(&down_bets)
     }
 
 
@@ -182,8 +183,8 @@ module panana::market {
     #[view]
     public fun get_vote<C>(market_address: address, user_address: address): option::Option<bool> acquires Market {
         let user_votes = borrow_global<Market<C>>(market_address).user_votes;
-        if (user_votes.contains_key(&user_address))
-            option::some(*user_votes.borrow(&user_address))
+        if (simple_map::contains_key(&user_votes, &user_address))
+            option::some(*simple_map::borrow(&user_votes, &user_address))
         else
             option::none<bool>()
     }
@@ -196,13 +197,13 @@ module panana::market {
         let down_votes_sum = &mut market.down_votes_sum;
         let up_votes_sum = &mut market.up_votes_sum;
 
-        if (user_votes.contains_key(&account_address)) {
-            let user_vote = user_votes.borrow_mut(&account_address);
+        if (simple_map::contains_key(user_votes, &account_address)) {
+            let user_vote = simple_map::borrow_mut(user_votes, &account_address);
             assert!(*user_vote != vote_up, E_INVALID_VOTE);
             *user_vote = vote_up;
             if (vote_up) *down_votes_sum = *down_votes_sum - 1 else *up_votes_sum = *up_votes_sum - 1;
         } else {
-            user_votes.add(account_address, vote_up);
+            simple_map::add(user_votes, account_address, vote_up);
         };
 
         if (vote_up) *up_votes_sum = *up_votes_sum + 1 else *down_votes_sum = *down_votes_sum + 1;
@@ -288,10 +289,10 @@ module panana::market {
 
         let bets = if (bet_up) &mut market_ref.up_bets else &mut market_ref.down_bets;
 
-        if (!bets.contains_key(&signer_address)) {
-            bets.add(signer_address, amount);
+        if (!simple_map::contains_key(bets, &signer_address)) {
+            simple_map::add(bets, signer_address, amount);
         } else {
-            let user_bet = bets.borrow_mut(&signer_address);
+            let user_bet = simple_map::borrow_mut(bets, &signer_address);
             *user_bet = *user_bet + amount;
         };
 
@@ -318,7 +319,7 @@ module panana::market {
 
         let market_address = object::object_address(&market_obj);
         let open_markets = marketplace::available_markets<C>(marketplace_address);
-        assert!(open_markets.contains(&market_address), E_MARKET_CLOSED);
+        assert!(vector::contains(&open_markets, &market_address), E_MARKET_CLOSED);
 
         let market_ref = borrow_global<Market<C>>(market_address);
 
@@ -345,7 +346,7 @@ module panana::market {
             let price_up_won = if (option::is_none(&market_ref.price_up)) {
                 (end_price as u64) > market_ref.start_price
             } else {
-                let price_up = *market_ref.price_up.borrow();
+                let price_up = *option::borrow(&market_ref.price_up);
                 let percentage = market_ref.start_price * market_ref.price_delta.numerator / market_ref.price_delta.denominator;
 
                 if (price_up) {
@@ -399,12 +400,12 @@ module panana::market {
     }
 
     inline fun payout_bets(bets: &simple_map::SimpleMap<address, u64>, fee: &Percentage, payout: |address, u64|) {
-        let keys = bets.keys();
-        let len = keys.length();
+        let keys = simple_map::keys(bets);
+        let len = vector::length(&keys);
         let i = 0;
         while (i < len) {
-            let payout_addr = *keys.borrow(i);
-            let user_bet = bets.borrow(&payout_addr);
+            let payout_addr = *vector::borrow(&keys, i);
+            let user_bet = simple_map::borrow(bets, &payout_addr);
             let amount = *user_bet - (*user_bet * fee.numerator / fee.denominator);
             payout(payout_addr, amount);
             i = i + 1;
@@ -421,13 +422,13 @@ module panana::market {
     }
 
     inline fun calculate_and_send_rewards(winners: &simple_map::SimpleMap<address, u64>, total_pool: u64, winning_pool: u64, fee: &Percentage, payout: |address, u64, u64|) {
-        let keys = winners.keys();
-        let len = keys.length();
+        let keys = simple_map::keys(winners);
+        let len = vector::length(&keys);
         let i = 0;
         // Reward each winner proportionally to their bet
         while (i < len) {
-            let winner_addr = *keys.borrow(i);
-            let user_bet = winners.borrow(&winner_addr);
+            let winner_addr = *vector::borrow(&keys, i);
+            let user_bet = simple_map::borrow(winners, &winner_addr);
 
             let scale: u256 = 100_000_000_000;
             let scaled_bet_amount = (*user_bet as u256) * scale;
