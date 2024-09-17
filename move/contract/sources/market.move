@@ -6,8 +6,10 @@ module panana::market {
     use std::timestamp;
     use std::object;
     use std::option;
+    use std::option::is_some;
     use std::vector;
     use aptos_std::debug;
+    use aptos_std::table::borrow;
     use aptos_framework::object::{Object};
     use aptos_framework::aptos_account::{Self};
     use aptos_framework::aptos_coin::AptosCoin;
@@ -20,14 +22,14 @@ module panana::market {
     const E_INVALID_MARKET_CLOSING_TIME: u64 = 3; // Error if we try to create a marketplace with an invalid closing time
     const E_INVALID_MARKET_OPENING_TIME: u64 = 4; // Error if we try to create a marketplace with an invalid closing time
     const E_MARKET_CLOSED: u64 = 6; // Error if user interacts with a market that is already closed
-    const E_MARKET_STILL_AVAILABLE: u64 = 7; // Error if trying to perform an action on an open market which is inteded for closed markets only
+    const E_CANNOT_RESOLVE_MARKET: u64 = 7; // Error if trying to perform an action on an open market which is inteded for closed markets only
     const E_BET_TOO_LOW: u64 = 8; // Error if the placed bet is lower than the minimum requried amount
     const E_FEE_DENOMINATOR_NULL: u64 = 9; // Error if the fee denominator is 0
-    const E_INVALID_RESOLVE_MARKET_TYPE: u64 = 10; // Error if the resolved market type does not fit the market object
+    const E_INVALID_MARKETPLACE_TYPE: u64 = 10; // Error if the resolved market type does not fit the market object
     const E_INVALID_VOTE: u64 = 11; // Error if the user's vote is invalid
     const E_MARKET_RUNNING: u64 = 12; // Error if user interacts with a market that is already closed
     const E_PRICE_DELTA_DENOMINATOR_NULL: u64 = 13; // Error if the price denominator is null but the user bet on up or down
-
+    const E_TOO_EARLY: u64 = 14; // Triggered whenever the user tries to do an action that is only allowed after a certain datetime
 
     const MIN_OPEN_DURATION_SEC: u64 = 60 * 10; // minimum open duration for a market is 10 minutes
     const EARLIEST_MARKET_OPENING_AFTER_SEC: u64 = 60 * 5; // the earliest a merket can start (5 minutes from now)
@@ -40,7 +42,8 @@ module panana::market {
 
     struct Market<phantom C> has key, store {
         creator: address, // creator address of the market
-        start_price: u64, // initial price when no more bets are accepted
+        start_price: option::Option<u64>, // initial price after market was opened
+        end_price: option::Option<u64>, // final price after closing the market
         start_time: u64, // timestamp in sec after which no more bets are accepted
         end_time: u64, // timstamp in sec at which the market is resolved
         min_bet: u64, // minimum bet amount for each player
@@ -52,6 +55,7 @@ module panana::market {
         up_bets: simple_map::SimpleMap<address, u64>, // map of users betting up
         down_bets: simple_map::SimpleMap<address, u64>, // map of users betting down
 
+        resolved_at: option::Option<u64>, // timestamp when the market was resolved
         user_votes: simple_map::SimpleMap<address, bool>, // a list of users who upvoted the market
         up_votes_sum: u64, // sum of all up votes
         down_votes_sum: u64, // sum of all down votes
@@ -108,7 +112,7 @@ module panana::market {
     }
 
     #[view]
-    public fun start_price<C>(market_address: address): u64 acquires Market {
+    public fun start_price<C>(market_address: address): option::Option<u64> acquires Market {
         borrow_global<Market<C>>(market_address).start_price
     }
 
@@ -232,13 +236,12 @@ module panana::market {
         let market_constructor_ref = &object::create_object(marketplace_address);
         let market_signer = object::generate_signer(market_constructor_ref);
 
-        let start_price = panana::marketplace::latest_price<C>(marketplace_address);
-
         move_to(
             &market_signer,
             Market<C> {
                 creator: signer::address_of(account),
-                start_price: (start_price as u64),
+                start_price: option::none(),
+                end_price: option::none(),
                 end_time: end_time_timestamp,
                 start_time: start_time_timestamp,
                 min_bet,
@@ -255,6 +258,7 @@ module panana::market {
                 down_bets_sum: 0,
                 up_bets: simple_map::create<address, u64>(),
                 down_bets: simple_map::create<address, u64>(),
+                resolved_at: option::none(),
                 up_votes_sum: 0,
                 down_votes_sum: 0,
                 user_votes: simple_map::new(),
@@ -276,6 +280,21 @@ module panana::market {
             start_time_timestamp,
             end_time_timestamp,
         });
+    }
+
+    public entry fun start_market<C>(account: &signer, market_obj: Object<Market<C>>) acquires Market {
+        let marketplace_address = object::owner(market_obj);
+        assert!( // should never happen
+            object::object_exists<Marketplace<C>>(marketplace_address),
+            E_INVALID_MARKETPLACE_TYPE
+        );
+        let start_price = panana::marketplace::latest_price<C>(marketplace_address);
+        let market_address = object::object_address(&market_obj);
+        let market_ref = borrow_global_mut<Market<C>>(market_address);
+        assert!(is_some(&market_ref.start_price), E_MARKET_RUNNING);
+        let cur_time = timestamp::now_seconds();
+        assert!(market_ref.start_time < cur_time, E_TOO_EARLY);
+        market_ref.start_price = option::some((start_price as u64));
     }
 
     public entry fun place_bet<C>(account: &signer, market_obj: Object<Market<C>>, bet_up: bool, amount: u64) acquires Market {
@@ -305,38 +324,35 @@ module panana::market {
         };
     }
 
-    public fun is_market_available<C>(market_ref: &Market<C>): bool {
+    public fun can_resolve_market<C>(market_ref: &Market<C>): bool {
         let cur_time = timestamp::now_seconds();
-        market_ref.end_time < cur_time
+        option::is_some(&market_ref.start_price) && market_ref.end_time < cur_time
     }
 
     public entry fun resolve_market<C>(market_obj: Object<Market<C>>) acquires Market, ObjectController {
         let marketplace_address = object::owner(market_obj);
         assert!( // should never happen
             object::object_exists<Marketplace<C>>(marketplace_address),
-            E_INVALID_RESOLVE_MARKET_TYPE
+            E_INVALID_MARKETPLACE_TYPE
         );
 
         let market_address = object::object_address(&market_obj);
         let open_markets = marketplace::available_markets<C>(marketplace_address);
         assert!(vector::contains(&open_markets, &market_address), E_MARKET_CLOSED);
 
-        let market_ref = borrow_global<Market<C>>(market_address);
+        let market_ref = borrow_global_mut<Market<C>>(market_address);
 
         // Ensure the market's end time has passed
-        assert!(is_market_available(market_ref), E_MARKET_STILL_AVAILABLE);
-
-        // validate if the resolve timespan is still open
-        let current_timestamp = timestamp::now_seconds();
-        let resolve_time_passed = current_timestamp >= market_ref.end_time + MAX_RESOLVE_MARKET_TIMESPAN;
+        assert!(can_resolve_market(market_ref), E_CANNOT_RESOLVE_MARKET);
+        let start_price = *option::borrow(&market_ref.start_price);
 
         // Get the end price from the oracle
         let end_price = panana::marketplace::latest_price<C>(marketplace_address);
         let end_price_u64 = (end_price as u64);
-        let equal_price_outcome = end_price_u64 == market_ref.start_price;
+        let equal_price_outcome = end_price_u64 == start_price;
 
         // if true, the market should dissolve and all users get their bets back
-        let should_dissolve = resolve_time_passed || equal_price_outcome;
+        let should_dissolve = equal_price_outcome;
 
         if (should_dissolve) { // all betters get their money back (except marekt fees)
             dissolve_market(market_address, &market_ref.fee, &market_ref.up_bets, &market_ref.down_bets);
@@ -344,15 +360,15 @@ module panana::market {
             // Calculate winners based on price change
 
             let price_up_won = if (option::is_none(&market_ref.price_up)) {
-                (end_price as u64) > market_ref.start_price
+                (end_price as u64) > start_price
             } else {
                 let price_up = *option::borrow(&market_ref.price_up);
-                let percentage = market_ref.start_price * market_ref.price_delta.numerator / market_ref.price_delta.denominator;
+                let percentage = start_price * market_ref.price_delta.numerator / market_ref.price_delta.denominator;
 
                 if (price_up) {
-                    (end_price as u64) >= market_ref.start_price + percentage
+                    (end_price as u64) >= start_price + percentage
                 } else {
-                    (end_price as u64) <= market_ref.start_price - percentage
+                    (end_price as u64) <= start_price - percentage
                 }
             };
 
@@ -375,6 +391,12 @@ module panana::market {
         let market_extend_ref = &borrow_global<ObjectController>(market_address).extend_ref;
         let market_signer = object::generate_signer_for_extending(market_extend_ref);
         aptos_account::transfer(&market_signer, object::owner(market_obj), remaining_balance);
+
+
+        // validate if the resolve timespan is still open
+        let current_timestamp = timestamp::now_seconds();
+        market_ref.resolved_at = option::some(current_timestamp);
+        market_ref.end_price = option::some(end_price_u64);
 
         panana::marketplace::remove_open_market<C>(marketplace_address, market_address);
         event::emit(ResolveMarket{

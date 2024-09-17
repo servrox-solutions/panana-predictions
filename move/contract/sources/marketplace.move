@@ -4,6 +4,8 @@ module panana::marketplace {
     use aptos_std::coin;
     use std::vector;
     use std::object::{ObjectCore, Self};
+    use std::string::String;
+    use aptos_std::simple_map;
     use aptos_framework::object::{Object};
     use aptos_framework::aptos_coin::AptosCoin;
     use panana::utils;
@@ -27,7 +29,7 @@ module panana::marketplace {
     }
 
     struct MarketplaceList has key {
-        marketplaces: vector<address>,
+        marketplaces: simple_map::SimpleMap<address, String>,
     }
 
     #[resource_group_member(group = aptos_framework::object::ObjectGroup)]
@@ -44,7 +46,7 @@ module panana::marketplace {
     }
 
     #[view]
-    public fun available_marketplaces(account_address: address): vector<address> acquires MarketplaceList {
+    public fun available_marketplaces(account_address: address): simple_map::SimpleMap<address, String> acquires MarketplaceList {
         borrow_global<MarketplaceList>(account_address).marketplaces
     }
 
@@ -115,11 +117,11 @@ module panana::marketplace {
 
         if (!exists<MarketplaceList>(account_address)) {
             move_to(account, MarketplaceList{
-                marketplaces: vector::empty<address>()
+                marketplaces: simple_map::new<address, String>()
             });
         };
         let marketplaces = &mut borrow_global_mut<MarketplaceList>(account_address).marketplaces;
-        vector::push_back(marketplaces, object::object_address(&marketplace_object));
+        simple_map::add(marketplaces, object::object_address(&marketplace_object), utils::key<C>());
     }
 
     public entry fun payout_marketplace<C>(account: &signer, marketplace: Object<Marketplace<C>>, recipient: address) acquires ObjectController {
