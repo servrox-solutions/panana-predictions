@@ -30,7 +30,7 @@ export class Market {
   userVotes: Map<Address, boolean>;
   upVotesSum: number;
   downVotesSum: number;
-  private fetchIntervalId: Timer | null = null;
+  private fetchIntervalId: ReturnType<typeof setInterval> | null = null;
 
   constructor(availableMarket: AvailableMarket, autoRefreshInterval?: number) {
     this.name = `🍌 ${availableMarket.type} / USD`;
