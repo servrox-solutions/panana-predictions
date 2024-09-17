@@ -1,10 +1,13 @@
 import { Aptos, AptosConfig, Network } from "@aptos-labs/ts-sdk";
 import { createSurfClient } from "@thalalabs/surf";
-import { ABI } from "./abi";
+import { ABI as MarketplaceAbi } from "./marketplace-abi";
+import { ABI as MarketAbi } from "./market-abi";
 
 const config = new AptosConfig({ network: Network.TESTNET });
 export const aptos = new Aptos(config);
-export const surfClient = createSurfClient(aptos).useABI(ABI);
+export const surfClientMarketplace =
+  createSurfClient(aptos).useABI(MarketplaceAbi);
+export const surfClientMarket = createSurfClient(aptos).useABI(MarketAbi);
 
 // Use Surf to executes an entry function
 // const result = await surfClient.entry.transfer({

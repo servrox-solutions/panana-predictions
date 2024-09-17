@@ -29,10 +29,13 @@ const EmojiCanvas = () => {
   const updateFavicon = () => {
     const canvas = canvasRef.current;
     if (canvas) {
-      const favicon = document.querySelector("link[rel='icon']");
-      if (favicon && canvas) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (favicon as any).href = canvas.toDataURL("image/png");
+      const favicons = document.querySelectorAll("link[rel='icon']");
+
+      if (favicons && canvas) {
+        favicons.forEach(
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          (favicon) => ((favicon as any).href = canvas.toDataURL("image/png"))
+        );
       }
     }
   };

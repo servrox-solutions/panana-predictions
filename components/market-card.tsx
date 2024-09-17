@@ -28,7 +28,7 @@ import { useWallet } from "@aptos-labs/wallet-adapter-react";
 
 import { aptos } from "@/lib/aptos";
 import { createEntryPayload } from "@thalalabs/surf";
-import { ABI } from "@/lib/abi";
+import { ABI as MarketAbi } from "@/lib/market-abi";
 
 function formatDuration(seconds: number): string {
   const absSeconds = Math.abs(seconds);
@@ -116,7 +116,7 @@ export function MarketCard({ market }: { market: Market }) {
       const moduleAddress =
         "0xa305a9f591b8d0ee4ad45659b6c6dc498822418bebf94a02b60d8b32dbf0dba5";
 
-      const payload = createEntryPayload(ABI, {
+      const payload = createEntryPayload(MarketAbi, {
         function: "place_bet",
         typeArguments: [`${moduleAddress}::price_oracle::BTC`],
         functionArguments: [
