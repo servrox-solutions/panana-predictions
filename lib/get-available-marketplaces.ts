@@ -16,5 +16,5 @@ export const getAvailableMarketplaces = async (): Promise<`0x${string}`[]> => {
       return [];
     });
 
-  return marketplaceAddresses.flat();
+  return marketplaceAddresses.flat() as `0x${string}`[];
 };
