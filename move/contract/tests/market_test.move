@@ -338,7 +338,7 @@ module panana::market_test {
         assert!(coin::balance<AptosCoin>(marketplace_address) == 0, 4);
     }
 
-    #[expected_failure(abort_code = market::E_MARKET_STILL_AVAILABLE)]
+    #[expected_failure(abort_code = market::E_CANNOT_RESOLVE_MARKET)]
     #[test(aptos_framework = @aptos_framework, owner = @0x100, user = @0x200, user2 = @0x300, apt_aggr = @0x111AAA)]
     fun test_resolve_market_still_open(owner: &signer, aptos_framework: &signer, user: &signer, user2: &signer, apt_aggr: &signer) {
         account::create_account_for_test(signer::address_of(aptos_framework));
