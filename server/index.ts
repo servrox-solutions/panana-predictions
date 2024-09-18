@@ -183,7 +183,7 @@ function setupStartPriceTimer(start_time_timestamp_sec: number, marketAddress: `
     const now = DateTime.now().toSeconds();
     const isStartInFuture = start_time_timestamp_sec > now;
     // if it should already have been resolved, resolve in 1 sec.
-    const date = isStartInFuture ? DateTime.fromSeconds(start_time_timestamp_sec).plus({second: 1}) : DateTime.now().plus({second: 1});
+    const date = isStartInFuture ? DateTime.fromSeconds(start_time_timestamp_sec) : DateTime.now().plus({second: 1});
 
     scheduleExecutionWithRetry(
         jobName,
@@ -205,7 +205,7 @@ function setupResolveMarketTimer(marketAddress: `0x${string}`, end_time_timestam
     const now = DateTime.now().toSeconds();
     const isEndInFuture = end_time_timestamp_sec > now;
     // if it should already have been resolved, resolve in 1 sec.
-    const date = isEndInFuture ? DateTime.fromSeconds(end_time_timestamp_sec).plus({second: 1}): DateTime.now().plus({second: 1});
+    const date = isEndInFuture ? DateTime.fromSeconds(end_time_timestamp_sec) : DateTime.now().plus({second: 1});
 
 
   scheduleExecutionWithRetry(

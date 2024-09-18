@@ -12,6 +12,8 @@
     "typescript": "^5.0.0"
   },
   "dependencies": {
+    "@aptos-labs/ts-sdk": "^1.27.1",
+    "@thalalabs/surf": "^1.7.3",
     "axios": "^1.7.7",
     "js-yaml": "^4.1.0",
     "luxon": "^3.5.0",
