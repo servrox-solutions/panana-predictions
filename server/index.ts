@@ -19,7 +19,7 @@ const yamlConfig = yaml.load(
   readFileSync("../.aptos/config.yaml", "utf8")
 ) as any;
 const profile = `${process.env.PROJECT_NAME}-${process.env.NEXT_PUBLIC_APP_NETWORK}`;
-const privateKey = yamlConfig["profiles"][profile]["private_key"];
+const privateKey = process.env.PRIVATE_KEY ?? yamlConfig["profiles"][profile]["private_key"];
 
 const account = Account.fromPrivateKey({
   privateKey: new Ed25519PrivateKey(privateKey),
@@ -69,7 +69,7 @@ async function provider<Req, Res>(
   }
 }
 
-const MODULE_ID ='0x0a007e13d9a6ac196cacf33e077f1682fa49649f1aa3b129afa9fab1ea93501b';
+const MODULE_ID = process.env.MODULE_ID ?? '0x0a007e13d9a6ac196cacf33e077f1682fa49649f1aa3b129afa9fab1ea93501b';
 
 const config = new AptosConfig({
   network: Network.TESTNET,
