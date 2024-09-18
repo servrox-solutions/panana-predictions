@@ -1,10 +1,21 @@
 import { surfClientMarketplace } from "@/lib/aptos";
 import { getLogger } from "./logger";
 
-export const getAvailableMarketplaces = async (): Promise<`0x${string}`[]> => {
+export interface AvailableMarketplacesResponse {
+  data: { key: `0x${string}`; value: `0x${string}` }[];
+}
+
+export interface AvailableMarketplace {
+  address: `0x${string}`;
+  typeArgument: string;
+}
+
+export const getAvailableMarketplaces = async (): Promise<
+  AvailableMarketplace[]
+> => {
   const logger = getLogger();
 
-  const marketplaceAddresses = await surfClientMarketplace.view
+  const marketplaces = await surfClientMarketplace.view
     .available_marketplaces({
       typeArguments: [],
       functionArguments: [
@@ -16,5 +27,12 @@ export const getAvailableMarketplaces = async (): Promise<`0x${string}`[]> => {
       return [];
     });
 
-  return marketplaceAddresses.flat() as `0x${string}`[];
+  const availableMarketplaces = (
+    marketplaces as AvailableMarketplacesResponse[]
+  )?.[0]?.data.map((marketplace) => ({
+    address: marketplace.key,
+    typeArgument: marketplace.value,
+  }));
+
+  return availableMarketplaces;
 };

@@ -5,9 +5,10 @@ import { getAvailableMarkets } from "@/lib/get-available-markets";
 export const revalidate = false;
 
 export default async function Markets() {
-  const marketplaceAddresses = await getAvailableMarketplaces();
-  console.log("💯 marketplaceAddresses", marketplaceAddresses);
-  const availableMarkets = await getAvailableMarkets(marketplaceAddresses);
+  const marketplaces = await getAvailableMarketplaces();
+  console.log("💯 marketplaces", marketplaces);
+
+  const availableMarkets = await getAvailableMarkets(marketplaces);
   console.log("💯 availableMarkets", availableMarkets);
 
   return (
