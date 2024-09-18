@@ -128,4 +128,27 @@ export class Market {
       console.log("Auto-refresh stopped.");
     }
   }
+
+  calculateOdds(): { oddsUp: string; oddsDown: string } {
+    const totalSum = this.upBetsSum + this.downBetsSum;
+
+    // Check if there are any bets
+    if (totalSum === 0) {
+      throw new Error("There are no bets yet.");
+    }
+
+    // Probability for Up and Down
+    const probabilityUp = this.upBetsSum / totalSum;
+    const probabilityDown = this.downBetsSum / totalSum;
+
+    // Calculate odds (1 / probability)
+    const oddsUp = 1 / probabilityUp;
+    const oddsDown = 1 / probabilityDown;
+
+    // Return results, rounded to 2 decimal places
+    return {
+      oddsUp: oddsUp.toFixed(2),
+      oddsDown: oddsDown.toFixed(2),
+    };
+  }
 }

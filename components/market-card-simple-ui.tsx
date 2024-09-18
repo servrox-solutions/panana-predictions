@@ -4,17 +4,23 @@ import { marketTypes } from "@/lib/get-available-markets";
 import {
   ChevronsDown,
   ChevronsUp,
-  CircleX,
   Share,
   ThumbsDown,
   ThumbsUp,
+  Undo2,
 } from "lucide-react";
 import React, { useState } from "react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
+import { cn } from "@/lib/utils";
+import { MarketCardTimeline } from "./market-card-timeline";
 
 export interface MarketCardSimpleUiProps {
   tradingPair: { one: (typeof marketTypes)[number]; two: string };
+  minBet: number;
+
+  betCloseTime: number;
+  resolveTime: number;
 }
 
 export const MarketCardSimpleUi: React.FC<MarketCardSimpleUiProps> = ({
@@ -22,12 +28,19 @@ export const MarketCardSimpleUi: React.FC<MarketCardSimpleUiProps> = ({
     one: "APT",
     two: "USD",
   },
+  minBet = 100,
+  betCloseTime = 1726666201,
+  resolveTime = 1726668901,
 }) => {
-  const [bet, setBet] = useState<"up" | "down" | null>("up");
+  const [bet, setBet] = useState<"up" | "down" | null>(null);
 
   const handleBet = (bet: "up" | "down" | null) => {
     setBet(bet);
   };
+
+  //TODO:
+  const oddsUp = 1.67;
+  const oddsDown = 2.5;
 
   return (
     <div className="flex flex-col max-w-sm bg-white bg-opacity-10 backdrop-blur-lg rounded-3xl p-3 shadow-lg border border-white border-opacity-20">
@@ -37,7 +50,7 @@ export const MarketCardSimpleUi: React.FC<MarketCardSimpleUiProps> = ({
           <div className="text-left mb-4">
             <h2 className="text-lg font-semibold">
               Will
-              <span className="text-lg bg-primary text-foreground p-1 rounded mx-1">
+              <span className="text-lg text-white bg-primary  p-1 rounded mx-1">
                 {tradingPair.one}/{tradingPair.two}
               </span>
               rise or fall during the betting period?
@@ -52,7 +65,7 @@ export const MarketCardSimpleUi: React.FC<MarketCardSimpleUiProps> = ({
               className="h-5 w-5"
               onClick={() => handleBet(null)}
             >
-              <CircleX className="h-4 w-4" />
+              <Undo2 className="h-4 w-4" />
             </Button>
           </div>
         )}
@@ -63,14 +76,15 @@ export const MarketCardSimpleUi: React.FC<MarketCardSimpleUiProps> = ({
           <Input
             type="number"
             placeholder="Amount"
+            defaultValue={minBet}
             className="text-foreground"
           />
           <Button
             type="submit"
             className={
               bet === "up"
-                ? "bg-green-500 text-foreground"
-                : "bg-red-500 text-foreground"
+                ? "w-full font-semibold bg-green-600/70  hover:bg-green-500/0 text-white"
+                : "w-full font-semibold bg-red-600/70  hover:bg-red-500/0 text-white"
             }
           >
             {bet === "up" ? "Bet Up" : "Bet Down"}
@@ -85,14 +99,18 @@ export const MarketCardSimpleUi: React.FC<MarketCardSimpleUiProps> = ({
 
       {/* Timer Section */}
       {!bet && (
-        <div className="text-sm text-opacity-80 mb-4">
-          <p>
-            Bets are closed in: <span className="font-bold ">5:45</span>
-          </p>
-          <p>
-            Bets can be resolved in: <span className="font-bold ">15:45</span>
-          </p>
-        </div>
+        // <div className="text-sm text-opacity-80 mb-4">
+        //   <p>
+        //     Bets are closed in: <span className="font-bold ">5:45</span>
+        //   </p>
+        //   <p>
+        //     Bets can be resolved in: <span className="font-bold ">15:45</span>
+        //   </p>
+        // </div>
+        <MarketCardTimeline
+          betCloseTime={betCloseTime}
+          resolveTime={resolveTime}
+        />
       )}
 
       {/* Bet Buttons Section */}
@@ -100,25 +118,42 @@ export const MarketCardSimpleUi: React.FC<MarketCardSimpleUiProps> = ({
         <div className="flex items-center justify-between">
           <div className="flex-1">
             <Button
-              className="w-full font-semibold bg-green-700/50 text-green-500 hover:bg-green-500 hover:text-white"
+              className="group w-full font-semibold bg-green-600/70  hover:bg-green-500 text-white relative"
               onClick={() => handleBet("up")}
             >
-              Bet Up <ChevronsUp className="ml-2 h-4 w-4" />
+              <span className="z-10">Bet Up</span>
+              <ChevronsUp className="ml-2 h-4 w-4" />
+              <span
+                className={cn(
+                  "absolute bottom-0 right-1 -mb-1 text-lg group-hover:text-4xl text-white/30",
+                  oddsUp > oddsDown ? "animate-pulse" : ""
+                )}
+              >
+                &times;{oddsUp}
+              </span>
             </Button>
           </div>
 
-          <div className="mx-4 flex-shrink text-center text-xs">
-            Max Win <br />
-            <span className="text-sm">1000$</span>
+          <div className="flex-shrink flex flex-row flex-nowrap text-xs space-x-2 mx-2">
+            {/* <div>x{oddsUp}</div>
+            <div>x {oddsDown}</div> */}
           </div>
 
           <div className="flex-1">
             <Button
-              className={`w-full font-semibold bg-red-700/50 text-red-500 hover:bg-red-500 hover:text-white"
-            }`}
+              className={`group w-full font-semibold bg-red-600/70  hover:bg-red-500 text-white relative`}
               onClick={() => handleBet("down")}
             >
-              Bet Down <ChevronsDown className="ml-2 h-4 w-4" />
+              <span className="z-10">Bet Down</span>
+              <ChevronsDown className="ml-2 h-4 w-4" />
+              <span
+                className={cn(
+                  "absolute bottom-0 right-1 -mb-1 text-lg group-hover:text-4xl text-white/30",
+                  oddsDown > oddsUp ? "animate-pulse" : ""
+                )}
+              >
+                &times;{oddsDown}
+              </span>
             </Button>
           </div>
         </div>

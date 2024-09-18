@@ -12,11 +12,14 @@ export async function MarketOrganizer({ markets }: MarketOrganizerProps) {
   console.log("marketObjects 💯", marketObjects);
 
   return (
-    <div className="flex flex-col content-start">
+    <div className="flex flex-col content-start gap-4">
       {marketObjects.map((marketObject, index) => (
         <MarketCardSimpleUi
           key={`${marketObject.creator}-${index}`}
           tradingPair={marketObject.tradingPair}
+          minBet={marketObject.minBet}
+          betCloseTime={marketObject.startTime}
+          resolveTime={marketObject.endTime}
         />
       ))}
     </div>
