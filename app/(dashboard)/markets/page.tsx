@@ -1,3 +1,4 @@
+import { MarketCreateModal } from '@/components/market-create-modal';
 import { MarketOrganizer } from "@/components/market-organizer";
 import { getAvailableMarketplaces } from "@/lib/get-available-marketplaces";
 import { getAvailableMarkets } from "@/lib/get-available-markets";
@@ -13,6 +14,7 @@ export default async function Markets() {
 
   return (
     <div className="h-full p-3">
+      <MarketCreateModal marketplaces={{ "APT/USD": "0xabc", "BTC/USD": "0xabc" }} />
       <MarketOrganizer markets={availableMarkets} />
     </div>
   );
