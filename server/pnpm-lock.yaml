@@ -11,6 +11,9 @@ importers:
       '@aptos-labs/ts-sdk':
         specifier: ^1.27.1
         version: 1.27.1
+      '@thalalabs/surf':
+        specifier: ^1.7.3
+        version: 1.7.3(@aptos-labs/ts-sdk@1.27.1)
       axios:
         specifier: ^1.7.7
         version: 1.7.7
@@ -78,6 +81,18 @@ packages:
   '@szmarczak/http-timer@4.0.6':
     resolution: {integrity: sha512-4BAffykYOgO+5nzBWYwE3W90sBgLJoUPRWWcL8wlyiM8IB8ipJz3UMJ9KXQd1RKQXpKp8Tutn80HZtWsu2u76w==}
     engines: {node: '>=10'}
+
+  '@thalalabs/surf@1.7.3':
+    resolution: {integrity: sha512-bhZzQgVCVGiYaUwuIclseO0UXZJh6YkjfFi8iuKcpclbIfxELOJPPvDKCdsIKYN+BVTw8UeOXQvfuLJYwRszhA==}
+    peerDependencies:
+      '@aptos-labs/ts-sdk': ^1.26.0
+      '@aptos-labs/wallet-adapter-react': ^3.5.9
+      react: ^18.2.0
+    peerDependenciesMeta:
+      '@aptos-labs/wallet-adapter-react':
+        optional: true
+      react:
+        optional: true
 
   '@types/bun@1.1.9':
     resolution: {integrity: sha512-SXJRejXpmAc3qxyN/YS4/JGWEzLf4dDBa5fLtRDipQXHqNccuMU4EUYCooXNTsylG0DmwFQsGgEDHxZF+3DqRw==}
@@ -332,6 +347,10 @@ snapshots:
   '@szmarczak/http-timer@4.0.6':
     dependencies:
       defer-to-connect: 2.0.1
+
+  '@thalalabs/surf@1.7.3(@aptos-labs/ts-sdk@1.27.1)':
+    dependencies:
+      '@aptos-labs/ts-sdk': 1.27.1
 
   '@types/bun@1.1.9':
     dependencies:
