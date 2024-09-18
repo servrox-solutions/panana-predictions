@@ -1,30 +1,29 @@
 import {
-    Aptos,
-    AptosConfig,
-    Network,
-    type ClientRequest,
-    type ClientResponse,
-    Account,
-    Ed25519PrivateKey,
+  Aptos,
+  AptosConfig,
+  Network,
+  type ClientRequest,
+  type ClientResponse,
+  Account,
+  Ed25519PrivateKey,
 } from "@aptos-labs/ts-sdk";
 import axios, {type AxiosResponse} from "axios";
 import {ABI as MARKET_ABI} from "../lib/market-abi.ts";
 import {ABI as MARKETPLACE_ABI} from "../lib/marketplace-abi.ts";
 import { createSurfClient} from "@thalalabs/surf";
-import {Job, RecurrenceRule, scheduledJobs, scheduleJob} from 'node-schedule';
+import {RecurrenceRule, scheduledJobs, scheduleJob} from 'node-schedule';
 import * as yaml from 'js-yaml';
 import { readFileSync } from "fs";
 import {DateTime} from "luxon";
-
-
-const yamlConfig = yaml.load(readFileSync("../.aptos/config.yaml", "utf8")) as any;
+const yamlConfig = yaml.load(
+  readFileSync("../.aptos/config.yaml", "utf8")
+) as any;
 const profile = `${process.env.PROJECT_NAME}-${process.env.NEXT_PUBLIC_APP_NETWORK}`;
 const privateKey = yamlConfig["profiles"][profile]["private_key"];
-const accountAddress = yamlConfig["profiles"][profile]["account"];
 
-const account = Account.fromPrivateKey({privateKey: new Ed25519PrivateKey(privateKey)});
-
-
+const account = Account.fromPrivateKey({
+  privateKey: new Ed25519PrivateKey(privateKey),
+});
 
 // Define the provider function
 async function provider<Req, Res>(
@@ -36,19 +35,20 @@ async function provider<Req, Res>(
       method: requestOptions.method,
       url: requestOptions.url,
       headers: requestOptions.headers,
-      data: requestOptions.body,  // Use `body` for the request payload
+      data: requestOptions.body, // Use `body` for the request payload
     });
 
     // Map the Axios response to the ClientResponse format
     const clientResponse: ClientResponse<Res> = {
-        status: axiosResponse.status,
-        headers: axiosResponse.headers,
-        data: axiosResponse.data,
-        statusText: axiosResponse.statusText,
+      status: axiosResponse.status,
+      headers: axiosResponse.headers,
+      data: axiosResponse.data,
+      statusText: axiosResponse.statusText,
     };
 
     return clientResponse;
   } catch (error) {
+
 
       const axiosResponse = (error as any).response as AxiosResponse;
       if (axiosResponse) {
@@ -64,54 +64,32 @@ async function provider<Req, Res>(
       }
       console.error('request error', error);
       throw error;
-
     // Handle error (you may want to throw an error or return a failure response)
     // throw new Error(`Request failed: ${error.message}`);
   }
 }
 
 const MODULE_ID ='0x0a007e13d9a6ac196cacf33e077f1682fa49649f1aa3b129afa9fab1ea93501b';
-// const ASSETS = ['APT', 'BTC', 'SOL', 'USDC', 'ETH'];
 
 const config = new AptosConfig({
-    network: Network.TESTNET,
-    // fullnode: 'https://aptos-testnet.nodit.io/GvkONibN8vC47~_1G9qGWZKWsY-_Ftjg/v1',
-    // indexer: 'https://aptos-testnet.nodit.io/GvkONibN8vC47~_1G9qGWZKWsY-_Ftjg/v1/graphql',
-    client: {provider},  // Pass the custom Axios instance here
+  network: Network.TESTNET,
+  // fullnode: 'https://aptos-testnet.nodit.io/GvkONibN8vC47~_1G9qGWZKWsY-_Ftjg/v1',
+  // indexer: 'https://aptos-testnet.nodit.io/GvkONibN8vC47~_1G9qGWZKWsY-_Ftjg/v1/graphql',
+  client: { provider }, // Pass the custom Axios instance here
 });
 const aptosClient = new Aptos(config);
 const marketSurfClient = createSurfClient(aptosClient).useABI(MARKET_ABI);
-const marketplaceSurfClient = createSurfClient(aptosClient).useABI(MARKETPLACE_ABI);
+const marketplaceSurfClient =
+  createSurfClient(aptosClient).useABI(MARKETPLACE_ABI);
 
 interface AvailableMarketplacesResponse {
-    data: AvailableMarketplace[]
+  data: AvailableMarketplace[];
 }
 
 interface AvailableMarketplace {
-    key: `0x${string}`;
-    value: string;
+  key: `0x${string}`;
+  value: string;
 }
-
-
-
-
-
-// await marketSurfClient.entry.create_market({
-//     typeArguments: [`${MODULE_ID}::switchboard_asset::APT`],
-//     functionArguments: [
-//         '0x67f918a643420a7ace2ddddad668c6d8efc334e6061514dfb9691e5f658bbc82',
-//         Math.ceil(DateTime.fromJSDate(new Date()).plus({minute: 20}).toSeconds()),
-//         Math.ceil(DateTime.fromJSDate(new Date()).plus({minute: 39}).toSeconds()),
-//         100,
-//         false,
-//         2,
-//         10,
-//         2,
-//         10,
-//     ],
-//     account,
-// });
-
 
 function scheduleCreateMarket(marketplace: AvailableMarketplace) {
     const rule = new RecurrenceRule();
@@ -146,13 +124,16 @@ function scheduleCreateMarket(marketplace: AvailableMarketplace) {
 marketplaceSurfClient.view.available_marketplaces({
     typeArguments: [],
     functionArguments: [MODULE_ID],
-}).then((marketplaces: unknown[]) => {
+  })
+  .then((marketplaces: unknown[]) => {
     if (marketplaces.length === 0) {
-        throw new Error('no marketplaces available');
+      throw new Error("no marketplaces available");
     }
-    const availableMarketplaces = (marketplaces as AvailableMarketplacesResponse[])[0].data;
+    const availableMarketplaces = (
+      marketplaces as AvailableMarketplacesResponse[]
+    )[0].data;
     if (!availableMarketplaces || availableMarketplaces.length === 0) {
-        throw new Error('no marketplaces available');
+      throw new Error("no marketplaces available");
     }
     availableMarketplaces.forEach(async (marketplace, idx) => {
         if (idx == 0) { // TODO: remove this check; only for testing to only create one market for one marektplace
@@ -160,7 +141,6 @@ marketplaceSurfClient.view.available_marketplaces({
         }
         handleMarketUpdates(marketplace);
     });
-
 });
 
 async function handleMarketUpdates(marketplace: AvailableMarketplace) {
@@ -267,5 +247,4 @@ function scheduleExecutionWithRetry(jobName: string, promise: () => Promise<{suc
             numberRetries++;
         }
     });
-
 }
