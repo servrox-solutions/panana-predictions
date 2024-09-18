@@ -282,7 +282,7 @@ module panana::market {
         });
     }
 
-    public entry fun start_market<C>(account: &signer, market_obj: Object<Market<C>>) acquires Market {
+    public entry fun start_market<C>(market_obj: Object<Market<C>>) acquires Market {
         let marketplace_address = object::owner(market_obj);
         assert!( // should never happen
             object::object_exists<Marketplace<C>>(marketplace_address),
@@ -291,7 +291,7 @@ module panana::market {
         let start_price = panana::marketplace::latest_price<C>(marketplace_address);
         let market_address = object::object_address(&market_obj);
         let market_ref = borrow_global_mut<Market<C>>(market_address);
-        assert!(is_some(&market_ref.start_price), E_MARKET_RUNNING);
+        assert!(!is_some(&market_ref.start_price), E_MARKET_RUNNING);
         let cur_time = timestamp::now_seconds();
         assert!(market_ref.start_time < cur_time, E_TOO_EARLY);
         market_ref.start_price = option::some((start_price as u64));

@@ -11,14 +11,11 @@ import axios, {type AxiosResponse} from "axios";
 import {ABI as MARKET_ABI} from "../lib/market-abi.ts";
 import {ABI as MARKETPLACE_ABI} from "../lib/marketplace-abi.ts";
 import { createSurfClient} from "@thalalabs/surf";
-import type { Data} from "./create-market.type.ts";
-import {Range, RecurrenceRule, scheduleJob} from 'node-schedule';
+import {Job, RecurrenceRule, scheduledJobs, scheduleJob} from 'node-schedule';
 import * as yaml from 'js-yaml';
 import { readFileSync } from "fs";
 import {DateTime} from "luxon";
-import type {ResolveMarketEvent} from "./resolve-market.type.ts";
-import * as bun from "bun";
-import {undefined} from "zod";
+
 
 const yamlConfig = yaml.load(readFileSync("../.aptos/config.yaml", "utf8")) as any;
 const profile = `${process.env.PROJECT_NAME}-${process.env.NEXT_PUBLIC_APP_NETWORK}`;
@@ -55,7 +52,7 @@ async function provider<Req, Res>(
 
       const axiosResponse = (error as any).response as AxiosResponse;
       if (axiosResponse) {
-          console.error('request error', axiosResponse.status);
+          // console.error('request error', axiosResponse.status);
           // Map the Axios response to the ClientResponse format
           const clientResponse: ClientResponse<Res> = {
               status: axiosResponse.status,
@@ -66,15 +63,15 @@ async function provider<Req, Res>(
           return clientResponse;
       }
       console.error('request error', error);
-        throw error;
+      throw error;
 
     // Handle error (you may want to throw an error or return a failure response)
     // throw new Error(`Request failed: ${error.message}`);
   }
 }
 
-const MODULE_ID ='0x91a6fb305a62b3cc1a8859b4336965dc22458a8c5f94064d2ea8c9d12584d3ac';
-const ASSETS = ['APT', 'BTC', 'SOL', 'USDC', 'ETH'];
+const MODULE_ID ='0x0a007e13d9a6ac196cacf33e077f1682fa49649f1aa3b129afa9fab1ea93501b';
+// const ASSETS = ['APT', 'BTC', 'SOL', 'USDC', 'ETH'];
 
 const config = new AptosConfig({
     network: Network.TESTNET,
@@ -99,39 +96,10 @@ interface AvailableMarketplace {
 
 
 
-
-// const payload = aptosClient.useABI(ABI).resource.Market({
-//     typeArguments: [],
-//     account: '0x51a9217bbc1845b450ebad40bde0d93735db32a36c55080a80f74df2977fbc82'
-// }).
-
-// console.log(getAptosClient())
-
-
-
-// aptosSurfClient.useABI(ABI).view.{
+// await marketSurfClient.entry.create_market({
 //     typeArguments: [`${MODULE_ID}::switchboard_asset::APT`],
 //     functionArguments: [
-//         MODULE_ID,
-//         DateTime.fromJSDate(firstDate).plus({minute: 20}).toSeconds(),
-//         DateTime.fromJSDate(firstDate).plus({minute: 39}).toSeconds(),
-//         100,
-//         false,
-//         2,
-//         10,
-//         2,
-//         10,
-//     ],
-//     account: Account.fromPrivateKey(privateKey)
-// }).
-
-
-const rule = new RecurrenceRule();
-rule.minute = [0, 20, 40];
-// await aptosSurfClient.useABI(ABI).entry.create_market({
-//     typeArguments: [`${MODULE_ID}::switchboard_asset::APT`],
-//     functionArguments: [
-//         '0x499d00d650051553714c63024c12ad0a821137cd6d240ddd63a276a9a36d0328',
+//         '0x67f918a643420a7ace2ddddad668c6d8efc334e6061514dfb9691e5f658bbc82',
 //         Math.ceil(DateTime.fromJSDate(new Date()).plus({minute: 20}).toSeconds()),
 //         Math.ceil(DateTime.fromJSDate(new Date()).plus({minute: 39}).toSeconds()),
 //         100,
@@ -141,33 +109,39 @@ rule.minute = [0, 20, 40];
 //         2,
 //         10,
 //     ],
-//     account: Account.fromPrivateKey({privateKey: ed25519Key})
-// // });
-// scheduleJob(rule, async ( )=> {
-//     try {
-//         await aptosSurfClient.useABI(ABI).entry.create_market({
-//             typeArguments: [`${MODULE_ID}::switchboard_asset::APT`],
-//             functionArguments: [
-//                 '0x499d00d650051553714c63024c12ad0a821137cd6d240ddd63a276a9a36d0328',
-//                 Math.ceil(DateTime.fromJSDate(new Date()).plus({minute: 20}).toSeconds()),
-//                 Math.ceil(DateTime.fromJSDate(new Date()).plus({minute: 39}).toSeconds()),
-//                 100,
-//                 false,
-//                 2,
-//                 10,
-//                 2,
-//                 10,
-//             ],
-//             account: Account.fromPrivateKey({privateKey: ed25519Key})
-//         });
-//         // console.log(`Created market. Tx: ${res.hash}`);
-//     } catch(err) {
-//         console.error('error creating market: ', err);
-//     }
+//     account,
 // });
 
 
-
+function scheduleCreateMarket(marketplace: AvailableMarketplace) {
+    const rule = new RecurrenceRule();
+    rule.minute = [0];
+    scheduleJob(rule, async ( )=> {
+        try {
+            const startTime = Math.ceil(DateTime.now().plus({minute: 30}).toSeconds());
+            const endTime = Math.ceil(DateTime.fromSeconds(startTime).plus({minute: 45}).toSeconds());
+            await marketSurfClient.entry.create_market({
+                typeArguments: [marketplace.value],
+                functionArguments: [
+                    marketplace.key,
+                    startTime,
+                    endTime,
+                    100,
+                    false,
+                    2,
+                    10,
+                    2,
+                    10,
+                ],
+                account
+            });
+            // console.log(`Created market. Tx: ${res.hash}`);
+        } catch(err) {
+            console.error('error creating market: ', err);
+        }
+    });
+    console.log(`create market scheduler scheduled for ${marketplace.key} (${marketplace.value})`);
+}
 
 marketplaceSurfClient.view.available_marketplaces({
     typeArguments: [],
@@ -180,97 +154,118 @@ marketplaceSurfClient.view.available_marketplaces({
     if (!availableMarketplaces || availableMarketplaces.length === 0) {
         throw new Error('no marketplaces available');
     }
+    availableMarketplaces.forEach(async (marketplace, idx) => {
+        if (idx == 0) { // TODO: remove this check; only for testing to only create one market for one marektplace
+            scheduleCreateMarket(marketplace);
+        }
+        handleMarketUpdates(marketplace);
+    });
 
-    availableMarketplaces.forEach(async marketplace => handleMarketUpdates(marketplace));
 });
 
 async function handleMarketUpdates(marketplace: AvailableMarketplace) {
-        const availableMarkets = await marketplaceSurfClient.view.available_markets({
-            functionArguments: [marketplace.key],
-            typeArguments: [marketplace.value],
-        });
-
-        availableMarkets.flat().forEach(async marketAddress => handleMarketResolution(marketAddress, marketplace.value));
+    await setupMarketsListeners(marketplace);
+    scheduleJob('*/1 * * * *',async () => {
+        await setupMarketsListeners(marketplace);
+    });
 }
+
+
+async function setupMarketsListeners(marketplace: AvailableMarketplace) {
+    const availableMarkets = await marketplaceSurfClient.view.available_markets({
+        functionArguments: [marketplace.key],
+        typeArguments: [marketplace.value],
+    });
+
+    availableMarkets.flat().forEach(marketAddress => {
+        handleMarketResolution(marketAddress, marketplace.value)
+    });
+}
+
 
 async function handleMarketResolution(marketAddress: `0x${string}`, type: string) {
         const market = await marketSurfClient.resource.Market({
             account: marketAddress,
             typeArguments: [type]
         });
-        await resolveMarket(type, marketAddress, +market.start_time, +market.end_time);
+        await scheduleMarketTimers(type, marketAddress, market.start_price.vec.length !== 0, +market.start_time, +market.end_time);
 }
 
+async function scheduleMarketTimers(type: string, marketAddress: `0x${string}`, hasStartPrice: boolean, start_time_timestamp_sec: number, end_time_timestamp_sec: number) {
+    if (!hasStartPrice) setupStartPriceTimer(start_time_timestamp_sec, marketAddress, type);
+    setupResolveMarketTimer(marketAddress, end_time_timestamp_sec, type);
+}
 
+function setupStartPriceTimer(start_time_timestamp_sec: number, marketAddress: `0x${string}`, type: string) {
+    const jobName = `setPriceTimer::${marketAddress}::${type}`;
+    if (scheduledJobs[jobName]) return; // don't run same scheduler multiple times.
 
+    const now = DateTime.now().toSeconds();
+    const isStartInFuture = start_time_timestamp_sec > now;
+    // if it should already have been resolved, resolve in 1 sec.
+    const date = isStartInFuture ? DateTime.fromSeconds(start_time_timestamp_sec).plus({second: 1}) : DateTime.now().plus({second: 1});
 
-
-async function resolveMarket(type: string, marketAddress: `0x${string}`, start_time_timestamp_sec: number, end_time_timestamp_sec: number) {
-
-    const now = Date.now();
-    const start_time_timestamp_ms = start_time_timestamp_sec * 1000;
-    const end_time_timestamp_ms = end_time_timestamp_sec * 1000;
-
-    const isStartInFuture = start_time_timestamp_ms > now;
-    if (isStartInFuture) {
-        const date = new Date(start_time_timestamp_ms);
-
-        const job = scheduleJob(date, function () {
-            console.log(`run job to set market price for amrket ${marketAddress} on ${type}`)
-            // TODO: set start price
-        });
-        console.log(`scheduled job to start market ${marketAddress} at ${date.toString()} on ${type}`);
-    }
-
-    const isEndInFuture = end_time_timestamp_ms > now;
-    if (isEndInFuture) { // current date is after market was started but before market was resolved
-        const date = new Date(end_time_timestamp_ms);
-        let numberRetries = 0;
-
-        const job = scheduleJob(date, () => {
-            marketSurfClient.entry.resolve_market({
-                typeArguments: [type],
-                functionArguments: [marketAddress],
-                account,
-            }).then(res => {
-                if (!res.success) {
-                    if (numberRetries == 10) {
-                        throw new Error('Maximum retries reached');
-                    }
-                    console.error(`Failure resolving market ${marketAddress} on ${type}. Retrying in ${numberRetries * 2} Minute(s).`);
-                    job.runOnDate(DateTime.fromJSDate(date).plus({minute: numberRetries * 2}).toJSDate());
-                    numberRetries++;
-                } else {
-                    console.log(`Successfull resolved market ${marketAddress} on ${type}`);
-                }
-            }).catch(err => {
-                if (numberRetries == 10) {
-                    return;
-                }
-                console.error(`Failure resolving market ${marketAddress} on ${type}. Retrying in ${numberRetries * 2} Minute(s).`, err);
-                job.runOnDate(DateTime.fromJSDate(date).plus({minute: numberRetries * 2}).toJSDate());
-                numberRetries++;
-            })
-        });
-        console.log(`scheduled job to resolve market ${marketAddress} at ${date.toString()} on ${type}`);
-    }
-
-    const shouldAlreadyBeClosed = !isStartInFuture && !isEndInFuture;
-    if (shouldAlreadyBeClosed) {
-        marketSurfClient.entry.resolve_market({
+    scheduleExecutionWithRetry(
+        jobName,
+        () => marketSurfClient.entry.start_market({
             typeArguments: [type],
             functionArguments: [marketAddress],
             account,
-        }).then(res => {
+        }),
+        date
+    );
+
+    console.log(`scheduled job to set price for market ${marketAddress} at ${date.toString()} on ${type}`);
+}
+
+function setupResolveMarketTimer(marketAddress: `0x${string}`, end_time_timestamp_sec: number, type: string) {
+    const jobName = `resolveTimer::${marketAddress}::${type}`;
+    if (scheduledJobs[jobName]) return; // don't run same scheduler multiple times
+
+    const now = DateTime.now().toSeconds();
+    const isEndInFuture = end_time_timestamp_sec > now;
+    // if it should already have been resolved, resolve in 1 sec.
+    const date = isEndInFuture ? DateTime.fromSeconds(end_time_timestamp_sec).plus({second: 1}): DateTime.now().plus({second: 1});
+
+
+  scheduleExecutionWithRetry(
+      jobName,
+      () => marketSurfClient.entry.resolve_market({
+          typeArguments: [type],
+          functionArguments: [marketAddress],
+          account,
+      }),
+      date
+  );
+
+    console.log(`scheduled job to resolve market ${marketAddress} at ${date.toString()} on ${type}`);
+}
+
+function scheduleExecutionWithRetry(jobName: string, promise: () => Promise<{success: boolean}>, start: DateTime, retryCount = 50) {
+    let numberRetries = 0;
+    const job = scheduleJob(jobName, start.toJSDate(), async (fireDate) => {
+        try {
+            const res = await promise();
             if (!res.success) {
-                console.error(`Failure resolving market ${marketAddress} on ${type}. Retrying in 1 Minute.`);
-                // TODO: implement retry
-            } else {
-                console.log(`Successfull resolved market ${marketAddress} on ${type}`);
+                if (numberRetries == retryCount) {
+                    throw new Error('Maximum retries reached');
+                }
+
+                console.error(`Failure executing ${jobName}. Retrying in ${(numberRetries + 1) * 2} seconds(s).`);
+                job.runOnDate(DateTime.fromJSDate(fireDate).plus({seconds: (numberRetries + 1) * 3}).toJSDate());
+                numberRetries++;
+                return;
             }
-        }).catch(err => {
-            // TODO: implement retry
-            console.error(err);
-        })
-    }
+            console.error(`Successfully executed ${jobName}`);
+        } catch (err) {
+            if (numberRetries == retryCount) {
+                console.error(`Failure executing ${jobName}. Max retries reached.`, err);
+                return;
+            }
+            console.error(`Failure executing ${jobName}. Retrying in ${(numberRetries + 1) * 2} seconds(s).`, err);
+            job.runOnDate(DateTime.fromJSDate(fireDate).plus({seconds: (numberRetries + 1) * 3}).toJSDate());
+            numberRetries++;
+        }
+    });
+
 }
