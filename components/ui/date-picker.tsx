@@ -38,18 +38,21 @@ export function DatePicker(props: DatePickerProps) {
         onDateChange(date);
     }, [date]);
 
-    const scrollIntoView = () => {
+    const scrollIntoView = (smooth: boolean, d?: DateTime) => {
+        if (!d) {
+            return;
+        }
         // need to postpone the scroll to next render since the element is not found until the popover was rendered.
         setTimeout(() => {
-            console.log(`${date?.hour}:${date?.minute}`)
-            const el = document.getElementById(`${date?.hour}:${date?.minute}`);
+            console.log(`${d?.hour}:${d?.minute}`)
+            const el = document.getElementById(`${d?.hour}:${d?.minute}`);
             console.log(el);
-            el?.scrollIntoView({ block: 'center' });
+            el?.scrollIntoView({ block: 'center', behavior: smooth ? 'smooth' : 'instant' });
         }, 0);
     }
 
     return (
-        <Popover onOpenChange={(e) => e && scrollIntoView()}>
+        <Popover onOpenChange={(e) => e && scrollIntoView(false, date)}>
             <PopoverTrigger asChild>
                 <Button
                     variant={"outline"}
@@ -73,8 +76,9 @@ export function DatePicker(props: DatePickerProps) {
                             return;
                         }
                         const { day, month, year } = DateTime.fromJSDate(newDate);
-                        const d = date || DateTime.now();
-                        setDate(d.set({ day, month, year }))
+                        const d = date || DateTime.now().set({ minute: (15 - DateTime.now().minute % 15) + DateTime.now().minute, second: 0, millisecond: 0 });
+                        setDate(d.set({ day, month, year }));
+                        scrollIntoView(true, d);
                     }}
                     initialFocus
                 />
