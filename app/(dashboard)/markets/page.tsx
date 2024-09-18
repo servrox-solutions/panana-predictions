@@ -14,7 +14,8 @@ export default async function Markets() {
 
   return (
     <div className="h-full p-3">
-      <MarketCreateModal marketplaces={{ "APT/USD": "0xabc", "BTC/USD": "0xabc" }} />
+      {/* marketplaces={{ "APT/USD": "0xabc", "BTC/USD": "0xabc" }} */}
+      <MarketCreateModal />
       <MarketOrganizer markets={availableMarkets} />
     </div>
   );

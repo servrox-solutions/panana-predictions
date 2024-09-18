@@ -1,21 +1,15 @@
 'use client';
-import { PlaneIcon, MicIcon, Banana, Check, ChevronsUpDown } from 'lucide-react';
+import { PlaneIcon, MicIcon, Banana } from 'lucide-react';
 import { Modal, ModalTrigger, ModalBody, ModalContent, ModalFooter } from './ui/animated-modal';
-import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuItem } from './ui/dropdown-menu';
 
-import { useState } from 'react';
 import { DatePicker } from './ui/date-picker';
 import { DateTime, Duration } from 'luxon';
 import { Button } from './ui/button';
-import { Input } from './ui/input';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { FormField, FormItem, FormLabel, FormControl, FormDescription, FormMessage, Form } from './ui/form';
+import { FormField, FormItem, FormLabel, FormDescription, FormMessage, Form } from './ui/form';
 import { useForm } from 'react-hook-form';
-import { cn } from '@/lib/utils';
 
-import { Command, CommandEmpty, CommandGroup, CommandItem, CommandList } from './ui/command';
-import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
 
 
 export type address = `0x${string}`;
@@ -26,10 +20,7 @@ export interface MarketCreateModalProps {
 
 
 
-export function MarketCreateModal(props: MarketCreateModalProps) {
-    const { marketplaces } = props;
-    const [date, setDate] = useState<Date | undefined>(undefined);
-
+export function MarketCreateModal() {
     const FormSchema = z.object({
         asset: z.string().min(1, {
             message: "Asset cannot be empty."
@@ -154,13 +145,13 @@ export function MarketCreateModal(props: MarketCreateModalProps) {
         console.log(data);
     }
 
-    function getEndDate(date?: Date, durationSeconds?: number): DateTime | null {
-        if (!date || !durationSeconds) {
-            return null;
-        }
+    // function getEndDate(date?: Date, durationSeconds?: number): DateTime | null {
+    //     if (!date || !durationSeconds) {
+    //         return null;
+    //     }
 
-        return DateTime.fromJSDate(date).plus({ seconds: durationSeconds });
-    }
+    //     return DateTime.fromJSDate(date).plus({ seconds: durationSeconds });
+    // }
 
 
     return (<>
@@ -187,7 +178,7 @@ export function MarketCreateModal(props: MarketCreateModalProps) {
                                         <div className="max-w-full overflow-auto">
                                             <div className="flex gap-5">
                                                 {assets.map(asset => (
-                                                    <Button variant="outline" id={asset.value} className={`h-[60px] ${field.value === asset.value ? 'bg-primary text-secondary hover:bg-primary hover:text-secondary' : ''}`} onClick={() => {
+                                                    <Button variant="outline" key={asset.value} id={asset.value} className={`h-[60px] ${field.value === asset.value ? 'bg-primary text-secondary hover:bg-primary hover:text-secondary' : ''}`} onClick={() => {
                                                         form.setValue("asset", asset.value)
                                                     }}>
                                                         {asset.label}/USD
@@ -205,7 +196,7 @@ export function MarketCreateModal(props: MarketCreateModalProps) {
                             <FormField
                                 control={form.control}
                                 name="startTime"
-                                render={({ field }) => (
+                                render={() => (
                                     <FormItem className="flex flex-col">
                                         <FormLabel>Start</FormLabel>
                                         <DatePicker
@@ -231,7 +222,7 @@ export function MarketCreateModal(props: MarketCreateModalProps) {
                                         <div className="max-w-full overflow-auto">
                                             <div className="grid grid-cols-4 lg:max-h-[400px] gap-2 w-full place-items-center max-h-[140px] lg:grid-cols-4">
                                                 {durations.map(i => (
-                                                    <Button variant="outline" id={`${i.as('seconds')}`} className={`w-full h-[60px] ${field.value === i.as('seconds') ? 'bg-primary text-secondary hover:bg-primary hover:text-secondary' : ''}`} onClick={() => {
+                                                    <Button variant="outline" key={i.as('seconds')} id={`${i.as('seconds')}`} className={`w-full h-[60px] ${field.value === i.as('seconds') ? 'bg-primary text-secondary hover:bg-primary hover:text-secondary' : ''}`} onClick={() => {
                                                         form.setValue('durationSeconds', i.as('seconds'));
                                                     }}>
                                                         {formatDuration(i)}

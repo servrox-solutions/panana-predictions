@@ -1,7 +1,6 @@
 "use client"
 
 import * as React from "react"
-import { format } from "date-fns"
 import { Calendar as CalendarIcon } from "lucide-react"
 
 import { cn } from "@/lib/utils"
@@ -81,9 +80,10 @@ export function DatePicker(props: DatePickerProps) {
                 />
                 <ScrollArea>
                     <div className="flex flex-col flex-shrink flex-grow-0 gap-2">
-                        {times.map((i, idx) => (
+                        {times.map((i) => (
                             <Button variant="outline"
                                 id={`${i.hour}:${i.minute}`}
+                                key={`${i.hour}:${i.minute}`}
                                 className={date?.hour === i.hour && date.minute == i.minute ? "bg-primary text-secondary hover:bg-primary hover:text-secondary" : ''}
                                 onClick={() => setDate((date || DateTime.now()).set({ minute: i.minute, hour: i.hour }))}>
                                 {i.hour.toString().padStart(2, '0')}:{i.minute.toString().padStart(2, '0')}

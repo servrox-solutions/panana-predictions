@@ -82,7 +82,7 @@ export const ModalBody = ({
 
     const modalRef = useRef(null);
     const { setOpen } = useModal();
-    if (closeOnClickOutside) useOutsideClick(modalRef, () => setOpen(false));
+    useOutsideClick(modalRef, () => closeOnClickOutside && setOpen(false));
 
     return (
         <AnimatePresence>
@@ -224,12 +224,12 @@ const CloseIcon = () => {
 // Add it in a separate file, I've added here for simplicity
 export const useOutsideClick = (
     ref: React.RefObject<HTMLDivElement>,
-    callback: Function
+    callback: (event: unknown) => void
 ) => {
     useEffect(() => {
-        const listener = (event: any) => {
+        const listener = (event: unknown) => {
             // DO NOTHING if the element being clicked is the target element or their children
-            if (!ref.current || ref.current.contains(event.target)) {
+            if (!ref.current || ref.current.contains((event as ({ target: Node })).target)) {
                 return;
             }
             callback(event);
