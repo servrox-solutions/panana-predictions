@@ -20,8 +20,6 @@ export interface DatePickerProps {
     initialDate?: DateTime;
 }
 
-
-
 export function DatePicker(props: DatePickerProps) {
     const { onDateChange, initialDate } = props;
     const [date, setDate] = React.useState<DateTime | undefined>(initialDate);
@@ -62,12 +60,9 @@ export function DatePicker(props: DatePickerProps) {
         const earliestDate = getEarliestStartDate();
         if (!date) {
             // if no date is selected (initial state), disable all time slots before earliest start date
-            console.log(earliestDate.toString(), DateTime.now().toString(), DateTime.now().diff(earliestDate).as('minutes'))
             return DateTime.now().set({ hour, minute }).diff(earliestDate).as('minutes') <= 0;
         };
-        console.log(earliestDate.toString())
         const selectedTime = DateTime.now().set({ hour, minute, second: 0, millisecond: 0 });
-        console.log(selectedTime > earliestDate)
         const enabled = (date.year > earliestDate.year || date.month > earliestDate.month || date.day > earliestDate.day) ||
             (date.year === earliestDate.year && date.month === earliestDate.month && date.day === earliestDate.day && selectedTime.diff(earliestDate).as('minutes') >= 0);
         return !enabled;
@@ -92,6 +87,7 @@ export function DatePicker(props: DatePickerProps) {
                 <Calendar
                     mode="single"
                     selected={date?.toJSDate()}
+                    required={true}
                     disabled={{ before: getEarliestStartDate().toJSDate() }}
                     onSelect={newDate => {
                         if (!newDate) {

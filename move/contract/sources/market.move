@@ -233,7 +233,8 @@ module panana::market {
         assert!(start_time_timestamp >= current_timestamp + EARLIEST_MARKET_OPENING_AFTER_SEC, E_INVALID_MARKET_OPENING_TIME);
         assert!(end_time_timestamp >= start_time_timestamp + MIN_OPEN_DURATION_SEC, E_INVALID_MARKET_CLOSING_TIME);
 
-        let market_constructor_ref = &object::create_object(marketplace_address);
+        let account_address = signer::address_of(account);
+        let market_constructor_ref = &object::create_object(account_address);
         let market_signer = object::generate_signer(market_constructor_ref);
 
         move_to(
