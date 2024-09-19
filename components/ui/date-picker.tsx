@@ -12,13 +12,15 @@ import {
     PopoverTrigger,
 } from "@/components/ui/popover"
 import { ScrollArea } from './scroll-area'
-import { DateTime } from 'luxon'
+import { DateObjectUnits, DateTime } from 'luxon'
 import { useEffect } from 'react'
 
 export interface DatePickerProps {
     onDateChange: (date?: DateTime) => void;
     initialDate?: DateTime;
 }
+
+
 
 export function DatePicker(props: DatePickerProps) {
     const { onDateChange, initialDate } = props;
@@ -40,15 +42,35 @@ export function DatePicker(props: DatePickerProps) {
 
     const scrollIntoView = (smooth: boolean, d?: DateTime) => {
         if (!d) {
-            return;
+            d = getEarliestStartDate();
         }
         // need to postpone the scroll to next render since the element is not found until the popover was rendered.
         setTimeout(() => {
-            console.log(`${d?.hour}:${d?.minute}`)
             const el = document.getElementById(`${d?.hour}:${d?.minute}`);
-            console.log(el);
             el?.scrollIntoView({ block: 'center', behavior: smooth ? 'smooth' : 'instant' });
         }, 0);
+    }
+
+    const getEarliestStartDate = (): DateTime => {
+        const now = DateTime.now();
+        return now.plus({ hours: 1, minutes: 15 - (now.minute % 15) }).set({ second: 0, millisecond: 0 });
+    }
+
+
+    const isTimeDisabled = (i: { hour: number, minute: number }): boolean => {
+        const { hour, minute } = i;
+        const earliestDate = getEarliestStartDate();
+        if (!date) {
+            // if no date is selected (initial state), disable all time slots before earliest start date
+            console.log(earliestDate.toString(), DateTime.now().toString(), DateTime.now().diff(earliestDate).as('minutes'))
+            return DateTime.now().set({ hour, minute }).diff(earliestDate).as('minutes') <= 0;
+        };
+        console.log(earliestDate.toString())
+        const selectedTime = DateTime.now().set({ hour, minute, second: 0, millisecond: 0 });
+        console.log(selectedTime > earliestDate)
+        const enabled = (date.year > earliestDate.year || date.month > earliestDate.month || date.day > earliestDate.day) ||
+            (date.year === earliestDate.year && date.month === earliestDate.month && date.day === earliestDate.day && selectedTime.diff(earliestDate).as('minutes') >= 0);
+        return !enabled;
     }
 
     return (
@@ -57,7 +79,7 @@ export function DatePicker(props: DatePickerProps) {
                 <Button
                     variant={"outline"}
                     className={cn(
-                        "w-full h-[60px] justify-start text-left font-normal",
+                        "w-full justify-start text-left font-normal",
                         !date && "text-muted-foreground"
                     )}
                 // onClick={scrollIntoView}
@@ -70,14 +92,23 @@ export function DatePicker(props: DatePickerProps) {
                 <Calendar
                     mode="single"
                     selected={date?.toJSDate()}
+                    disabled={{ before: getEarliestStartDate().toJSDate() }}
                     onSelect={newDate => {
                         if (!newDate) {
                             setDate(undefined);
                             return;
                         }
-                        const { day, month, year } = DateTime.fromJSDate(newDate);
-                        const d = date || DateTime.now().set({ minute: (15 - DateTime.now().minute % 15) + DateTime.now().minute, second: 0, millisecond: 0 });
-                        setDate(d.set({ day, month, year }));
+                        const newLuxonDate = DateTime.fromJSDate(newDate);
+                        const { day, month, year } = newLuxonDate;
+                        const earliestStartDate = getEarliestStartDate();
+                        const d = date || earliestStartDate;
+                        let update: DateObjectUnits = { day, month, year };
+
+                        if (newLuxonDate < earliestStartDate) {
+                            update = { ...update, hour: earliestStartDate.hour, minute: earliestStartDate.minute, second: 0, millisecond: 0 };
+                        }
+                        setDate(d.set(update));
+
                         scrollIntoView(true, d);
                     }}
                     initialFocus
@@ -88,6 +119,7 @@ export function DatePicker(props: DatePickerProps) {
                             <Button variant="outline"
                                 id={`${i.hour}:${i.minute}`}
                                 key={`${i.hour}:${i.minute}`}
+                                disabled={isTimeDisabled(i)}
                                 className={date?.hour === i.hour && date.minute == i.minute ? "bg-primary text-secondary hover:bg-primary hover:text-secondary" : ''}
                                 onClick={() => setDate((date || DateTime.now()).set({ minute: i.minute, hour: i.hour }))}>
                                 {i.hour.toString().padStart(2, '0')}:{i.minute.toString().padStart(2, '0')}

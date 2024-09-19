@@ -1,5 +1,5 @@
 'use client';
-import { Banana } from 'lucide-react';
+import { Banana, Lock, PartyPopper } from 'lucide-react';
 import { Modal, ModalTrigger, ModalBody, ModalContent, ModalFooter } from './ui/animated-modal';
 
 import { DatePicker } from './ui/date-picker';
@@ -19,14 +19,26 @@ export interface MarketCreateModalProps {
 }
 
 
+function getEarliestStartDate(): DateTime {
+    const now = DateTime.now();
+    return now.plus({ hours: 1, minutes: 15 - (now.minute % 15) }).set({ second: 0, millisecond: 0 });
+}
+
 
 export function MarketCreateModal() {
     const FormSchema = z.object({
         asset: z.string().min(1, {
             message: "Asset cannot be empty."
         }),
-        startTime: z.date().optional(),
-        durationSeconds: z.number(),
+        startTime: z.date().refine(date => {
+            console.log(DateTime.fromJSDate(date).toString(), getEarliestStartDate().toString(), DateTime.fromJSDate(date).diff(getEarliestStartDate()).as('seconds'))
+            return DateTime.fromJSDate(date).diff(getEarliestStartDate()).as('seconds') >= 0
+        }, {
+            message: `Earliest start is ${getEarliestStartDate().toLocaleString(DateTime.DATETIME_MED)}`
+        }),
+        durationSeconds: z.number().gt(0, {
+            message: 'Duration must be set'
+        }),
     })
     const form = useForm<z.infer<typeof FormSchema>>({
         resolver: zodResolver(FormSchema),
@@ -112,7 +124,6 @@ export function MarketCreateModal() {
 
     function formatDuration(duration: Duration) {
         // Switch case to format based on the unit
-        console.log(Object.keys(duration.toObject())[0])
         switch (Object.keys(duration.toObject())[0]) {
             case 'minutes':
                 return duration.toFormat("m 'min'");
@@ -179,7 +190,7 @@ export function MarketCreateModal() {
                                         <div className="max-w-full overflow-auto">
                                             <div className="flex gap-5">
                                                 {assets.map(asset => (
-                                                    <Button variant="outline" key={asset.value} id={asset.value} className={`h-[60px] ${field.value === asset.value ? 'bg-primary text-secondary hover:bg-primary hover:text-secondary' : ''}`} onClick={() => {
+                                                    <Button variant="outline" key={asset.value} id={asset.value} className={`${field.value === asset.value ? 'bg-primary text-secondary hover:bg-primary hover:text-secondary' : ''}`} onClick={() => {
                                                         form.setValue("asset", asset.value)
                                                     }}>
                                                         {asset.label}/USD
@@ -203,8 +214,7 @@ export function MarketCreateModal() {
                                         <DatePicker
                                             initialDate={form.getValues("startTime") && DateTime.fromJSDate(form.getValues("startTime")!)}
                                             onDateChange={date => {
-                                                console.log('date', date);
-                                                form.setValue("startTime", date?.toJSDate());
+                                                date && form.setValue("startTime", date.toJSDate());
                                                 form.trigger("startTime");
                                             }} />
                                         <FormDescription>
@@ -221,9 +231,9 @@ export function MarketCreateModal() {
                                     <FormItem className={`flex flex-col`}>
                                         <FormLabel>Duration</FormLabel>
                                         <div className="max-w-full overflow-auto">
-                                            <div className="grid grid-cols-8 lg:grid-cols-4 grid-rows-2 lg:grid-rows-4 min-w-[200%] lg:min-w-full grid-flow-col max-h-[140px] lg:max-h-[400px] gap-2 place-items-center ">
+                                            <div className="grid grid-cols-8 grid-rows-2 min-w-[200%] lg:min-w-full grid-flow-col max-h-[140px] lg:max-h-[400px] gap-2 place-items-center ">
                                                 {durations.map(i => (
-                                                    <Button variant="outline" key={i.as('seconds')} id={`${i.as('seconds')}`} className={`w-full h-[60px] ${field.value === i.as('seconds') ? 'bg-primary text-secondary hover:bg-primary hover:text-secondary' : ''}`} onClick={() => {
+                                                    <Button variant="outline" key={i.as('seconds')} id={`${i.as('seconds')}`} className={`w-full ${field.value === i.as('seconds') ? 'bg-primary text-secondary hover:bg-primary hover:text-secondary' : ''}`} onClick={() => {
                                                         form.setValue('durationSeconds', i.as('seconds'));
                                                     }}>
                                                         {formatDuration(i)}
@@ -254,49 +264,33 @@ export function MarketCreateModal() {
 
                  
                     </div> */}
-                            {/* <div className="py-10 flex flex-wrap gap-x-4 gap-y-6 items-start justify-start max-w-sm mx-auto">
-                                <div className="flex  items-center justify-center">
-                                    <PlaneIcon className="mr-1 text-neutral-700 dark:text-neutral-300 h-4 w-4" />
-                                    <span className="text-neutral-700 dark:text-neutral-300 text-sm">
-                                        5 connecting flights
-                                    </span>
-                                </div>
-                                <div className="flex items-center justify-center">
-                                    
-                                    <span className="text-neutral-700 dark:text-neutral-300 text-sm">
-                                        12 hotels
-                                    </span>
-                                </div>
-                                <div className="flex items-center justify-center">
-                                    
-                                    <span className="text-neutral-700 dark:text-neutral-300 text-sm">
-                                        69 visiting spots
-                                    </span>
-                                </div>
-                                <div className="flex  items-center justify-center">
-                                    
-                                    <span className="text-neutral-700 dark:text-neutral-300 text-sm">
-                                        Good food everyday
-                                    </span>
-                                </div>
-                                <div className="flex items-center justify-center">
-                                    <MicIcon className="mr-1 text-neutral-700 dark:text-neutral-300 h-4 w-4" />
-                                    <span className="text-neutral-700 dark:text-neutral-300 text-sm">
-                                        Open Mic
-                                    </span>
-                                </div>
-                                <div className="flex items-center justify-center">
-                                    
-                                    <span className="text-neutral-700 dark:text-neutral-300 text-sm">
-                                        Paragliding
-                                    </span>
-                                </div>
-                            </div> */}
+
                         </ModalContent>
-                        <ModalFooter className="gap-4">
-                            <button className="px-2 py-1 bg-gray-200 text-black dark:bg-black dark:border-black dark:text-white border border-gray-300 rounded-md text-sm w-28">
-                                Cancel
-                            </button>
+                        <ModalFooter className="gap-4 flex flex-col">
+                            <div className="grid grid-cols-2 ">
+                                <div className="flex items-center">
+                                    <Lock className="h-4 w-4 mx-4" />
+                                    <div className="flex flex-col">
+                                        <span className="text-neutral-700 dark:text-neutral-300 text-sm">
+                                            End betting:
+                                        </span>
+                                        <span>
+                                            {form.getValues("startTime") ? DateTime.fromJSDate(form.getValues("startTime")!).toLocaleString(DateTime.DATETIME_SHORT) : 'tbd.'}
+                                        </span>
+                                    </div>
+                                </div>
+                                <div className="flex items-center">
+                                    <PartyPopper className="h-4 w-4 mx-4" />
+                                    <div className="flex flex-col">
+                                        <span className="text-neutral-700 dark:text-neutral-300 text-sm">
+                                            Market resolution:
+                                        </span>
+                                        <span>
+                                            {form.getValues("durationSeconds") && form.getValues("startTime") ? DateTime.fromJSDate(form.getValues("startTime")).plus({ second: form.getValues("durationSeconds") })?.toLocaleString(DateTime.DATETIME_SHORT) : 'tbd.'}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
                             <Button type="submit">Create Market</Button>
                         </ModalFooter>
                     </ModalBody>
