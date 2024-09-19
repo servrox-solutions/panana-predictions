@@ -3,6 +3,7 @@ import { AvailableMarket, marketTypes } from "./get-available-markets";
 
 import { DateTime } from "luxon";
 import { getMarketRessource } from "./get-market-ressource";
+import { getAccountBalance } from './get-account-balance';
 
 export interface BetInfo {
   amount: number;
@@ -23,6 +24,7 @@ export class Market {
   upBetsSum: number;
   downBetsSum: number;
   fee: number;
+  pool: number;
   priceUp: boolean | null;
   priceDelta: number;
   upBets: Map<Address, BetInfo>;
@@ -47,6 +49,7 @@ export class Market {
     this.upBetsSum = 0;
     this.downBetsSum = 0;
     this.fee = 0;
+    this.pool = 0;
     this.priceUp = null;
     this.priceDelta = 0;
     this.upBets = new Map();
@@ -60,8 +63,11 @@ export class Market {
     }
   }
 
+  
+
   async initialize(availableMarket: AvailableMarket): Promise<void> {
     const market = await getMarketRessource(availableMarket);
+    const pool = await getAccountBalance(availableMarket.address);
 
     this.creator = market.creator as Address;
     this.startPrice = Number(market.start_price);
@@ -71,6 +77,7 @@ export class Market {
     this.upBetsSum = Number(market.up_bets_sum);
     this.downBetsSum = Number(market.down_bets_sum);
     this.fee = Number(market.fee.numerator) / Number(market.fee.denominator);
+    this.pool = pool;
     this.priceUp = market.price_up.vec[0] === "true" ? true : false;
     this.priceDelta =
       Number(market.price_delta.numerator) /

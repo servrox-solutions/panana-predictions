@@ -4,6 +4,7 @@ import { marketTypes } from "@/lib/get-available-markets";
 import {
   ChevronsDown,
   ChevronsUp,
+  Coins,
   Share,
   ThumbsDown,
   ThumbsUp,
@@ -14,13 +15,19 @@ import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { cn } from "@/lib/utils";
 import { MarketCardTimeline } from "./market-card-timeline";
+import { useWallet } from '@aptos-labs/wallet-adapter-react';
+import { createEntryPayload } from '@thalalabs/surf';
+import { ABI as MarketAbi } from "@/lib/market-abi";
+import { aptos } from '@/lib/aptos';
 
 export interface MarketCardSimpleUiProps {
   tradingPair: { one: (typeof marketTypes)[number]; two: string };
   minBet: number;
+  pool: number;
 
   betCloseTime: number;
   resolveTime: number;
+  market: `0x${string}`;
 }
 
 export const MarketCardSimpleUi: React.FC<MarketCardSimpleUiProps> = ({
@@ -28,11 +35,14 @@ export const MarketCardSimpleUi: React.FC<MarketCardSimpleUiProps> = ({
     one: "APT",
     two: "USD",
   },
-  minBet = 100,
   betCloseTime = 1726666201,
   resolveTime = 1726668901,
+  pool = 0,
+  market,
 }) => {
   const [bet, setBet] = useState<"up" | "down" | null>(null);
+  const [amount, setAmount] = useState<number>(1000);
+  const { account, signAndSubmitTransaction } = useWallet();
 
   const handleBet = (bet: "up" | "down" | null) => {
     setBet(bet);
@@ -42,15 +52,55 @@ export const MarketCardSimpleUi: React.FC<MarketCardSimpleUiProps> = ({
   const oddsUp = 1.67;
   const oddsDown = 2.5;
 
+  async function placeBet(betUp: boolean, amount?: number) {
+    console.log(amount)
+    if (!account) {
+      return;
+    }
+    try {
+      const moduleAddress =
+        "0x0a007e13d9a6ac196cacf33e077f1682fa49649f1aa3b129afa9fab1ea93501b";
+
+      const payload = createEntryPayload(MarketAbi, {
+        function: "place_bet",
+        typeArguments: [`${moduleAddress}::switchboard_asset::APT`],
+        functionArguments: [
+          market,
+          betUp,
+          amount!.toString(),
+        ],
+      });
+
+      const transactionResponse = await signAndSubmitTransaction({
+        sender: account.address,
+        data: payload,
+      });
+
+      console.log("🍧", transactionResponse);
+
+      const committedTransactionResponse = await aptos.waitForTransaction(
+        { transactionHash: transactionResponse.hash }
+      );
+
+      console.log("🍧", committedTransactionResponse);
+
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      console.error("Transaction failed:", error);
+    }
+
+  }
+
   return (
-    <div className="flex flex-col max-w-sm bg-white bg-opacity-10 backdrop-blur-lg rounded-3xl p-3 shadow-lg border border-white border-opacity-20">
+    <div className="flex flex-col max-w-sm backdrop-grayscale-[.5] bg-gray-800 bg-opacity-30 backdrop-blur-lg rounded-3xl p-3 shadow-lg border border-white border-opacity-20">
       {/* Header */}
       <div className="flex justify-between ">
         <div className="flex-1">
           <div className="text-left mb-4">
             <h2 className="text-lg font-semibold">
               Will
-              <span className="text-lg text-white bg-primary  p-1 rounded mx-1">
+              <span className="text-lg text-secondary bg-primary  p-1 rounded mx-1">
                 {tradingPair.one}/{tradingPair.two}
               </span>
               rise or fall during the betting period?
@@ -76,7 +126,8 @@ export const MarketCardSimpleUi: React.FC<MarketCardSimpleUiProps> = ({
           <Input
             type="number"
             placeholder="Amount"
-            defaultValue={minBet}
+            defaultValue={amount}
+            onChange={ev => { setAmount(+ev.target.value); console.log(ev.target.value) }}
             className="text-foreground"
           />
           <Button
@@ -86,6 +137,7 @@ export const MarketCardSimpleUi: React.FC<MarketCardSimpleUiProps> = ({
                 ? "w-full font-semibold bg-green-600/70  hover:bg-green-500/0 text-white"
                 : "w-full font-semibold bg-red-600/70  hover:bg-red-500/0 text-white"
             }
+            onClick={() => placeBet(bet === "up", amount)}
           >
             {bet === "up" ? "Bet Up" : "Bet Down"}
             {bet === "up" ? (
@@ -181,28 +233,33 @@ export const MarketCardSimpleUi: React.FC<MarketCardSimpleUiProps> = ({
 
       {/* Icons */}
       {!bet && (
-        <div className="flex justify-end space-x-2 mt-4">
-          <Button
-            variant="ghost"
-            size="icon"
-            className="hover:text-red-500 hover:bg-red-500/20"
-          >
-            <ThumbsDown className="h-4 w-4" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="hover:text-green-500 hover:bg-green-500/20"
-          >
-            <ThumbsUp className="h-4 w-4" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="hover:text-primary hover:bg-primary/20"
-          >
-            <Share className="h-4 w-4" />
-          </Button>
+        <div className="flex justify-between">
+          <div className="flex mt-4 items-center">
+            <Coins className="w-4 h-4 mx-2" />{pool / 10 ** 8} APT
+          </div>
+          <div className="flex justify-end space-x-2 mt-4">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="hover:text-red-500 hover:bg-red-500/20"
+            >
+              <ThumbsDown className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="hover:text-green-500 hover:bg-green-500/20"
+            >
+              <ThumbsUp className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="hover:text-primary hover:bg-primary/20"
+            >
+              <Share className="h-4 w-4" />
+            </Button>
+          </div>
         </div>
       )}
     </div>

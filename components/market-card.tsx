@@ -114,11 +114,11 @@ export function MarketCard({ market }: { market: Market }) {
 
     try {
       const moduleAddress =
-        "0xa305a9f591b8d0ee4ad45659b6c6dc498822418bebf94a02b60d8b32dbf0dba5";
+        "0x0a007e13d9a6ac196cacf33e077f1682fa49649f1aa3b129afa9fab1ea93501b";
 
       const payload = createEntryPayload(MarketAbi, {
         function: "place_bet",
-        typeArguments: [`${moduleAddress}::price_oracle::BTC`],
+        typeArguments: [`${moduleAddress}::switchboard_asset::APT`],
         functionArguments: [
           `0xbc8ac73627b1be317b44fdd6bd8025b5a974dc9d45d43ae7c2e0de2790657f32`,
           data.betDirection === "up",

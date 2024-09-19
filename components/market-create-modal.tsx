@@ -185,13 +185,13 @@ export function MarketCreateModal() {
     return (<>
         <Modal>
             <ModalTrigger className="flex justify-center">
-                <div onClick={() => scrollIntoView()}>
+                <div onClick={() => scrollIntoView()} className="text-black">
                     <Banana className="inline h-5 w-5" /> Create New Market
                 </div>
             </ModalTrigger>
 
             <ModalBody closeOnClickOutside={false}>
-                <ModalContent className='bg-[transparent] overflow-auto flex flex-col gap-4'>
+                <ModalContent className='bg-gray-900 overflow-auto flex flex-col gap-4'>
                     <h4 className="text-lg md:text-2xl text-neutral-600 dark:text-neutral-100 font-bold text-center mb-8">
                         Create a New Market
                     </h4>
@@ -307,7 +307,7 @@ export function MarketCreateModal() {
                                     </div>
                                 </div>
                             </div>
-                            <Button type="submit" className="w-full">Create Market</Button>
+                            <Button type="submit" className="w-full"><Banana className="w-4 h-4 mx-2" />Create Market</Button>
                         </form>
                     </Form>
                 </ModalFooter>

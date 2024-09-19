@@ -18,9 +18,9 @@ body {
   :root {
     --background: linear-gradient(
       to top left,
-      hsla(253, 61%, 21%, 0.525),
+      /* hsla(253, 61%, 21%, 0.525),
       hsl(276, 79%, 44%),
-      hsl(340, 100%, 54%)
+      hsl(340, 100%, 54%) */
     );
     --foreground: #231557;
 
@@ -53,41 +53,42 @@ body {
     --radius: 0.5rem;
   }
 
-  .dark {
-    /* --background: linear-gradient(to top left, #ff057c, #8d0b93, #321575); */
+.dark {
     --background: linear-gradient(
       130deg,
-      hsl(276, 79%, 44%),
-      hsl(239, 54%, 16%)
+      hsl(276 20% 18%),
+      hsl(239 35% 16%)
     );
     --foreground: #ededed;
 
-    --muted: -30 50% 15.3%;
-    --muted-foreground: -30 10% 55.1%;
+    --muted: 30 20% 15%;
+    --muted-foreground: 30 10% 55%;
 
-    --popover: -30 45% 6.63%;
-    --popover-foreground: -30 10% 97.55%;
+    --popover: 30 25% 10%;
+    --popover-foreground: 30 10% 97%;
 
-    --card: -30 45% 6.63%;
-    --card-foreground: -30 10% 97.55%;
+    --card: 30 25% 10%;
+    --card-foreground: 30 10% 97%;
 
-    --border: -30 50% 15.3%;
-    --input: -30 50% 15.3%;
+    --border: 30 20% 15%;
+    --input: 30 20% 15%;
 
-    --primary: -30 100% 51%;
-    --primary-foreground: -30 10% 5.1%;
+    --primary: 44 70% 55%;
+    --primary-foreground: 30 10% 5%;
 
-    --secondary: -30 50% 15.3%;
-    --secondary-foreground: -30 10% 97.55%;
+    --secondary: 30 20% 15%;
+    --secondary-foreground: 30 10% 97%;
 
-    --accent: -30 50% 15.3%;
-    --accent-foreground: -30 10% 97.55%;
+    --accent: 30 20% 15%;
+    --accent-foreground: 30 10% 97%;
 
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: -30 10% 97.55%;
+    --destructive: 0 63% 30%;
+    --destructive-foreground: 30 10% 97%;
 
-    --ring: -30 100% 51%;
-  }
+    --ring: 44 100% 55%;
+}
+
+
 }
 
 @layer base {
