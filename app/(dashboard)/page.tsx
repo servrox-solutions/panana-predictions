@@ -1,10 +1,65 @@
 import { DashboardContent } from "@/components/dashboard-content";
 import { ToastContainer } from "react-toastify";
+import { getMarketCreatedEvents } from '@/lib/get-market-created-events';
+import { getMarketResolvedEvents } from '@/lib/get-market-resolved-events';
+import { fetchPriceUSD } from '@/lib/fetch-price';
 
-export default function Dashboard() {
+
+
+export interface MarketResolvedEventData {
+  market: {
+    inner: string;
+  }
+  dissolved: boolean;
+  market_cap: string;
+  marketplace: {
+    inner: string;
+  }
+  end_time_timestamp: string;
+  start_time_timestamp: string;
+}
+
+// revalidate page cache every X seconds
+export const revalidate = 120;
+
+export default async function Dashboard() {
+  const items = [
+    getMarketCreatedEvents(
+      '0xa007e13d9a6ac196cacf33e077f1682fa49649f1aa3b129afa9fab1ea93501b',
+      '0xa007e13d9a6ac196cacf33e077f1682fa49649f1aa3b129afa9fab1ea93501b::switchboard_asset::APT'
+    ),
+    getMarketResolvedEvents(
+      '0xa007e13d9a6ac196cacf33e077f1682fa49649f1aa3b129afa9fab1ea93501b',
+      '0xa007e13d9a6ac196cacf33e077f1682fa49649f1aa3b129afa9fab1ea93501b::switchboard_asset::APT'
+    ),
+    fetchPriceUSD('aptos'),
+  ] as const;
+
+  const [createdEvents, resolvedEvents, price] = await Promise.all(items);
+
+
+  const createdMarkets = createdEvents.map(x => ({
+    endTimeTimestamp: +x.end_time_timestamp,
+    startTimeTimestamp: +x.start_time_timestamp,
+    marketAddress: x.market.inner,
+    marketplaceAddress: x.marketplace.inner,
+  }));
+
+  const resolvedMarkets = resolvedEvents.map(x => ({
+    endTimeTimestamp: +x.end_time_timestamp,
+    startTimeTimestamp: +x.start_time_timestamp,
+    marketAddress: x.market.inner,
+    marketplaceAddress: x.marketplace.inner,
+    marketCap: {
+      asset: +x.market_cap / 10 ** 8,
+      usd: (+x.market_cap / 10 ** 8) * price,
+    },
+    dissolved: x.dissolved,
+  }));
+
   return (
     <>
-      <DashboardContent />
+      <DashboardContent latestCreatedMarkets={createdMarkets} latestResolvedMarkets={resolvedMarkets} />
       <ToastContainer />
     </>
   );

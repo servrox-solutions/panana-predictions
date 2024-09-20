@@ -1,17 +1,15 @@
 "use client";
 
 import {
-  ChevronLeft,
-  ChevronRight,
-  Copy,
-  CreditCard,
-  File,
   ListFilter,
-  MoreVertical,
-  Truck,
+  PartyPopper,
+  Lock,
+  Coins,
+  DollarSign,
+  Store,
+  ChartNoAxesColumn,
 } from "lucide-react";
 
-import { Badge } from "@/components/ui/badge";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -26,18 +24,10 @@ import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
-  DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-} from "@/components/ui/pagination";
-import { Progress } from "@/components/ui/progress";
-import { Separator } from "@/components/ui/separator";
 import {
   Table,
   TableBody,
@@ -48,61 +38,91 @@ import {
 } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Link from "next/link";
+import { DateTime } from 'luxon';
+import {
+  NetworkAptos,
+} from "@web3icons/react";
+import { getExplorerObjectLink } from '@/lib/aptos';
 
-export function DashboardContent() {
+
+export interface CreatedMarket {
+  endTimeTimestamp: number,
+  startTimeTimestamp: number,
+  marketAddress: string;
+  marketplaceAddress: string;
+}
+
+export interface ResolvedMarket {
+  endTimeTimestamp: number,
+  startTimeTimestamp: number,
+  marketAddress: string;
+  marketplaceAddress: string;
+  marketCap: {
+    asset: number;
+    usd: number;
+  };
+  dissolved: boolean;
+}
+
+export interface DashboardContentProps {
+  latestCreatedMarkets: CreatedMarket[];
+  latestResolvedMarkets: ResolvedMarket[];
+}
+
+export function DashboardContent(props: DashboardContentProps) {
+  const { latestCreatedMarkets, latestResolvedMarkets } = props;
+
   return (
     <div className="grid flex-1 items-start gap-4 p-4 sm:px-6 sm:py-0 md:gap-8 lg:grid-cols-3 xl:grid-cols-3">
-      <div className="grid auto-rows-max items-start gap-4 md:gap-8 lg:col-span-2">
-        <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-2 xl:grid-cols-4">
+      <div className="grid auto-rows-max items-start gap-4 md:gap-8 lg:col-span-3">
+        <div className="lg:grid gap-4 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-2 xl:grid-cols-4 hidden">
           <Card className="sm:col-span-2" x-chunk="dashboard-05-chunk-0">
             <CardHeader className="pb-3">
-              <CardTitle>Your Orders</CardTitle>
+              <CardTitle>All Markets</CardTitle>
               <CardDescription className="max-w-lg text-balance leading-relaxed">
-                Introducing Our Dynamic Orders Dashboard for Seamless Management
-                and Insightful Analysis.
+                You can also create your own market to predict the future price of an asset.
               </CardDescription>
             </CardHeader>
             <CardFooter>
-              <Link href="test">
-                <Button>Test Page</Button>
+              <Link href="/markets">
+                <Button className='capitalize'>Create new market</Button>
               </Link>
             </CardFooter>
           </Card>
           <Card x-chunk="dashboard-05-chunk-1">
             <CardHeader className="pb-2">
-              <CardDescription>This Week</CardDescription>
-              <CardTitle className="text-4xl">$1,329</CardTitle>
+              <CardDescription>Total Volume (all assets)</CardDescription>
+              <CardTitle className="text-4xl">$1,2 mio.</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="text-xs text-muted-foreground">
-                +25% from last week
+                (25123 APT)
               </div>
             </CardContent>
-            <CardFooter>
+            {/* <CardFooter>
               <Progress value={25} aria-label="25% increase" />
-            </CardFooter>
+            </CardFooter> */}
           </Card>
           <Card x-chunk="dashboard-05-chunk-2">
             <CardHeader className="pb-2">
-              <CardDescription>This Month</CardDescription>
-              <CardTitle className="text-4xl">$5,329</CardTitle>
+              <CardDescription>Last 7 Days</CardDescription>
+              <CardTitle className="text-4xl">$35,329</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="text-xs text-muted-foreground">
-                +10% from last month
+                (2345 APT)
               </div>
             </CardContent>
-            <CardFooter>
+            {/* <CardFooter>
               <Progress value={12} aria-label="12% increase" />
-            </CardFooter>
+            </CardFooter> */}
           </Card>
         </div>
-        <Tabs defaultValue="week">
+        <Tabs defaultValue="resolvedMarkets">
           <div className="flex items-center">
             <TabsList>
-              <TabsTrigger value="week">Week</TabsTrigger>
-              <TabsTrigger value="month">Month</TabsTrigger>
-              <TabsTrigger value="year">Year</TabsTrigger>
+              <TabsTrigger value="resolvedMarkets">Resolved Markets</TabsTrigger>
+              <TabsTrigger value="createdMarkets">New Markets</TabsTrigger>
             </TabsList>
             <div className="ml-auto flex items-center gap-2">
               <DropdownMenu>
@@ -120,204 +140,245 @@ export function DashboardContent() {
                   <DropdownMenuLabel>Filter by</DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   <DropdownMenuCheckboxItem checked>
-                    Fulfilled
+                    APT
                   </DropdownMenuCheckboxItem>
-                  <DropdownMenuCheckboxItem>Declined</DropdownMenuCheckboxItem>
-                  <DropdownMenuCheckboxItem>Refunded</DropdownMenuCheckboxItem>
+                  <DropdownMenuCheckboxItem>BTC</DropdownMenuCheckboxItem>
+                  <DropdownMenuCheckboxItem>ETH</DropdownMenuCheckboxItem>
+                  <DropdownMenuCheckboxItem>SOL</DropdownMenuCheckboxItem>
                 </DropdownMenuContent>
               </DropdownMenu>
-              <Button size="sm" variant="outline" className="h-7 gap-1 text-sm">
-                <File className="h-3.5 w-3.5" />
-                <span className="sr-only sm:not-sr-only">Export</span>
-              </Button>
             </div>
           </div>
-          <TabsContent value="week">
+          <TabsContent value="resolvedMarkets">
             <Card x-chunk="dashboard-05-chunk-3">
               <CardHeader className="px-7">
-                <CardTitle>Orders</CardTitle>
+                <CardTitle>Resolved Markets</CardTitle>
                 <CardDescription>
-                  Recent orders from your store.
+                  Recently resolved markets
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Customer</TableHead>
-                      <TableHead className="hidden sm:table-cell">
-                        Type
+                      <TableHead>
+                        Assetpair
                       </TableHead>
-                      <TableHead className="hidden sm:table-cell">
-                        Status
+                      <TableHead>
+                        Market Information
                       </TableHead>
                       <TableHead className="hidden md:table-cell">
-                        Date
+                        Addresses
                       </TableHead>
-                      <TableHead className="text-right">Amount</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    <TableRow className="bg-accent">
-                      <TableCell>
-                        <div className="font-medium">Liam Johnson</div>
-                        <div className="hidden text-sm text-muted-foreground md:inline">
-                          liam@example.com
-                        </div>
-                      </TableCell>
-                      <TableCell className="hidden sm:table-cell">
-                        Sale
-                      </TableCell>
-                      <TableCell className="hidden sm:table-cell">
-                        <Badge className="text-xs" variant="secondary">
-                          Fulfilled
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="hidden md:table-cell">
-                        2023-06-23
-                      </TableCell>
-                      <TableCell className="text-right">$250.00</TableCell>
-                    </TableRow>
+                    {
+                      latestResolvedMarkets.map((latestResolvedMarket, idx) => (
+                        <TableRow key={latestResolvedMarket.marketAddress} className={idx !== 3 && idx !== 5 ? `bg-green-600/10 hover:bg-green-500/10` : 'bg-red-600/10  hover:bg-red-500/10'}>
+                          <TableCell className="flex-grow h-full text-center">
+                            <div className="h-full">
+                              <div className="font-medium text-xs mb-1 md:flex justify-center align-center">APT/USD</div>
+                              <div className="text-md text-muted-foreground flex justify-center align-center">
+                                <NetworkAptos className='scale-125' />
+                              </div>
+                            </div>
+                          </TableCell>
+                          <TableCell className="flex-grow flex-shrink-0">
+                            <div className="flex flex-col gap-2">
+                              <div className="flex items-center">
+                                <Lock className="h-4 w-4 mx-4" />
+                                <div className="flex flex-col">
+                                  <span className="text-muted-foreground dark:text-neutral-300 text-xs ">
+                                    End betting:
+                                  </span>
+                                  <span>
+                                    {DateTime.fromSeconds(latestResolvedMarket.startTimeTimestamp).toLocaleString(DateTime.DATETIME_MED)}
+                                  </span>
+                                </div>
+                              </div>
+                              <div className="flex items-center">
+                                <PartyPopper className="h-4 w-4 mx-4" />
+                                <div className="flex flex-col">
+                                  <span className="text-muted-foreground dark:text-neutral-300 text-xs">
+                                    Market resolution:
+                                  </span>
+                                  <span>
+                                    {DateTime.fromSeconds(latestResolvedMarket.endTimeTimestamp).toLocaleString(DateTime.DATETIME_MED)}
+                                  </span>
+                                </div>
+                              </div>
+                              <div className="flex items-center">
+                                <DollarSign className="h-4 w-4 mx-4" />
+                                <div className="flex flex-col">
+                                  <span className="text-muted-foreground dark:text-neutral-300 text-xs">
+                                    Final Price Pool:
+                                  </span>
+                                  <div className="flex gap-2">
+                                    <span>$ {latestResolvedMarket.marketCap.usd}</span><span className="text-muted-foreground">
+                                      ({latestResolvedMarket.marketCap.asset} APT)
+                                    </span>
+                                  </div>
+                                </div>
+                              </div>
+
+                              {/* <div className="text-md flex flex-col justify-center align-center">
+                                <div className="text-bold text-xl">
+                                 
+                                </div>
+                                
+                              </div> */}
+
+                            </div>
+                          </TableCell>
+                          <TableCell className="hidden md:table-cell flex-grow max-w-[150px]">
+                            <div className="flex flex-col gap-2">
+                              <div className="flex items-center">
+                                <ChartNoAxesColumn className="h-4 w-4 mx-4" />
+                                <div className="flex flex-col max-w-[150px]">
+                                  <span className="text-neutral-700 dark:text-neutral-300 text-xs">
+                                    Market:
+                                  </span>
+                                  <p className="text-ellipsis overflow-hidden">
+                                    <Link className="underline" target='_blank' href={getExplorerObjectLink(latestResolvedMarket.marketAddress, true)}>
+                                      {latestResolvedMarket.marketAddress}
+                                    </Link>
+                                  </p>
+                                </div>
+                              </div>
+                              <div className="flex items-center">
+                                <Store className="h-4 w-4 mx-4" />
+                                <div className="flex flex-col max-w-[150px]">
+                                  <span className="text-neutral-700 dark:text-neutral-300 text-xs">
+                                    Marketplace:
+                                  </span>
+                                  <p className="text-ellipsis overflow-hidden">
+                                    <Link className="underline" target='_blank' href={getExplorerObjectLink(latestResolvedMarket.marketplaceAddress, true)}>
+                                      {latestResolvedMarket.marketplaceAddress}
+                                    </Link>
+                                  </p>
+                                </div>
+                              </div>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      )
+                      )
+                    }
+                  </TableBody>
+                </Table>
+              </CardContent>
+            </Card>
+          </TabsContent>
+          <TabsContent value="createdMarkets">
+            <Card x-chunk="dashboard-05-chunk-3">
+              <CardHeader className="px-7">
+                <CardTitle>New Markets</CardTitle>
+                <CardDescription>
+                  Recently created markets
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Table>
+                  <TableHeader>
                     <TableRow>
-                      <TableCell>
-                        <div className="font-medium">Olivia Smith</div>
-                        <div className="hidden text-sm text-muted-foreground md:inline">
-                          olivia@example.com
-                        </div>
-                      </TableCell>
-                      <TableCell className="hidden sm:table-cell">
-                        Refund
-                      </TableCell>
-                      <TableCell className="hidden sm:table-cell">
-                        <Badge className="text-xs" variant="outline">
-                          Declined
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="hidden md:table-cell">
-                        2023-06-24
-                      </TableCell>
-                      <TableCell className="text-right">$150.00</TableCell>
+                      <TableHead>
+                        Assetpair
+                      </TableHead>
+                      <TableHead>
+                        Market Information
+                      </TableHead>
+                      <TableHead className="hidden md:table-cell">
+                        Addresses
+                      </TableHead>
                     </TableRow>
-                    <TableRow>
-                      <TableCell>
-                        <div className="font-medium">Noah Williams</div>
-                        <div className="hidden text-sm text-muted-foreground md:inline">
-                          noah@example.com
-                        </div>
-                      </TableCell>
-                      <TableCell className="hidden sm:table-cell">
-                        Subscription
-                      </TableCell>
-                      <TableCell className="hidden sm:table-cell">
-                        <Badge className="text-xs" variant="secondary">
-                          Fulfilled
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="hidden md:table-cell">
-                        2023-06-25
-                      </TableCell>
-                      <TableCell className="text-right">$350.00</TableCell>
-                    </TableRow>
-                    <TableRow>
-                      <TableCell>
-                        <div className="font-medium">Emma Brown</div>
-                        <div className="hidden text-sm text-muted-foreground md:inline">
-                          emma@example.com
-                        </div>
-                      </TableCell>
-                      <TableCell className="hidden sm:table-cell">
-                        Sale
-                      </TableCell>
-                      <TableCell className="hidden sm:table-cell">
-                        <Badge className="text-xs" variant="secondary">
-                          Fulfilled
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="hidden md:table-cell">
-                        2023-06-26
-                      </TableCell>
-                      <TableCell className="text-right">$450.00</TableCell>
-                    </TableRow>
-                    <TableRow>
-                      <TableCell>
-                        <div className="font-medium">Liam Johnson</div>
-                        <div className="hidden text-sm text-muted-foreground md:inline">
-                          liam@example.com
-                        </div>
-                      </TableCell>
-                      <TableCell className="hidden sm:table-cell">
-                        Sale
-                      </TableCell>
-                      <TableCell className="hidden sm:table-cell">
-                        <Badge className="text-xs" variant="secondary">
-                          Fulfilled
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="hidden md:table-cell">
-                        2023-06-23
-                      </TableCell>
-                      <TableCell className="text-right">$250.00</TableCell>
-                    </TableRow>
-                    <TableRow>
-                      <TableCell>
-                        <div className="font-medium">Liam Johnson</div>
-                        <div className="hidden text-sm text-muted-foreground md:inline">
-                          liam@example.com
-                        </div>
-                      </TableCell>
-                      <TableCell className="hidden sm:table-cell">
-                        Sale
-                      </TableCell>
-                      <TableCell className="hidden sm:table-cell">
-                        <Badge className="text-xs" variant="secondary">
-                          Fulfilled
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="hidden md:table-cell">
-                        2023-06-23
-                      </TableCell>
-                      <TableCell className="text-right">$250.00</TableCell>
-                    </TableRow>
-                    <TableRow>
-                      <TableCell>
-                        <div className="font-medium">Olivia Smith</div>
-                        <div className="hidden text-sm text-muted-foreground md:inline">
-                          olivia@example.com
-                        </div>
-                      </TableCell>
-                      <TableCell className="hidden sm:table-cell">
-                        Refund
-                      </TableCell>
-                      <TableCell className="hidden sm:table-cell">
-                        <Badge className="text-xs" variant="outline">
-                          Declined
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="hidden md:table-cell">
-                        2023-06-24
-                      </TableCell>
-                      <TableCell className="text-right">$150.00</TableCell>
-                    </TableRow>
-                    <TableRow>
-                      <TableCell>
-                        <div className="font-medium">Emma Brown</div>
-                        <div className="hidden text-sm text-muted-foreground md:inline">
-                          emma@example.com
-                        </div>
-                      </TableCell>
-                      <TableCell className="hidden sm:table-cell">
-                        Sale
-                      </TableCell>
-                      <TableCell className="hidden sm:table-cell">
-                        <Badge className="text-xs" variant="secondary">
-                          Fulfilled
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="hidden md:table-cell">
-                        2023-06-26
-                      </TableCell>
-                      <TableCell className="text-right">$450.00</TableCell>
-                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {
+                      latestCreatedMarkets.map(latestCreatedMarket => (
+                        <TableRow key={latestCreatedMarket.marketAddress}>
+                          <TableCell className="flex-grow h-full text-center">
+                            <div className="h-full">
+                              <div className="font-medium text-xs mb-1 md:flex justify-center align-center">APT/USD</div>
+                              <div className="text-md text-muted-foreground flex justify-center align-center">
+                                <NetworkAptos className='scale-125' />
+                              </div>
+                            </div>
+                          </TableCell>
+                          <TableCell className="flex-grow flex-shrink-0">
+                            <div className="flex flex-col gap-2">
+                              <div className="flex items-center">
+                                <Lock className="h-4 w-4 mx-4" />
+                                <div className="flex flex-col">
+                                  <span className="text-neutral-700 dark:text-neutral-300 text-xs">
+                                    End betting:
+                                  </span>
+                                  <span>
+                                    {DateTime.fromSeconds(latestCreatedMarket.startTimeTimestamp).toLocaleString(DateTime.DATETIME_MED)}
+                                  </span>
+                                </div>
+                              </div>
+                              <div className="flex items-center">
+                                <PartyPopper className="h-4 w-4 mx-4" />
+                                <div className="flex flex-col">
+                                  <span className="text-neutral-700 dark:text-neutral-300 text-xs">
+                                    Market resolution:
+                                  </span>
+                                  <span>
+                                    {DateTime.fromSeconds(latestCreatedMarket.endTimeTimestamp).toLocaleString(DateTime.DATETIME_MED)}
+                                  </span>
+                                </div>
+                              </div>
+                              <div className="flex items-center">
+                                <Coins className="h-4 w-4 mx-4" />
+                                <div className="flex flex-col">
+                                  <span className="text-neutral-700 dark:text-neutral-300 text-xs">
+                                    Min Bet:
+                                  </span>
+                                  <p className="text-ellipsis overflow-hidden">
+                                    <span>$ 0.5 </span><span className="text-muted-foreground">
+                                      (0.08 APT)
+                                    </span>
+                                    {/* {latestCreatedMarket.minBet} */}
+                                  </p>
+                                </div>
+                              </div>
+                            </div>
+                          </TableCell>
+                          <TableCell className="hidden md:table-cell flex-grow max-w-[150px]">
+                            <div className="flex flex-col gap-2">
+                              <div className="flex items-center">
+                                <ChartNoAxesColumn className="h-4 w-4 mx-4" />
+                                <div className="flex flex-col max-w-[150px]">
+                                  <span className="text-neutral-700 dark:text-neutral-300 text-xs">
+                                    Market:
+                                  </span>
+                                  <p className="text-ellipsis overflow-hidden">
+                                    <Link className="underline" target='_blank' href={getExplorerObjectLink(latestCreatedMarket.marketAddress, true)}>
+                                      {latestCreatedMarket.marketAddress}
+                                    </Link>
+                                  </p>
+                                </div>
+                              </div>
+                              <div className="flex items-center">
+                                <Store className="h-4 w-4 mx-4" />
+                                <div className="flex flex-col max-w-[150px]">
+                                  <span className="text-neutral-700 dark:text-neutral-300 text-xs">
+                                    Marketplace:
+                                  </span>
+                                  <p className="text-ellipsis overflow-hidden">
+                                    <Link className="underline" target='_blank' href={getExplorerObjectLink(latestCreatedMarket.marketplaceAddress, true)}>
+                                      {latestCreatedMarket.marketplaceAddress}
+                                    </Link>
+                                  </p>
+                                </div>
+                              </div>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      )
+                      )
+                    }
                   </TableBody>
                 </Table>
               </CardContent>
@@ -325,7 +386,7 @@ export function DashboardContent() {
           </TabsContent>
         </Tabs>
       </div>
-      <div>
+      {/* <div>
         <Card className="overflow-hidden" x-chunk="dashboard-05-chunk-4">
           <CardHeader className="flex flex-row items-start bg-muted/50">
             <div className="grid gap-0.5">
@@ -477,7 +538,7 @@ export function DashboardContent() {
             </Pagination>
           </CardFooter>
         </Card>
-      </div>
-    </div>
+      </div> */}
+    </div >
   );
 }

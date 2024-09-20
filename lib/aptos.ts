@@ -21,3 +21,7 @@ export const surfClientMarket = createSurfClient(aptos).useABI(MarketAbi);
 //   functionArguments: ['0x1'],
 //   typeArguments: ['0x1::aptos_coin::AptosCoin'],
 // });
+
+export const getExplorerObjectLink= (objectId: string, isTestnet = false): string => {
+  return `https://explorer.aptoslabs.com/object/${objectId}${isTestnet ? '?network=testnet' : ''}`;
+}
