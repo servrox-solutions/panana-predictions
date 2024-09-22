@@ -13,6 +13,9 @@ export const surfClientMarket = createSurfClient(aptos).useABI(MarketAbi);
 export const MODULE_ADDRESS_FROM_ABI: Address =
   MarketplaceAbi.address ?? MarketAbi.address;
 
+export const MARKET_ABI = MarketAbi;
+export const MARKETPLACE_ABI = MarketplaceAbi;
+
 // Use Surf to executes an entry function
 // const result = await surfClient.entry.transfer({
 //   functionArguments: ['0x1', 1],

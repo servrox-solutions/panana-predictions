@@ -1,10 +1,5 @@
 import { marketTypes } from "../get-available-markets";
 
-export interface BetInfo {
-  amount: number;
-  timestamp: number;
-}
-
 export type Address = `0x${string}`;
 
 export interface MarketData {
@@ -19,16 +14,15 @@ export interface MarketData {
   upBetsSum: number;
   downBetsSum: number;
   fee: number;
-  pool: number;
   priceUp: boolean | null;
   priceDelta: number;
-  upBets: Map<Address, BetInfo>;
-  downBets: Map<Address, BetInfo>;
+  upBets: Map<Address, number>;
+  downBets: Map<Address, number>;
   userVotes: Map<Address, boolean>;
   upVotesSum: number;
   downVotesSum: number;
-  oddsUp: string;
-  oddsDown: string;
+  upWinFactor: number;
+  downWinFactor: number;
 }
 
 export interface MarketOld {
@@ -41,7 +35,19 @@ export interface MarketOld {
     min_bet: number;
     up_bets_sum: number;
     down_bets_sum: number;
-    up_bets: Map<string, BetInfo>;
-    down_bets: Map<string, BetInfo>;
+    up_bets: Map<
+      string,
+      {
+        amount: number;
+        timestamp: number;
+      }
+    >;
+    down_bets: Map<
+      string,
+      {
+        amount: number;
+        timestamp: number;
+      }
+    >;
   };
 }

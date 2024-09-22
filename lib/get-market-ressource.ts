@@ -5,7 +5,7 @@ import { getLogger } from "./logger";
 export interface MarketRessource {
   creator: string;
   down_bets: {
-    data: unknown[];
+    data: { key: string; value: string }[];
   };
   down_bets_sum: string;
   down_votes_sum: string;
@@ -20,17 +20,17 @@ export interface MarketRessource {
     numerator: string;
   };
   price_up: {
-    vec: unknown[];
+    vec: boolean[];
   };
   start_price: string;
   start_time: string;
   up_bets: {
-    data: unknown[];
+    data: { key: string; value: string }[];
   };
   up_bets_sum: string;
   up_votes_sum: string;
   user_votes: {
-    data: unknown[];
+    data: { key: string; value: boolean }[];
   };
 }
 

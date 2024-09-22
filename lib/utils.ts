@@ -11,26 +11,40 @@ export function addEllipsis(str: string, startChars = 6, endChars = 4) {
   );
 }
 
-export function calculateOdds(
+export function calculateWinFactors(
+  upBetsCount: number,
+  downBetsCount: number,
+  fee: number
+): { upWinFactor: number; downWinFactor: number } {
+  const totalBets = upBetsCount + downBetsCount;
+
+  const upWinFactor =
+    ((totalBets === 0 ? 1 : totalBets) / (upBetsCount + 1)) * (1 - fee) * 2;
+  const downWinFactor =
+    ((totalBets === 0 ? 1 : totalBets) / (downBetsCount + 1)) * (1 - fee) * 2;
+
+  return { upWinFactor, downWinFactor };
+}
+
+export function calculateUserWin(
+  upWinFactor: number,
+  downWinFactor: number,
   upBetsSum: number,
-  downBetsSum: number
-): {
-  oddsUp: string;
-  oddsDown: string;
-} {
-  const totalSum = upBetsSum + downBetsSum;
-  if (totalSum === 0) {
-    return { oddsUp: "2.00", oddsDown: "2.00" };
+  downBetsSum: number,
+  userBetAmount: number,
+  isUp: boolean
+): number {
+  if (isUp) {
+    const potentialBetSum = upBetsSum + userBetAmount;
+    const totalUpPotentialWinnings = upWinFactor * potentialBetSum;
+    const userShare = userBetAmount / potentialBetSum;
+    const userPotentialWin = totalUpPotentialWinnings * userShare;
+    return userPotentialWin;
+  } else {
+    const potentialBetSum = downBetsSum + userBetAmount;
+    const totalDownPotentialWinnings = downWinFactor * potentialBetSum;
+    const userShare = userBetAmount / potentialBetSum;
+    const userPotentialWin = totalDownPotentialWinnings * userShare;
+    return userPotentialWin;
   }
-
-  const probabilityUp = upBetsSum / totalSum;
-  const probabilityDown = downBetsSum / totalSum;
-
-  const oddsUp = 1 / probabilityUp + 1;
-  const oddsDown = 1 / probabilityDown + 1;
-
-  return {
-    oddsUp: oddsUp === Infinity ? "1.00" : oddsUp.toFixed(2),
-    oddsDown: oddsDown === Infinity ? "1.00" : oddsDown.toFixed(2),
-  };
 }

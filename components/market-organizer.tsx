@@ -11,7 +11,7 @@ export async function MarketOrganizer({ markets }: MarketOrganizerProps) {
   const marketData: MarketData[] = await Promise.all(
     markets.map((market) => initializeMarket(market))
   );
-  console.log("marketData 💯", marketData);
+  // console.log("marketData 💯", marketData);
 
   return (
     <div className="flex flex-row flex-wrap content-start gap-4">

@@ -13,118 +13,40 @@ import {
 import React, { useState } from "react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
-import { cn } from "@/lib/utils";
+import { calculateUserWin, cn } from "@/lib/utils";
 import { MarketCardTimeline } from "./market-card-timeline";
-import { useWallet } from "@aptos-labs/wallet-adapter-react";
-import { createEntryPayload } from "@thalalabs/surf";
-import { ABI as MarketAbi } from "@/lib/market-abi";
-import { aptos } from "@/lib/aptos";
-import { Address } from "@/lib/types/market";
 
 export interface MarketCardSimpleUiProps {
   tradingPair: { one: (typeof marketTypes)[number]; two: string };
   minBet: number;
-  pool: number;
-
   betCloseTime: number;
   resolveTime: number;
-  market: Address;
-  oddsUp: string;
-  oddsDown: string;
   upVotesSum: number;
   downVotesSum: number;
+  upWinFactor: number;
+  downWinFactor: number;
+  upBetsSum: number;
+  downBetsSum: number;
+  onPlaceBet: (betUp: boolean, amount: number) => void;
+  onVote: (isVoteUp: boolean) => void;
 }
 
 export const MarketCardSimpleUi: React.FC<MarketCardSimpleUiProps> = ({
-  tradingPair = {
-    one: "APT",
-    two: "USD",
-  },
+  tradingPair,
   minBet,
-  betCloseTime = 1726666201,
-  resolveTime = 1726668901,
-  pool = 0,
-  market,
-  oddsUp,
-  oddsDown,
+  betCloseTime,
+  resolveTime,
   upVotesSum,
   downVotesSum,
+  upWinFactor,
+  downWinFactor,
+  upBetsSum,
+  downBetsSum,
+  onPlaceBet,
+  onVote,
 }) => {
   const [bet, setBet] = useState<"up" | "down" | null>(null);
-  const [amount, setAmount] = useState<number>(1000);
-  const { account, signAndSubmitTransaction } = useWallet();
-
-  const handleBet = (bet: "up" | "down" | null) => {
-    setBet(bet);
-  };
-
-  async function placeBet(betUp: boolean, amount?: number) {
-    console.log(amount);
-    if (!account) return;
-
-    try {
-      const payload = createEntryPayload(MarketAbi, {
-        function: "place_bet",
-        typeArguments: [
-          `${MarketAbi.address}::switchboard_asset::${tradingPair.one}`,
-        ],
-        functionArguments: [market, betUp, amount!.toString()],
-      });
-
-      const transactionResponse = await signAndSubmitTransaction({
-        sender: account.address,
-        data: payload,
-      });
-
-      console.log("🍧", transactionResponse);
-
-      const committedTransactionResponse = await aptos.waitForTransaction({
-        transactionHash: transactionResponse.hash,
-      });
-
-      console.log("🍧", committedTransactionResponse);
-
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (error: any) {
-      console.error("Transaction failed:", error);
-    }
-  }
-
-  async function submitVote(isVoteUp: boolean) {
-    console.log("isVoteUp", isVoteUp);
-
-    if (!account) return;
-
-    try {
-      const payload = createEntryPayload(MarketAbi, {
-        function: "vote",
-        typeArguments: [
-          `${MarketAbi.address}::switchboard_asset::${tradingPair.one}`,
-        ],
-        functionArguments: [market, isVoteUp],
-      });
-
-      const transactionResponse = await signAndSubmitTransaction({
-        sender: account.address,
-        data: payload,
-      });
-
-      console.log("🍧 vote transactionResponse", transactionResponse);
-
-      const committedTransactionResponse = await aptos.waitForTransaction({
-        transactionHash: transactionResponse.hash,
-      });
-
-      console.log(
-        "🍧 vote committedTransactionResponse",
-        committedTransactionResponse
-      );
-
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (error: any) {
-      console.error("Transaction failed:", error);
-    }
-  }
+  const [amount, setAmount] = useState<number>(minBet + 1);
 
   return (
     <div className="flex flex-col max-w-sm backdrop-grayscale-[.5] bg-gray-800 bg-opacity-30 backdrop-blur-lg rounded-3xl p-3 shadow-lg border border-white border-opacity-20">
@@ -147,7 +69,7 @@ export const MarketCardSimpleUi: React.FC<MarketCardSimpleUiProps> = ({
               variant="ghost"
               size="icon"
               className="h-5 w-5"
-              onClick={() => handleBet(null)}
+              onClick={() => setBet(null)}
             >
               <Undo2 className="h-4 w-4" />
             </Button>
@@ -160,11 +82,8 @@ export const MarketCardSimpleUi: React.FC<MarketCardSimpleUiProps> = ({
           <Input
             type="number"
             placeholder="Amount"
-            defaultValue={minBet}
-            onChange={(ev) => {
-              setAmount(+ev.target.value);
-              console.log(ev.target.value);
-            }}
+            defaultValue={minBet + 1}
+            onChange={(ev) => setAmount(+ev.target.value)}
             className="text-foreground"
           />
           <Button
@@ -174,7 +93,7 @@ export const MarketCardSimpleUi: React.FC<MarketCardSimpleUiProps> = ({
                 ? "w-full font-semibold bg-green-600/70  hover:bg-green-500 text-white relative"
                 : "w-full font-semibold bg-red-600/70  hover:bg-red-500 text-white relative"
             }
-            onClick={() => placeBet(bet === "up", amount)}
+            onClick={() => onPlaceBet(bet === "up", amount)}
           >
             {bet === "up" ? "Bet Up" : "Bet Down"}
             {bet === "up" ? (
@@ -182,6 +101,17 @@ export const MarketCardSimpleUi: React.FC<MarketCardSimpleUiProps> = ({
             ) : (
               <ChevronsDown className="ml-2 h-4 w-4" />
             )}
+            <span className="absolute bottom-0 right-1 -mb-1 text-lg group-hover:text-4xl text-white/30">
+              +
+              {calculateUserWin(
+                upWinFactor,
+                downWinFactor,
+                upBetsSum,
+                downBetsSum,
+                amount,
+                bet === "up"
+              ).toLocaleString()}
+            </span>
           </Button>
         </div>
       )}
@@ -208,17 +138,17 @@ export const MarketCardSimpleUi: React.FC<MarketCardSimpleUiProps> = ({
           <div className="flex-1">
             <Button
               className="group w-full font-semibold bg-green-600/70  hover:bg-green-500 text-white relative"
-              onClick={() => handleBet("up")}
+              onClick={() => setBet("up")}
             >
               <span className="z-10">Bet Up</span>
               <ChevronsUp className="ml-2 h-4 w-4" />
               <span
                 className={cn(
                   "absolute bottom-0 right-1 -mb-1 text-lg group-hover:text-4xl text-white/30",
-                  oddsUp > oddsDown ? "animate-pulse" : ""
+                  upWinFactor > downWinFactor ? "animate-pulse" : ""
                 )}
               >
-                &times;{oddsUp}
+                &times;{upWinFactor.toFixed(2)}
               </span>
             </Button>
           </div>
@@ -230,17 +160,17 @@ export const MarketCardSimpleUi: React.FC<MarketCardSimpleUiProps> = ({
           <div className="flex-1">
             <Button
               className={`group w-full font-semibold bg-red-600/70  hover:bg-red-500 text-white relative`}
-              onClick={() => handleBet("down")}
+              onClick={() => setBet("down")}
             >
               <span className="z-10">Bet Down</span>
               <ChevronsDown className="ml-2 h-4 w-4" />
               <span
                 className={cn(
                   "absolute bottom-0 right-1 -mb-1 text-lg group-hover:text-4xl text-white/30",
-                  oddsDown > oddsUp ? "animate-pulse" : ""
+                  downWinFactor > upWinFactor ? "animate-pulse" : ""
                 )}
               >
-                &times;{oddsDown}
+                &times;{downWinFactor.toFixed(2)}
               </span>
             </Button>
           </div>
@@ -272,14 +202,14 @@ export const MarketCardSimpleUi: React.FC<MarketCardSimpleUiProps> = ({
         <div className="flex justify-between">
           <div className="flex mt-4 items-center">
             <Coins className="w-4 h-4 mx-2" />
-            {pool / 10 ** 8} APT
+            {(upBetsSum + downBetsSum) / 10 ** 8} APT
           </div>
           <div className="flex justify-end space-x-2 mt-4">
             <Button
               variant="ghost"
               size="icon"
               className="group hover:text-red-500 hover:bg-red-500/20"
-              onClick={() => submitVote(false)}
+              onClick={() => onVote(false)}
             >
               <ThumbsDown className="h-4 w-4" />
               <span className="text-xs text-neutral-400 group-hover:text-red-500 pl-1">
@@ -290,7 +220,7 @@ export const MarketCardSimpleUi: React.FC<MarketCardSimpleUiProps> = ({
               variant="ghost"
               size="icon"
               className="group hover:text-green-500 hover:bg-green-500/20"
-              onClick={() => submitVote(true)}
+              onClick={() => onVote(true)}
             >
               <ThumbsUp className="h-4 w-4" />
               <span className="text-xs text-neutral-400 group-hover:text-green-500 pl-1">

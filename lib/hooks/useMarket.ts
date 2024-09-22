@@ -3,11 +3,6 @@ import { AvailableMarket } from "../get-available-markets";
 import { initializeMarket } from "../initialize-market";
 import { MarketData } from "../types/market";
 
-export interface BetInfo {
-  amount: number;
-  timestamp: number;
-}
-
 export function useMarket(
   availableMarket: AvailableMarket,
   autoRefreshInterval: number,
