@@ -14,7 +14,7 @@ export default async function Markets() {
   console.log("💯 availableMarkets", availableMarkets);
 
   return (
-    <div className="h-full p-3 flex flex-col gap-4 bg-[url('/character.png')] bg-[length:600px_700px] bg-no-repeat bg-fixed bg-center min-h-screen">
+    <div className="p-3 flex flex-col gap-4 pb-20">
       {/* marketplaces={{ "APT/USD": "0xabc", "BTC/USD": "0xabc" }} */}
       <div className="flex w-full items-end">
         <MarketCreateModal />
