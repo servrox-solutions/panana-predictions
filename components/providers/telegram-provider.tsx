@@ -2,7 +2,7 @@
 
 import Script from "next/script";
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
-import { TelegramUser, WebApp } from "../types/telegram";
+import { TelegramUser, WebApp } from "../../lib/types/telegram";
 
 export interface TelegramContext {
   webApp?: WebApp;

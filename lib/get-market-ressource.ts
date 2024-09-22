@@ -1,4 +1,4 @@
-import { surfClientMarket } from "./aptos";
+import { MODULE_ADDRESS_FROM_ABI, surfClientMarket } from "./aptos";
 import { AvailableMarket } from "./get-available-markets";
 import { getLogger } from "./logger";
 
@@ -38,11 +38,12 @@ export const getMarketRessource = async (
   availableMarket: AvailableMarket
 ): Promise<MarketRessource> => {
   const logger = getLogger();
+
   const market = await surfClientMarket.resource
     .Market({
       account: availableMarket.address,
       typeArguments: [
-        `${process.env.AUTOMATED_SET_MODULE_ADDRESS}::switchboard_asset::${availableMarket.type}`,
+        `${MODULE_ADDRESS_FROM_ABI}::switchboard_asset::${availableMarket.type}`,
       ],
     })
     .then((market) => market as unknown as MarketRessource)

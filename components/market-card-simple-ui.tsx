@@ -15,10 +15,11 @@ import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { cn } from "@/lib/utils";
 import { MarketCardTimeline } from "./market-card-timeline";
-import { useWallet } from '@aptos-labs/wallet-adapter-react';
-import { createEntryPayload } from '@thalalabs/surf';
+import { useWallet } from "@aptos-labs/wallet-adapter-react";
+import { createEntryPayload } from "@thalalabs/surf";
 import { ABI as MarketAbi } from "@/lib/market-abi";
-import { aptos } from '@/lib/aptos';
+import { aptos } from "@/lib/aptos";
+import { Address } from "@/lib/types/market";
 
 export interface MarketCardSimpleUiProps {
   tradingPair: { one: (typeof marketTypes)[number]; two: string };
@@ -27,7 +28,9 @@ export interface MarketCardSimpleUiProps {
 
   betCloseTime: number;
   resolveTime: number;
-  market: `0x${string}`;
+  market: Address;
+  oddsUp: string;
+  oddsDown: string;
 }
 
 export const MarketCardSimpleUi: React.FC<MarketCardSimpleUiProps> = ({
@@ -39,6 +42,8 @@ export const MarketCardSimpleUi: React.FC<MarketCardSimpleUiProps> = ({
   resolveTime = 1726668901,
   pool = 0,
   market,
+  oddsUp,
+  oddsDown,
 }) => {
   const [bet, setBet] = useState<"up" | "down" | null>(null);
   const [amount, setAmount] = useState<number>(1000);
@@ -48,12 +53,8 @@ export const MarketCardSimpleUi: React.FC<MarketCardSimpleUiProps> = ({
     setBet(bet);
   };
 
-  //TODO:
-  const oddsUp = 1.67;
-  const oddsDown = 2.5;
-
   async function placeBet(betUp: boolean, amount?: number) {
-    console.log(amount)
+    console.log(amount);
     if (!account) {
       return;
     }
@@ -64,11 +65,7 @@ export const MarketCardSimpleUi: React.FC<MarketCardSimpleUiProps> = ({
       const payload = createEntryPayload(MarketAbi, {
         function: "place_bet",
         typeArguments: [`${moduleAddress}::switchboard_asset::APT`],
-        functionArguments: [
-          market,
-          betUp,
-          amount!.toString(),
-        ],
+        functionArguments: [market, betUp, amount!.toString()],
       });
 
       const transactionResponse = await signAndSubmitTransaction({
@@ -78,18 +75,16 @@ export const MarketCardSimpleUi: React.FC<MarketCardSimpleUiProps> = ({
 
       console.log("🍧", transactionResponse);
 
-      const committedTransactionResponse = await aptos.waitForTransaction(
-        { transactionHash: transactionResponse.hash }
-      );
+      const committedTransactionResponse = await aptos.waitForTransaction({
+        transactionHash: transactionResponse.hash,
+      });
 
       console.log("🍧", committedTransactionResponse);
-
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       console.error("Transaction failed:", error);
     }
-
   }
 
   return (
@@ -127,7 +122,10 @@ export const MarketCardSimpleUi: React.FC<MarketCardSimpleUiProps> = ({
             type="number"
             placeholder="Amount"
             defaultValue={amount}
-            onChange={ev => { setAmount(+ev.target.value); console.log(ev.target.value) }}
+            onChange={(ev) => {
+              setAmount(+ev.target.value);
+              console.log(ev.target.value);
+            }}
             className="text-foreground"
           />
           <Button
@@ -235,7 +233,8 @@ export const MarketCardSimpleUi: React.FC<MarketCardSimpleUiProps> = ({
       {!bet && (
         <div className="flex justify-between">
           <div className="flex mt-4 items-center">
-            <Coins className="w-4 h-4 mx-2" />{pool / 10 ** 8} APT
+            <Coins className="w-4 h-4 mx-2" />
+            {pool / 10 ** 8} APT
           </div>
           <div className="flex justify-end space-x-2 mt-4">
             <Button

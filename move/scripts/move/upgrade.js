@@ -7,12 +7,11 @@ const config = yaml.load(fs.readFileSync("./.aptos/config.yaml", "utf8"));
 const profile = `${process.env.PROJECT_NAME}-${process.env.NEXT_PUBLIC_APP_NETWORK}`;
 const accountAddress = config["profiles"][profile]["account"];
 async function publish() {
-
   const moduleAddress = process.env.AUTOMATED_SET_MODULE_ADDRESS;
   // Check VITE_MODULE_ADDRESS is set
   if (!moduleAddress) {
     throw new Error(
-      "AUTOMATED_SET_MODULE_ADDRESS variable is not set, make sure you have published the module before upgrading it",
+      "AUTOMATED_SET_MODULE_ADDRESS variable is not set, make sure you have published the module before upgrading it"
     );
   }
 
@@ -43,7 +42,7 @@ async function publish() {
       panana: moduleAddress,
     },
     profile,
-    extraArguments: ['--included-artifacts=none', "--assume-yes"]
+    extraArguments: ["--included-artifacts=none", "--assume-yes"],
   });
 }
 publish();

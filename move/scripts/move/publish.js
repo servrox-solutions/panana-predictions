@@ -8,9 +8,7 @@ const config = yaml.load(fs.readFileSync("./.aptos/config.yaml", "utf8"));
 const profile = `${process.env.PROJECT_NAME}-${process.env.NEXT_PUBLIC_APP_NETWORK}`;
 const accountAddress = config["profiles"][profile]["account"];
 
-
 async function publish() {
-
   // const aptosConfig = new aptosSDK.AptosConfig({ network: process.env.NEXT_PUBLIC_APP_NETWORK })
   // const aptos = new aptosSDK.Aptos(aptosConfig)
 
@@ -39,7 +37,7 @@ async function publish() {
         owner: accountAddress,
       },
       profile,
-      extraArguments: ['--included-artifacts=none', "--assume-yes"]
+      extraArguments: ["--included-artifacts=none", "--assume-yes"],
     })
     .then((response) => {
       const filePath = ".env";

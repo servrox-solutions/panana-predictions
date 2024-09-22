@@ -1,4 +1,4 @@
-import { Market } from "@/components/types/market";
+import { MarketOld } from "@/lib/types/market";
 
 export const tradingPairs = [
   "BTC/USD",
@@ -8,7 +8,7 @@ export const tradingPairs = [
   "ETH/USD",
 ];
 
-export const sampleMarkets: Market[] = [
+export const sampleMarkets: MarketOld[] = [
   {
     key: "MARKET_001",
     tradingPair: "BTC/USD",

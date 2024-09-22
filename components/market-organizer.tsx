@@ -1,30 +1,39 @@
-// import { MarketCard } from "./market-card";
 import { AvailableMarket } from "@/lib/get-available-markets";
-import { getMarketObjects } from "@/lib/get-market-objects";
-import { MarketCardSimpleUi } from "./market-card-simple-ui";
+import { initializeMarket } from "@/lib/initialize-market";
+import { MarketCard } from "./market-card";
+import { MarketData } from "@/lib/types/market";
 
 export interface MarketOrganizerProps {
   markets: AvailableMarket[];
 }
 
 export async function MarketOrganizer({ markets }: MarketOrganizerProps) {
-  const marketObjects = await getMarketObjects(markets);
-  console.log("marketObjects 💯", marketObjects);
-  // const objs = [...marketObjects, ...marketObjects, ...marketObjects, ...marketObjects, ...marketObjects, ...marketObjects, ...marketObjects, ...marketObjects, ...marketObjects, ...marketObjects, ...marketObjects, ...marketObjects, ...marketObjects, ...marketObjects, ...marketObjects, ...marketObjects];
+  const marketData: MarketData[] = await Promise.all(
+    markets.map((market) => initializeMarket(market))
+  );
+  console.log("marketData 💯", marketData);
+
   return (
     <div className="flex flex-row flex-wrap content-start gap-4">
+      {marketData
+        .sort((prev, cur) => prev.endTime - cur.endTime)
+        .map((market, index) => (
+          <MarketCard
+            key={`${market.creator}-${index}`}
+            availableMarket={{
+              address: market.address,
+              type: market.tradingPair.one,
+            }}
+            initialMarketData={market}
+          />
+        ))}
 
-      {marketObjects.sort((prev, cur) => prev.endTime - cur.endTime).map((marketObject, index) => (
-        <MarketCardSimpleUi
-          key={`${marketObject.creator}-${index}`}
-          tradingPair={marketObject.tradingPair}
-          minBet={marketObject.minBet}
-          betCloseTime={marketObject.startTime}
-          resolveTime={marketObject.endTime}
-          pool={marketObject.pool}
-          market={marketObject.address}
+      {/* {markets.map((market, index) => (
+        <MarketCard
+          key={`${market.address}-${index}`}
+          availableMarket={market}
         />
-      ))}
+      ))} */}
     </div>
   );
 }
