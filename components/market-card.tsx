@@ -14,7 +14,7 @@ export const MarketCard: React.FC<MarketCardProps> = ({
   availableMarket,
   initialMarketData,
 }) => {
-  const { marketData } = useMarket(availableMarket, 0, initialMarketData);
+  const { marketData } = useMarket(availableMarket, 3000, initialMarketData);
 
   return (
     <MarketCardSimpleUi
@@ -26,6 +26,8 @@ export const MarketCard: React.FC<MarketCardProps> = ({
       tradingPair={marketData?.tradingPair ?? { one: "APT", two: "USD" }}
       oddsUp={marketData?.oddsUp ?? "13.37"}
       oddsDown={marketData?.oddsDown ?? "13.37"}
+      upVotesSum={marketData?.upVotesSum ?? 1337}
+      downVotesSum={marketData?.downVotesSum ?? 1337}
     />
   );
 };

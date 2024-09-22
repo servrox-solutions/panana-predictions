@@ -5,7 +5,7 @@ import {
   ChevronsDown,
   ChevronsUp,
   Coins,
-  Share,
+  Share2,
   ThumbsDown,
   ThumbsUp,
   Undo2,
@@ -31,6 +31,8 @@ export interface MarketCardSimpleUiProps {
   market: Address;
   oddsUp: string;
   oddsDown: string;
+  upVotesSum: number;
+  downVotesSum: number;
 }
 
 export const MarketCardSimpleUi: React.FC<MarketCardSimpleUiProps> = ({
@@ -38,12 +40,15 @@ export const MarketCardSimpleUi: React.FC<MarketCardSimpleUiProps> = ({
     one: "APT",
     two: "USD",
   },
+  minBet,
   betCloseTime = 1726666201,
   resolveTime = 1726668901,
   pool = 0,
   market,
   oddsUp,
   oddsDown,
+  upVotesSum,
+  downVotesSum,
 }) => {
   const [bet, setBet] = useState<"up" | "down" | null>(null);
   const [amount, setAmount] = useState<number>(1000);
@@ -55,16 +60,14 @@ export const MarketCardSimpleUi: React.FC<MarketCardSimpleUiProps> = ({
 
   async function placeBet(betUp: boolean, amount?: number) {
     console.log(amount);
-    if (!account) {
-      return;
-    }
-    try {
-      const moduleAddress =
-        "0x0a007e13d9a6ac196cacf33e077f1682fa49649f1aa3b129afa9fab1ea93501b";
+    if (!account) return;
 
+    try {
       const payload = createEntryPayload(MarketAbi, {
         function: "place_bet",
-        typeArguments: [`${moduleAddress}::switchboard_asset::APT`],
+        typeArguments: [
+          `${MarketAbi.address}::switchboard_asset::${tradingPair.one}`,
+        ],
         functionArguments: [market, betUp, amount!.toString()],
       });
 
@@ -80,6 +83,42 @@ export const MarketCardSimpleUi: React.FC<MarketCardSimpleUiProps> = ({
       });
 
       console.log("🍧", committedTransactionResponse);
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      console.error("Transaction failed:", error);
+    }
+  }
+
+  async function submitVote(isVoteUp: boolean) {
+    console.log("isVoteUp", isVoteUp);
+
+    if (!account) return;
+
+    try {
+      const payload = createEntryPayload(MarketAbi, {
+        function: "vote",
+        typeArguments: [
+          `${MarketAbi.address}::switchboard_asset::${tradingPair.one}`,
+        ],
+        functionArguments: [market, isVoteUp],
+      });
+
+      const transactionResponse = await signAndSubmitTransaction({
+        sender: account.address,
+        data: payload,
+      });
+
+      console.log("🍧 vote transactionResponse", transactionResponse);
+
+      const committedTransactionResponse = await aptos.waitForTransaction({
+        transactionHash: transactionResponse.hash,
+      });
+
+      console.log(
+        "🍧 vote committedTransactionResponse",
+        committedTransactionResponse
+      );
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
@@ -121,7 +160,7 @@ export const MarketCardSimpleUi: React.FC<MarketCardSimpleUiProps> = ({
           <Input
             type="number"
             placeholder="Amount"
-            defaultValue={amount}
+            defaultValue={minBet}
             onChange={(ev) => {
               setAmount(+ev.target.value);
               console.log(ev.target.value);
@@ -132,8 +171,8 @@ export const MarketCardSimpleUi: React.FC<MarketCardSimpleUiProps> = ({
             type="submit"
             className={
               bet === "up"
-                ? "w-full font-semibold bg-green-600/70  hover:bg-green-500/0 text-white"
-                : "w-full font-semibold bg-red-600/70  hover:bg-red-500/0 text-white"
+                ? "w-full font-semibold bg-green-600/70  hover:bg-green-500 text-white relative"
+                : "w-full font-semibold bg-red-600/70  hover:bg-red-500 text-white relative"
             }
             onClick={() => placeBet(bet === "up", amount)}
           >
@@ -185,8 +224,7 @@ export const MarketCardSimpleUi: React.FC<MarketCardSimpleUiProps> = ({
           </div>
 
           <div className="flex-shrink flex flex-row flex-nowrap text-xs space-x-2 mx-2">
-            {/* <div>x{oddsUp}</div>
-            <div>x {oddsDown}</div> */}
+            {/* button spaceing */}
           </div>
 
           <div className="flex-1">
@@ -240,23 +278,31 @@ export const MarketCardSimpleUi: React.FC<MarketCardSimpleUiProps> = ({
             <Button
               variant="ghost"
               size="icon"
-              className="hover:text-red-500 hover:bg-red-500/20"
+              className="group hover:text-red-500 hover:bg-red-500/20"
+              onClick={() => submitVote(false)}
             >
               <ThumbsDown className="h-4 w-4" />
+              <span className="text-xs text-neutral-400 group-hover:text-red-500 pl-1">
+                {downVotesSum}
+              </span>
             </Button>
             <Button
               variant="ghost"
               size="icon"
-              className="hover:text-green-500 hover:bg-green-500/20"
+              className="group hover:text-green-500 hover:bg-green-500/20"
+              onClick={() => submitVote(true)}
             >
               <ThumbsUp className="h-4 w-4" />
+              <span className="text-xs text-neutral-400 group-hover:text-green-500 pl-1">
+                {upVotesSum}
+              </span>
             </Button>
             <Button
               variant="ghost"
               size="icon"
               className="hover:text-primary hover:bg-primary/20"
             >
-              <Share className="h-4 w-4" />
+              <Share2 className="h-4 w-4" />
             </Button>
           </div>
         </div>
