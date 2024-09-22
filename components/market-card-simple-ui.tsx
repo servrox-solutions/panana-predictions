@@ -15,6 +15,7 @@ import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { calculateUserWin, cn } from "@/lib/utils";
 import { MarketCardTimeline } from "./market-card-timeline";
+import { DateTime } from "luxon";
 
 export interface MarketCardSimpleUiProps {
   tradingPair: { one: (typeof marketTypes)[number]; two: string };
@@ -27,6 +28,8 @@ export interface MarketCardSimpleUiProps {
   downWinFactor: number;
   upBetsSum: number;
   downBetsSum: number;
+  upBetsCount: number;
+  downBetsCount: number;
   onPlaceBet: (betUp: boolean, amount: number) => void;
   onVote: (isVoteUp: boolean) => void;
 }
@@ -42,6 +45,8 @@ export const MarketCardSimpleUi: React.FC<MarketCardSimpleUiProps> = ({
   downWinFactor,
   upBetsSum,
   downBetsSum,
+  upBetsCount,
+  downBetsCount,
   onPlaceBet,
   onVote,
 }) => {
@@ -49,17 +54,21 @@ export const MarketCardSimpleUi: React.FC<MarketCardSimpleUiProps> = ({
   const [amount, setAmount] = useState<number>(minBet + 1);
 
   return (
-    <div className="flex flex-col max-w-sm backdrop-grayscale-[.5] bg-gray-800 bg-opacity-30 backdrop-blur-lg rounded-3xl p-3 shadow-lg border border-white border-opacity-20">
+    <div className="flex flex-col max-w-sm w-96 backdrop-grayscale-[.5] bg-gray-800 bg-opacity-30 backdrop-blur-lg rounded-3xl p-3 shadow-lg border border-white border-opacity-20">
       {/* Header */}
       <div className="flex justify-between ">
         <div className="flex-1">
-          <div className="text-left mb-4">
+          <div className="text-left">
             <h2 className="text-lg font-semibold">
               Will
               <span className="text-lg text-secondary bg-primary  p-1 rounded mx-1">
                 {tradingPair.one}/{tradingPair.two}
               </span>
-              rise or fall during the betting period?
+              go up or down within{" "}
+              {DateTime.fromSeconds(resolveTime)
+                .diff(DateTime.fromSeconds(betCloseTime))
+                .toFormat("hh:mm:ss")}{" "}
+              hours?
             </h2>
           </div>
         </div>
@@ -77,59 +86,34 @@ export const MarketCardSimpleUi: React.FC<MarketCardSimpleUiProps> = ({
         )}
       </div>
 
-      {bet && (
-        <div className="flex w-full max-w-sm items-center space-x-2">
-          <Input
-            type="number"
-            placeholder="Amount"
-            defaultValue={minBet + 1}
-            onChange={(ev) => setAmount(+ev.target.value)}
-            className="text-foreground"
-          />
-          <Button
-            type="submit"
-            className={
-              bet === "up"
-                ? "w-full font-semibold bg-green-600/70  hover:bg-green-500 text-white relative"
-                : "w-full font-semibold bg-red-600/70  hover:bg-red-500 text-white relative"
-            }
-            onClick={() => onPlaceBet(bet === "up", amount)}
-          >
-            {bet === "up" ? "Bet Up" : "Bet Down"}
-            {bet === "up" ? (
-              <ChevronsUp className="ml-2 h-4 w-4" />
-            ) : (
-              <ChevronsDown className="ml-2 h-4 w-4" />
-            )}
-            <span className="absolute bottom-0 right-1 -mb-1 text-lg group-hover:text-4xl text-white/30">
-              +
-              {calculateUserWin(
-                upWinFactor,
-                downWinFactor,
-                upBetsSum,
-                downBetsSum,
-                amount,
-                bet === "up"
-              ).toLocaleString()}
-            </span>
-          </Button>
-        </div>
-      )}
-
-      {/* Timer Section */}
+      {/* Timeline Section */}
       {!bet && (
-        // <div className="text-sm text-opacity-80 mb-4">
-        //   <p>
-        //     Bets are closed in: <span className="font-bold ">5:45</span>
-        //   </p>
-        //   <p>
-        //     Bets can be resolved in: <span className="font-bold ">15:45</span>
-        //   </p>
-        // </div>
         <MarketCardTimeline
           betCloseTime={betCloseTime}
           resolveTime={resolveTime}
         />
+      )}
+
+      {/* Stats Section */}
+      {bet && (
+        <div className="flex justify-between items-center text-center text-opacity-80 h-20">
+          <div>
+            <p className="font-bold text-sm">{`${downBetsCount} Down`}</p>
+            <p className="text-xs">{downBetsSum} APT</p>
+          </div>
+
+          <div className="text-center">
+            <p className="font-bold text-base">{`${
+              downBetsCount + upBetsCount
+            } Bets`}</p>
+            <p className="text-sm">{downBetsSum + upBetsSum} APT</p>
+          </div>
+
+          <div>
+            <p className="font-bold text-sm">{`${upBetsCount} Up`}</p>
+            <p className="text-xs">{upBetsSum} APT</p>
+          </div>
+        </div>
       )}
 
       {/* Bet Buttons Section */}
@@ -177,34 +161,55 @@ export const MarketCardSimpleUi: React.FC<MarketCardSimpleUiProps> = ({
         </div>
       )}
 
-      {/* Stats Section */}
       {bet && (
-        <div className="mt-6 flex justify-between items-center text-center  text-opacity-80">
-          <div>
-            <p className="font-bold text-lg">8 Bets</p>
-            <p className="text-sm">485,12$</p>
-          </div>
-
-          <div className="text-center">
-            <p className="font-bold text-2xl">14 Bets</p>
-            <p className="text-sm">770,24$</p>
-          </div>
-
-          <div>
-            <p className="font-bold text-lg">6 Bets</p>
-            <p className="text-sm">285,12$</p>
-          </div>
+        <div className="flex w-full max-w-sm items-center space-x-2">
+          <Input
+            type="number"
+            placeholder="Amount"
+            defaultValue={minBet + 1}
+            onChange={(ev) => setAmount(+ev.target.value)}
+            className="text-foreground bg-white/40 dark:bg-black/40"
+          />
+          <Button
+            type="submit"
+            className={
+              bet === "up"
+                ? "w-full font-semibold bg-green-600/70  hover:bg-green-500 text-white relative"
+                : "w-full font-semibold bg-red-600/70  hover:bg-red-500 text-white relative"
+            }
+            onClick={() => onPlaceBet(bet === "up", amount)}
+          >
+            {bet === "up" ? "Bet Up" : "Bet Down"}
+            {bet === "up" ? (
+              <ChevronsUp className="ml-2 h-4 w-4" />
+            ) : (
+              <ChevronsDown className="ml-2 h-4 w-4" />
+            )}
+            <span className="absolute bottom-0 right-1 -mb-1 text-lg group-hover:text-4xl text-white/30">
+              +
+              {calculateUserWin(
+                upWinFactor,
+                downWinFactor,
+                upBetsSum,
+                downBetsSum,
+                amount,
+                bet === "up"
+              ).toLocaleString()}
+            </span>
+          </Button>
         </div>
       )}
 
       {/* Icons */}
       {!bet && (
-        <div className="flex justify-between">
-          <div className="flex mt-4 items-center">
-            <Coins className="w-4 h-4 mx-2" />
-            {(upBetsSum + downBetsSum) / 10 ** 8} APT
+        <div className="flex justify-between items-stretch pt-4">
+          <div className="flex items-center">
+            <Coins className="w-4 h-4" />
+            <span className="text-xs text-neutral-400 pl-1">
+              {(upBetsSum + downBetsSum) / 10 ** 8} APT
+            </span>
           </div>
-          <div className="flex justify-end space-x-2 mt-4">
+          <div className="flex justify-end space-x-2">
             <Button
               variant="ghost"
               size="icon"

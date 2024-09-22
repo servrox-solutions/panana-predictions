@@ -6,12 +6,6 @@ import { DateTime } from "luxon";
 import { Progress } from "./ui/progress";
 import { Banana, Lock, PartyPopper } from "lucide-react";
 import { Button } from "./ui/button";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "./ui/tooltip";
 
 interface MarketCardTimelineProps {
   betCloseTime: number;
@@ -29,17 +23,20 @@ export const MarketCardTimeline: React.FC<MarketCardTimelineProps> = ({
     progressPercentageSecondInterval,
     setProgressPercentageSecondInterval,
   ] = useState(100);
+  const [remainingTimeFirstInterval, setRemainingTimeFirstInterval] = useState<
+    string | null
+  >(null);
+  const [remainingTimeSecondInterval, setRemainingTimeSecondInterval] =
+    useState<string | null>(null);
 
   const betCloseDate = DateTime.fromSeconds(betCloseTime);
   const resolveDate = DateTime.fromSeconds(resolveTime);
   const interval = resolveDate.diff(betCloseDate).as("milliseconds");
 
-  //TODO. do interval stuff in the market object
-  // Update 'now' every minute to keep the progress bar updated
   useEffect(() => {
     const timer = setInterval(() => {
       setNow(DateTime.local());
-    }, 1000); // Update every sec
+    }, 1000); // Update 'now' every second to keep the progress bar + remaining time updated
 
     return () => clearInterval(timer);
   }, []);
@@ -47,15 +44,37 @@ export const MarketCardTimeline: React.FC<MarketCardTimelineProps> = ({
   useEffect(() => {
     if (now < betCloseDate) {
       const diffFirstInterval = betCloseDate.diff(now).as("milliseconds");
+
       setProgressPercentageFirstInterval(
-        100 - Math.min(Math.max((diffFirstInterval / interval) * 100, 0), 100)
+        100 -
+          Math.min(
+            Math.max(Math.round((diffFirstInterval / interval) * 100), 0),
+            100
+          )
       );
       setProgressPercentageSecondInterval(0);
+
+      setRemainingTimeFirstInterval(
+        betCloseDate.diff(now).toFormat("hh:mm:ss")
+      );
+      setRemainingTimeSecondInterval(
+        resolveDate.diff(betCloseDate).toFormat("hh:mm:ss")
+      );
     } else if (now > betCloseDate && now < resolveDate) {
       const diffSecondInterval = resolveDate.diff(now).as("milliseconds");
+
       setProgressPercentageFirstInterval(100);
       setProgressPercentageSecondInterval(
-        100 - Math.min(Math.max((diffSecondInterval / interval) * 100, 0), 100)
+        100 -
+          Math.min(
+            Math.max(Math.round((diffSecondInterval / interval) * 100), 0),
+            100
+          )
+      );
+
+      setRemainingTimeFirstInterval(null);
+      setRemainingTimeSecondInterval(
+        resolveDate.diff(now).toFormat("hh:mm:ss")
       );
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -68,74 +87,82 @@ export const MarketCardTimeline: React.FC<MarketCardTimelineProps> = ({
   }
 
   return (
-    <div className="flex justify-between items-center pb-6">
-      <TooltipProvider delayDuration={0}>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button
-              variant="outline"
-              size="icon"
-              className="rounded-full z-10 bg-primary text-primary-foreground h-8 w-8"
-            >
-              <Banana className="h-4 w-4" />
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent side="right">
-            <p>Current time</p>
-            <p>{now.toFormat("yyyy-MM-dd HH:mm:ss")}</p>
-          </TooltipContent>
-        </Tooltip>
-      </TooltipProvider>
-
-      <div className="grow">
-        <Progress
-          value={progressPercentageFirstInterval}
-          className="w-auto -ml-2 -mr-2 h-2"
-        />
+    <div className="flex flex-col justify-center py-2">
+      <div className="flex flex-row justify-between items-center">
+        <div className="w-1/3 text-xs text-muted-foreground text-start">
+          Open
+        </div>
+        <div className="w-1/3 text-xs text-muted-foreground text-center">
+          Start
+        </div>
+        <div className="w-1/3 text-xs text-muted-foreground text-end">End</div>
       </div>
 
-      <TooltipProvider delayDuration={0}>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button
-              variant="outline"
-              size="icon"
-              className="rounded-full z-10 bg-primary text-primary-foreground h-8 w-8"
-            >
-              <Lock className="h-4 w-4" />
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent side="top">
-            <p>Bets are closed</p>
-            <p>{betCloseDate.toFormat("yyyy-MM-dd HH:mm:ss")}</p>
-          </TooltipContent>
-        </Tooltip>
-      </TooltipProvider>
+      <div className="flex flex-row justify-between items-center py-2">
+        <div className="z-10">
+          <Button
+            variant="outline"
+            size="icon"
+            className="bg-primary text-primary-foreground h-8 w-8 -mr-1"
+          >
+            <Banana className="h-4 w-4" />
+          </Button>
+        </div>
 
-      <div className="grow">
-        <Progress
-          value={progressPercentageSecondInterval}
-          className="w-auto -ml-2 -mr-2 h-2"
-        />
+        <div className="grow relative">
+          <Progress
+            value={progressPercentageFirstInterval}
+            className="w-full h-7 rounded-none opacity-50"
+          />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-xs text-foreground">
+            {remainingTimeFirstInterval && remainingTimeFirstInterval}
+          </div>
+        </div>
+
+        <div className="z-10">
+          <Button
+            variant="outline"
+            size="icon"
+            className="z-10 bg-primary text-primary-foreground h-8 w-8 -ml-1 -mr-1"
+          >
+            <Lock className="h-4 w-4" />
+          </Button>
+        </div>
+
+        <div className="grow relative">
+          <Progress
+            value={progressPercentageSecondInterval}
+            className="w-full h-7 rounded-none opacity-50"
+          />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-xs text-foreground">
+            {remainingTimeSecondInterval && remainingTimeSecondInterval}
+          </div>
+        </div>
+
+        <div className="z-10">
+          <Button
+            variant="outline"
+            size="icon"
+            className="z-10 bg-primary text-primary-foreground h-8 w-8 -ml-1"
+          >
+            <PartyPopper className="h-4 w-4" />
+          </Button>
+        </div>
       </div>
 
-      <TooltipProvider delayDuration={0}>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button
-              variant="outline"
-              size="icon"
-              className="rounded-full z-10 bg-primary text-primary-foreground h-8 w-8"
-            >
-              <PartyPopper className="h-4 w-4" />
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent side="left">
-            <p>Rewards distribution</p>
-            <p>{resolveDate.toFormat("yyyy-MM-dd HH:mm:ss")}</p>
-          </TooltipContent>
-        </Tooltip>
-      </TooltipProvider>
+      <div className="flex flex-row justify-between items-center">
+        <div className="w-1/3 text-xs text-muted-foreground"></div>
+        <div className="w-1/3 text-xs text-muted-foreground text-center">
+          <p className="max-w-24 text-wrap mx-auto">
+            {betCloseDate.toFormat("yyyy-MM-dd HH:mm:ss")}
+          </p>
+        </div>
+        <div className="w-1/3 text-xs text-muted-foreground text-end">
+          <p className="max-w-24 text-wrap ml-auto">
+            {resolveDate.toFormat("yyyy-MM-dd HH:mm:ss")}
+          </p>
+        </div>
+      </div>
     </div>
   );
 };

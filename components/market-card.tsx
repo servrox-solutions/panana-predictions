@@ -44,6 +44,8 @@ export const MarketCard: React.FC<MarketCardProps> = ({
       downWinFactor={marketData?.downWinFactor ?? 1337}
       upBetsSum={marketData?.upBetsSum ?? 1337}
       downBetsSum={marketData?.downBetsSum ?? 1337}
+      upBetsCount={marketData?.upBets.size ?? 1337}
+      downBetsCount={marketData?.downBets.size ?? 1337}
       onPlaceBet={onPlaceBet}
       onVote={onVote}
     />
