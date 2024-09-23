@@ -47,17 +47,16 @@ export function DashboardContent({
   const pathname = usePathname();
   const router = useRouter();
 
-  const [filter, setFilter] = useState<SupportedAsset | "No Filter">(
-    (urlSearchParams.get("filter") as SupportedAsset) || "No Filter"
+  const [filter, setFilter] = useState<SupportedAsset[]>(
+    urlSearchParams.get("filter")?.split(",") as SupportedAsset[]
   );
 
-  const filterNetworks: (SupportedAsset | "No Filter")[] = Array.from(
+  const filterNetworks: SupportedAsset[] = Array.from(
     new Set([
       ...latestCreatedMarkets.map((x) => x.assetSymbol),
       ...latestResolvedMarkets.map((x) => x.assetSymbol),
     ])
   ).sort((x, y) => x.localeCompare(y));
-  filterNetworks.unshift("No Filter");
 
   const setQuery = (q: string, value: string) => {
     const current = new URLSearchParams(Array.from(urlSearchParams.entries()));
@@ -140,38 +139,8 @@ export function DashboardContent({
               <FilterDropdown
                 items={filterNetworks}
                 preSelected={searchParams?.filter}
+                onFilterChange={(filter) => setFilter(filter)}
               />
-              {/* <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="h-7 gap-1 text-sm"
-                  >
-                    <ListFilter className="h-3.5 w-3.5" />
-                    <span className="sr-only sm:not-sr-only">Filter</span>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuLabel>Filter by</DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  {filterNetworks.map((filterNetwork) => (
-                    <DropdownMenuCheckboxItem
-                      key={filterNetwork}
-                      checked={filter === filterNetwork}
-                      onCheckedChange={() => setFilter(filterNetwork)}
-                    >
-                      {filterNetwork !== "No Filter" && (
-                        <Web3Icon
-                          asset={filterNetwork}
-                          className="scale-100 mr-2"
-                        />
-                      )}
-                      {filterNetwork}
-                    </DropdownMenuCheckboxItem>
-                  ))}
-                </DropdownMenuContent>
-              </DropdownMenu> */}
             </div>
           </div>
           <TabsContent value="resolvedMarkets">
@@ -182,6 +151,7 @@ export function DashboardContent({
               </CardHeader>
               <CardContent>
                 <ResolvedMarketsTable
+                  filter={filter}
                   latestResolvedMarkets={latestResolvedMarkets}
                 />
               </CardContent>

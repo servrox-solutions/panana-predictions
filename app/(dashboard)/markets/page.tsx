@@ -30,11 +30,16 @@ export default async function Markets({
           preSelected={searchParams?.filter}
         />
       </div>
-      {/* marketplaces={{ "APT/USD": "0xabc", "BTC/USD": "0xabc" }} */}
       <div className="flex w-full items-end">
         <MarketCreateModal marketplaces={marketplaces} />
       </div>
-      <MarketOrganizer markets={availableMarkets} />
+      <MarketOrganizer
+        markets={availableMarkets.filter(
+          (market) =>
+            !searchParams?.filter ||
+            searchParams.filter.includes(market.type.toString())
+        )}
+      />
     </div>
   );
 }

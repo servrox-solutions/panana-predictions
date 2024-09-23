@@ -16,51 +16,51 @@ import { Web3Icon } from "./web3-icon";
 import { SupportedAsset } from "@/lib/types/market";
 
 interface FilterDropdownProps {
-  items: string[];
+  items: SupportedAsset[];
   preSelected?: string | string[];
+  onFilterChange?: (filter: SupportedAsset[]) => void;
 }
 
 export const FilterDropdown: React.FC<FilterDropdownProps> = ({
   items,
   preSelected,
+  onFilterChange,
 }) => {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+
   const [selectedFilters, setSelectedFilters] = useState<string[]>(
-    preSelected
-      ? Array.isArray(preSelected)
-        ? preSelected
-        : [preSelected]
-      : []
+    Array.isArray(preSelected) ? preSelected : preSelected ? [preSelected] : []
   );
 
-  // Initialize filters from search params on page load
   useEffect(() => {
-    const filtersFromParams = searchParams.getAll("filter");
-    setSelectedFilters(filtersFromParams);
+    const filtersFromParams = searchParams.get("filter");
+    if (filtersFromParams) {
+      setSelectedFilters(filtersFromParams.split(","));
+    }
   }, [searchParams]);
 
-  // Toggle filter selection and update query params
   const handleFilterChange = (filter: string) => {
     const updatedFilters = selectedFilters.includes(filter)
-      ? selectedFilters.filter((item) => item !== filter)
-      : [...selectedFilters, filter];
+      ? selectedFilters.filter((item) => item !== filter) // Remove the filter if it's already selected
+      : [...selectedFilters, filter]; // Add filter if not selected
 
     setSelectedFilters(updatedFilters);
 
+    // Create new URLSearchParams and update the 'filter' query param
     const params = new URLSearchParams(searchParams.toString());
 
-    // Update the search params based on the filter selection
     if (updatedFilters.length > 0) {
-      params.delete("filter"); // Clear existing filters
-      updatedFilters.forEach((filter) => params.append("filter", filter)); // Add selected filters
+      params.set("filter", updatedFilters.join(",")); // Set filters as a comma-separated string
     } else {
-      params.delete("filter"); // No filters selected, remove the parameter
+      params.delete("filter"); // Remove 'filter' param if no filters selected
     }
 
-    // Push the new URL with updated query params without reloading
+    // Push updated URL with shallow routing to prevent full page reload
     router.push(`${pathname}?${params.toString()}`);
+
+    onFilterChange?.(updatedFilters as SupportedAsset[]);
   };
 
   return (
@@ -80,10 +80,7 @@ export const FilterDropdown: React.FC<FilterDropdownProps> = ({
             checked={selectedFilters.includes(item)}
             onCheckedChange={() => handleFilterChange(item)}
           >
-            <Web3Icon
-              asset={item as SupportedAsset}
-              className="scale-100 mr-2"
-            />
+            <Web3Icon asset={item} className="scale-100 mr-2" />
             {item}
           </DropdownMenuCheckboxItem>
         ))}
