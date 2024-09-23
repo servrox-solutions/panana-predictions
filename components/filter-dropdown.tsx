@@ -12,6 +12,8 @@ import { ListFilter } from "lucide-react";
 import { Button } from "./ui/button";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useState, useEffect } from "react";
+import { Web3Icon } from "./web3-icon";
+import { SupportedAsset } from "@/lib/types/market";
 
 interface FilterDropdownProps {
   items: string[];
@@ -78,6 +80,10 @@ export const FilterDropdown: React.FC<FilterDropdownProps> = ({
             checked={selectedFilters.includes(item)}
             onCheckedChange={() => handleFilterChange(item)}
           >
+            <Web3Icon
+              asset={item as SupportedAsset}
+              className="scale-100 mr-2"
+            />
             {item}
           </DropdownMenuCheckboxItem>
         ))}

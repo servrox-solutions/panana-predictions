@@ -29,7 +29,7 @@ import { Address } from "@/lib/types/market";
 import { MODULE_ADDRESS_FROM_ABI } from '@/lib/aptos';
 
 export interface MarketCreateModalProps {
-    marketplaces: { [name: string]: Address };
+    marketplaces: { address: `0x${string}`, typeArgument: `${string}::${string}::${string}` }[];
 }
 
 function getEarliestStartDate(): DateTime {
@@ -39,7 +39,8 @@ function getEarliestStartDate(): DateTime {
         .set({ second: 0, millisecond: 0 });
 }
 
-export function MarketCreateModal() {
+export function MarketCreateModal(props: MarketCreateModalProps) {
+    const { marketplaces } = props;
     const { account, signAndSubmitTransaction } = useWallet();
 
     const FormSchema = z.object({
@@ -67,7 +68,7 @@ export function MarketCreateModal() {
     const form = useForm<z.infer<typeof FormSchema>>({
         resolver: zodResolver(FormSchema),
         defaultValues: {
-            asset: "A::B::APT",
+            asset: marketplaces[0].typeArgument, // use first marketplace as default
             startTime: undefined,
             durationSeconds: undefined,
         },
@@ -124,28 +125,10 @@ export function MarketCreateModal() {
         }),
     ];
 
-    const assets = [
-        {
-            label: "APT",
-            value: "A::B::APT",
-        },
-        {
-            label: "BTC",
-            value: "B::C::BTC",
-        },
-        {
-            label: "ETH",
-            value: "B::C::ETH",
-        },
-        {
-            label: "SOL",
-            value: "B::C::SOL",
-        },
-        {
-            label: "USDC",
-            value: "B::C::USDC",
-        },
-    ];
+    const assets = marketplaces.map(marketplace => ({
+        label: marketplace.typeArgument.split("::")[marketplace.typeArgument.split("::").length - 1],
+        value: marketplace.typeArgument,
+    }));
 
     function formatDuration(duration: Duration) {
         // Switch case to format based on the unit
@@ -186,8 +169,8 @@ export function MarketCreateModal() {
         const startTime = DateTime.fromJSDate(data.startTime);
         const endTime = startTime.plus({ seconds: data.durationSeconds });
         const res = await createMarket(account, signAndSubmitTransaction, {
-            type: `${MODULE_ADDRESS_FROM_ABI}::switchboard_asset::APT`,
-            marketplace: '0xa255bd12c76bd6cf5d8ce2c6c8af3de17bfb1a918da7e5d6c1355454c7545505',
+            type: data.asset as `${string}::${string}::${string}`,
+            marketplace: marketplaces.find(x => x.typeArgument === data.asset)!.address,
             startTimeTimestampSeconds: Math.floor(startTime.toSeconds()),
             endTimeTimestampSeconds: Math.floor(endTime.toSeconds()),
             minBet: 10000,

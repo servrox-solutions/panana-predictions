@@ -32,7 +32,7 @@ export default async function Markets({
       </div>
       {/* marketplaces={{ "APT/USD": "0xabc", "BTC/USD": "0xabc" }} */}
       <div className="flex w-full items-end">
-        <MarketCreateModal />
+        <MarketCreateModal marketplaces={marketplaces} />
       </div>
       <MarketOrganizer markets={availableMarkets} />
     </div>

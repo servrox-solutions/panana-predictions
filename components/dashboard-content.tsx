@@ -15,17 +15,24 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Link from "next/link";
 import { ResolvedMarket, ResolvedMarketsTable } from "./resolved-markets-table";
 import { CreatedMarket, CreatedMarketsTable } from "./created-markets-table";
+import { useState } from "react";
+import { SupportedAsset } from "@/lib/types/market";
 import { FilterDropdown } from "./filter-dropdown";
 
 export interface DashboardContentProps {
   latestCreatedMarkets: CreatedMarket[];
   latestResolvedMarkets: ResolvedMarket[];
+  totalVolume: {
+    usd: number;
+    apt: number;
+  };
   searchParams: { [key: string]: string | string[] | undefined };
 }
 
 export function DashboardContent({
   latestCreatedMarkets,
   latestResolvedMarkets,
+  totalVolume,
   searchParams,
 }: DashboardContentProps) {
   const urlSearchParams = new URLSearchParams(
@@ -37,9 +44,20 @@ export function DashboardContent({
         : [[key, value]]
     )
   );
-
   const pathname = usePathname();
   const router = useRouter();
+
+  const [filter, setFilter] = useState<SupportedAsset | "No Filter">(
+    (urlSearchParams.get("filter") as SupportedAsset) || "No Filter"
+  );
+
+  const filterNetworks: (SupportedAsset | "No Filter")[] = Array.from(
+    new Set([
+      ...latestCreatedMarkets.map((x) => x.assetSymbol),
+      ...latestResolvedMarkets.map((x) => x.assetSymbol),
+    ])
+  ).sort((x, y) => x.localeCompare(y));
+  filterNetworks.unshift("No Filter");
 
   const setQuery = (q: string, value: string) => {
     const current = new URLSearchParams(Array.from(urlSearchParams.entries()));
@@ -79,16 +97,20 @@ export function DashboardContent({
           <Card x-chunk="dashboard-05-chunk-1">
             <CardHeader className="pb-2">
               <CardDescription>Total Volume (all assets)</CardDescription>
-              <CardTitle className="text-4xl">$1,2 mio.</CardTitle>
+              <CardTitle className="text-4xl">
+                ${totalVolume.usd} mio.
+              </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-xs text-muted-foreground">(25123 APT)</div>
+              <div className="text-xs text-muted-foreground">
+                ({totalVolume.apt} APT)
+              </div>
             </CardContent>
             {/* <CardFooter>
               <Progress value={25} aria-label="25% increase" />
             </CardFooter> */}
           </Card>
-          <Card x-chunk="dashboard-05-chunk-2">
+          {/* <Card x-chunk="dashboard-05-chunk-2">
             <CardHeader className="pb-2">
               <CardDescription>Last 7 Days</CardDescription>
               <CardTitle className="text-4xl">$35,329</CardTitle>
@@ -96,10 +118,7 @@ export function DashboardContent({
             <CardContent>
               <div className="text-xs text-muted-foreground">(2345 APT)</div>
             </CardContent>
-            {/* <CardFooter>
-              <Progress value={12} aria-label="12% increase" />
-            </CardFooter> */}
-          </Card>
+          </Card> */}
         </div>
         <Tabs defaultValue={urlSearchParams.get("nav") || "resolvedMarkets"}>
           <div className="flex items-center">
@@ -119,9 +138,40 @@ export function DashboardContent({
             </TabsList>
             <div className="ml-auto flex items-center gap-2">
               <FilterDropdown
-                items={["APT", "BTC", "ETH", "SOL"]}
+                items={filterNetworks}
                 preSelected={searchParams?.filter}
               />
+              {/* <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="h-7 gap-1 text-sm"
+                  >
+                    <ListFilter className="h-3.5 w-3.5" />
+                    <span className="sr-only sm:not-sr-only">Filter</span>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuLabel>Filter by</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  {filterNetworks.map((filterNetwork) => (
+                    <DropdownMenuCheckboxItem
+                      key={filterNetwork}
+                      checked={filter === filterNetwork}
+                      onCheckedChange={() => setFilter(filterNetwork)}
+                    >
+                      {filterNetwork !== "No Filter" && (
+                        <Web3Icon
+                          asset={filterNetwork}
+                          className="scale-100 mr-2"
+                        />
+                      )}
+                      {filterNetwork}
+                    </DropdownMenuCheckboxItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu> */}
             </div>
           </div>
           <TabsContent value="resolvedMarkets">
@@ -145,6 +195,7 @@ export function DashboardContent({
               </CardHeader>
               <CardContent>
                 <CreatedMarketsTable
+                  filter={filter}
                   latestCreatedMarkets={latestCreatedMarkets}
                 />
               </CardContent>
