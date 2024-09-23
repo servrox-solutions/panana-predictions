@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 
 export function NavigationBar() {
   return (
-    <div className="fixed bottom-0 left-0 z-50 w-full bg-white/30 backdrop-blur-lg border-t border-gray-200 dark:bg-gray-700/30 dark:border-gray-600 py-1 pb-safe sm:hidden">
+    <div className="fixed bottom-0 left-0 z-50 w-full bg-white/30 backdrop-blur-lg border-t border-gray-200 dark:bg-gray-700/30 dark:border-gray-600 pt-2 [--base-pb:0.5rem] pb-safe-combined sm:hidden">
       <div
         className={cn(
           "grid h-full max-w-lg mx-auto font-medium",
