@@ -8,7 +8,7 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex min-h-screen w-full flex-col bg-[url('/bg-light.jpg')] dark:bg-[url('/bg-dark.jpg')] sm:bg-[url('/bg-light-mobile.jpg')] dark:sm:bg-[url('/bg-dark-mobile.jpg')] bg-no-repeat bg-cover bg-center">
+    <div className="flex min-h-screen w-full flex-col lg:bg-[url('/bg-light.jpg')] lg:dark:bg-[url('/bg-dark.jpg')] bg-[url('/bg-light-mobile.jpg')] dark:bg-[url('/bg-dark-mobile.jpg')] bg-no-repeat bg-cover bg-top">
       <SidenavDesktop />
       <div className="flex flex-col sm:gap-4 sm:py-4 sm:pl-14">
         <Header />

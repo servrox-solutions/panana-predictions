@@ -2,12 +2,6 @@
 
 import {
   ListFilter,
-  PartyPopper,
-  Lock,
-  Coins,
-  DollarSign,
-  Store,
-  ChartNoAxesColumn,
 } from "lucide-react";
 
 
@@ -28,41 +22,12 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Link from "next/link";
-import { DateTime } from 'luxon';
-import {
-  NetworkAptos,
-} from "@web3icons/react";
-import { getExplorerObjectLink } from '@/lib/aptos';
+import { ResolvedMarket, ResolvedMarketsTable } from './resolved-markets-table';
+import { CreatedMarket, CreatedMarketsTable } from './created-markets-table';
 
-
-export interface CreatedMarket {
-  endTimeTimestamp: number,
-  startTimeTimestamp: number,
-  marketAddress: string;
-  marketplaceAddress: string;
-}
-
-export interface ResolvedMarket {
-  endTimeTimestamp: number,
-  startTimeTimestamp: number,
-  marketAddress: string;
-  marketplaceAddress: string;
-  marketCap: {
-    asset: number;
-    usd: number;
-  };
-  dissolved: boolean;
-}
 
 export interface DashboardContentProps {
   latestCreatedMarkets: CreatedMarket[];
@@ -71,6 +36,27 @@ export interface DashboardContentProps {
 
 export function DashboardContent(props: DashboardContentProps) {
   const { latestCreatedMarkets, latestResolvedMarkets } = props;
+
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
+  const router = useRouter();
+
+  const setQuery = (q: string, value: string) => {
+    const current = new URLSearchParams(Array.from(searchParams.entries()));
+
+    if (!value) {
+      current.delete(q);
+    } else {
+      current.set(q, value);
+    }
+
+    // cast to string
+    const search = current.toString();
+    // or const query = `${'?'.repeat(search.length && 1)}${search}`;
+    const query = search ? `?${search}` : "";
+
+    router.push(`${pathname}${query}`);
+  }
 
   return (
     <div className="grid flex-1 items-start gap-4 p-4 sm:px-6 sm:py-0 md:gap-8 lg:grid-cols-3 xl:grid-cols-3">
@@ -118,11 +104,11 @@ export function DashboardContent(props: DashboardContentProps) {
             </CardFooter> */}
           </Card>
         </div>
-        <Tabs defaultValue="resolvedMarkets">
+        <Tabs defaultValue={searchParams.get('nav') || 'resolvedMarkets'}>
           <div className="flex items-center">
             <TabsList>
-              <TabsTrigger value="resolvedMarkets">Resolved Markets</TabsTrigger>
-              <TabsTrigger value="createdMarkets">New Markets</TabsTrigger>
+              <TabsTrigger value="resolvedMarkets" onClick={() => setQuery('nav', 'resolvedMarkets')}>Resolved Markets</TabsTrigger>
+              <TabsTrigger value="createdMarkets" onClick={() => setQuery('nav', 'createdMarkets')}>New Markets</TabsTrigger>
             </TabsList>
             <div className="ml-auto flex items-center gap-2">
               <DropdownMenu>
@@ -158,115 +144,7 @@ export function DashboardContent(props: DashboardContentProps) {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>
-                        Assetpair
-                      </TableHead>
-                      <TableHead>
-                        Market Information
-                      </TableHead>
-                      <TableHead className="hidden md:table-cell">
-                        Addresses
-                      </TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {
-                      latestResolvedMarkets.map((latestResolvedMarket, idx) => (
-                        <TableRow key={latestResolvedMarket.marketAddress} className={idx !== 3 && idx !== 5 ? `bg-green-600/10 hover:bg-green-500/10` : 'bg-red-600/10  hover:bg-red-500/10'}>
-                          <TableCell className="flex-grow h-full text-center">
-                            <div className="h-full">
-                              <div className="font-medium text-xs mb-1 md:flex justify-center align-center">APT/USD</div>
-                              <div className="text-md text-muted-foreground flex justify-center align-center">
-                                <NetworkAptos className='scale-125' />
-                              </div>
-                            </div>
-                          </TableCell>
-                          <TableCell className="flex-grow flex-shrink-0">
-                            <div className="flex flex-col gap-2">
-                              <div className="flex items-center">
-                                <Lock className="h-4 w-4 mx-4" />
-                                <div className="flex flex-col">
-                                  <span className="text-muted-foreground dark:text-neutral-300 text-xs ">
-                                    End betting:
-                                  </span>
-                                  <span>
-                                    {DateTime.fromSeconds(latestResolvedMarket.startTimeTimestamp).toLocaleString(DateTime.DATETIME_MED)}
-                                  </span>
-                                </div>
-                              </div>
-                              <div className="flex items-center">
-                                <PartyPopper className="h-4 w-4 mx-4" />
-                                <div className="flex flex-col">
-                                  <span className="text-muted-foreground dark:text-neutral-300 text-xs">
-                                    Market resolution:
-                                  </span>
-                                  <span>
-                                    {DateTime.fromSeconds(latestResolvedMarket.endTimeTimestamp).toLocaleString(DateTime.DATETIME_MED)}
-                                  </span>
-                                </div>
-                              </div>
-                              <div className="flex items-center">
-                                <DollarSign className="h-4 w-4 mx-4" />
-                                <div className="flex flex-col">
-                                  <span className="text-muted-foreground dark:text-neutral-300 text-xs">
-                                    Final Price Pool:
-                                  </span>
-                                  <div className="flex gap-2">
-                                    <span>$ {latestResolvedMarket.marketCap.usd}</span><span className="text-muted-foreground">
-                                      ({latestResolvedMarket.marketCap.asset} APT)
-                                    </span>
-                                  </div>
-                                </div>
-                              </div>
-
-                              {/* <div className="text-md flex flex-col justify-center align-center">
-                                <div className="text-bold text-xl">
-                                 
-                                </div>
-                                
-                              </div> */}
-
-                            </div>
-                          </TableCell>
-                          <TableCell className="hidden md:table-cell flex-grow max-w-[150px]">
-                            <div className="flex flex-col gap-2">
-                              <div className="flex items-center">
-                                <ChartNoAxesColumn className="h-4 w-4 mx-4" />
-                                <div className="flex flex-col max-w-[150px]">
-                                  <span className="text-neutral-700 dark:text-neutral-300 text-xs">
-                                    Market:
-                                  </span>
-                                  <p className="text-ellipsis overflow-hidden">
-                                    <Link className="underline" target='_blank' href={getExplorerObjectLink(latestResolvedMarket.marketAddress, true)}>
-                                      {latestResolvedMarket.marketAddress}
-                                    </Link>
-                                  </p>
-                                </div>
-                              </div>
-                              <div className="flex items-center">
-                                <Store className="h-4 w-4 mx-4" />
-                                <div className="flex flex-col max-w-[150px]">
-                                  <span className="text-neutral-700 dark:text-neutral-300 text-xs">
-                                    Marketplace:
-                                  </span>
-                                  <p className="text-ellipsis overflow-hidden">
-                                    <Link className="underline" target='_blank' href={getExplorerObjectLink(latestResolvedMarket.marketplaceAddress, true)}>
-                                      {latestResolvedMarket.marketplaceAddress}
-                                    </Link>
-                                  </p>
-                                </div>
-                              </div>
-                            </div>
-                          </TableCell>
-                        </TableRow>
-                      )
-                      )
-                    }
-                  </TableBody>
-                </Table>
+                <ResolvedMarketsTable latestResolvedMarkets={latestResolvedMarkets} />
               </CardContent>
             </Card>
           </TabsContent>
@@ -279,108 +157,7 @@ export function DashboardContent(props: DashboardContentProps) {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>
-                        Assetpair
-                      </TableHead>
-                      <TableHead>
-                        Market Information
-                      </TableHead>
-                      <TableHead className="hidden md:table-cell">
-                        Addresses
-                      </TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {
-                      latestCreatedMarkets.map(latestCreatedMarket => (
-                        <TableRow key={latestCreatedMarket.marketAddress}>
-                          <TableCell className="flex-grow h-full text-center">
-                            <div className="h-full">
-                              <div className="font-medium text-xs mb-1 md:flex justify-center align-center">APT/USD</div>
-                              <div className="text-md text-muted-foreground flex justify-center align-center">
-                                <NetworkAptos className='scale-125' />
-                              </div>
-                            </div>
-                          </TableCell>
-                          <TableCell className="flex-grow flex-shrink-0">
-                            <div className="flex flex-col gap-2">
-                              <div className="flex items-center">
-                                <Lock className="h-4 w-4 mx-4" />
-                                <div className="flex flex-col">
-                                  <span className="text-neutral-700 dark:text-neutral-300 text-xs">
-                                    End betting:
-                                  </span>
-                                  <span>
-                                    {DateTime.fromSeconds(latestCreatedMarket.startTimeTimestamp).toLocaleString(DateTime.DATETIME_MED)}
-                                  </span>
-                                </div>
-                              </div>
-                              <div className="flex items-center">
-                                <PartyPopper className="h-4 w-4 mx-4" />
-                                <div className="flex flex-col">
-                                  <span className="text-neutral-700 dark:text-neutral-300 text-xs">
-                                    Market resolution:
-                                  </span>
-                                  <span>
-                                    {DateTime.fromSeconds(latestCreatedMarket.endTimeTimestamp).toLocaleString(DateTime.DATETIME_MED)}
-                                  </span>
-                                </div>
-                              </div>
-                              <div className="flex items-center">
-                                <Coins className="h-4 w-4 mx-4" />
-                                <div className="flex flex-col">
-                                  <span className="text-neutral-700 dark:text-neutral-300 text-xs">
-                                    Min Bet:
-                                  </span>
-                                  <p className="text-ellipsis overflow-hidden">
-                                    <span>$ 0.5 </span><span className="text-muted-foreground">
-                                      (0.08 APT)
-                                    </span>
-                                    {/* {latestCreatedMarket.minBet} */}
-                                  </p>
-                                </div>
-                              </div>
-                            </div>
-                          </TableCell>
-                          <TableCell className="hidden md:table-cell flex-grow max-w-[150px]">
-                            <div className="flex flex-col gap-2">
-                              <div className="flex items-center">
-                                <ChartNoAxesColumn className="h-4 w-4 mx-4" />
-                                <div className="flex flex-col max-w-[150px]">
-                                  <span className="text-neutral-700 dark:text-neutral-300 text-xs">
-                                    Market:
-                                  </span>
-                                  <p className="text-ellipsis overflow-hidden">
-                                    <Link className="underline" target='_blank' href={getExplorerObjectLink(latestCreatedMarket.marketAddress, true)}>
-                                      {latestCreatedMarket.marketAddress}
-                                    </Link>
-                                  </p>
-                                </div>
-                              </div>
-                              <div className="flex items-center">
-                                <Store className="h-4 w-4 mx-4" />
-                                <div className="flex flex-col max-w-[150px]">
-                                  <span className="text-neutral-700 dark:text-neutral-300 text-xs">
-                                    Marketplace:
-                                  </span>
-                                  <p className="text-ellipsis overflow-hidden">
-                                    <Link className="underline" target='_blank' href={getExplorerObjectLink(latestCreatedMarket.marketplaceAddress, true)}>
-                                      {latestCreatedMarket.marketplaceAddress}
-                                    </Link>
-                                  </p>
-                                </div>
-                              </div>
-                            </div>
-                          </TableCell>
-                        </TableRow>
-                      )
-                      )
-                    }
-                  </TableBody>
-                </Table>
+                <CreatedMarketsTable latestCreatedMarkets={latestCreatedMarkets} />
               </CardContent>
             </Card>
           </TabsContent>
