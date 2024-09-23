@@ -17,7 +17,7 @@ import { readFileSync } from "fs";
 import {DateTime} from "luxon";
 import {MODULE_ADDRESS_FROM_ABI} from "../lib/aptos.ts";
 const yamlConfig = yaml.load(
-  readFileSync("../.aptos/config.yaml", "utf8")
+  readFileSync("./.aptos/config.yaml", "utf8")
 ) as any;
 const profile = `${process.env.PROJECT_NAME}-${process.env.NEXT_PUBLIC_APP_NETWORK}`;
 const privateKey = process.env.PRIVATE_KEY ?? yamlConfig["profiles"][profile]["private_key"];
