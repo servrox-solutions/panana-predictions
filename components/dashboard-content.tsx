@@ -29,6 +29,7 @@ import { ResolvedMarket, ResolvedMarketsTable } from './resolved-markets-table';
 import { CreatedMarket, CreatedMarketsTable } from './created-markets-table';
 import { useEffect, useState } from 'react';
 import { SupportedAsset } from '@/lib/types/market';
+import { Web3Icon } from './web3-icon';
 
 
 export interface DashboardContentProps {
@@ -138,7 +139,7 @@ export function DashboardContent(props: DashboardContentProps) {
                   <DropdownMenuSeparator />
                   {
                     filterNetworks.map(filterNetwork => (
-                      <DropdownMenuCheckboxItem key={filterNetwork} checked={filter === filterNetwork} onCheckedChange={() => setFilter(filterNetwork)}>{filterNetwork}</DropdownMenuCheckboxItem>
+                      <DropdownMenuCheckboxItem key={filterNetwork} checked={filter === filterNetwork} onCheckedChange={() => setFilter(filterNetwork)}>{filterNetwork !== 'No Filter' && <Web3Icon asset={filterNetwork} className="scale-100 mr-2" />}{filterNetwork}</DropdownMenuCheckboxItem>
                     ))
                   }
                   {/*                   
