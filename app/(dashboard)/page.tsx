@@ -44,10 +44,13 @@ export default async function Dashboard() {
 
 
   const createdMarkets = createdEvents.map(x => ({
+    creator: x.creator,
+    createdAtTimestamp: +x.created_at_timestamp,
     endTimeTimestamp: +x.end_time_timestamp,
     startTimeTimestamp: +x.start_time_timestamp,
     marketAddress: x.market.inner,
     marketplaceAddress: x.marketplace.inner,
+    minBet: +x.min_bet,
   }));
 
   const resolvedMarkets = resolvedEvents.map(x => ({
