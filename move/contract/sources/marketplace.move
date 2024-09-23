@@ -25,7 +25,8 @@ module panana::marketplace {
 
     struct Marketplace<phantom C> has key {
         available_markets: vector<address>, // contains all addresses of running and open markets
-        switchboard_feed: address
+        switchboard_feed: address, // switchboard asset feed for market resolution
+        all_time_volume: u256, // total volume that was traded on this marketplace
     }
 
     struct MarketplaceList has key {
@@ -66,9 +67,11 @@ module panana::marketplace {
         vector::push_back(open_markets, market_address);
     }
 
-    public(friend) fun remove_open_market<C>(marketplace_address: address, market_address: address) acquires Marketplace {
-        let open_markets = &mut borrow_global_mut<Marketplace<C>>(marketplace_address).available_markets;
+    public(friend) fun remove_open_market<C>(marketplace_address: address, market_address: address, volume: u128) acquires Marketplace {
+        let marketplace_ref = borrow_global_mut<Marketplace<C>>(marketplace_address);
+        let open_markets = &mut marketplace_ref.available_markets;
         vector::remove_value(open_markets, &market_address);
+        marketplace_ref.all_time_volume = marketplace_ref.all_time_volume + (volume as u256);
     }
 
     public(friend) fun latest_price<C>(marketplace_address: address): u128 acquires Marketplace {
@@ -98,6 +101,7 @@ module panana::marketplace {
             Marketplace<C> {
                 available_markets: vector::empty<address>(),
                 switchboard_feed: feed,
+                all_time_volume: 0,
             }
         );
 
