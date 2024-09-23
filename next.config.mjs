@@ -1,6 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  serverExternalPackages: ["grammy"],
+  serverExternalPackages: ["grammy", "@grammyjs/menu"],
 };
 
 export default nextConfig;
