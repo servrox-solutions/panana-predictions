@@ -4,7 +4,7 @@ import "./globals.css";
 import { WalletProvider } from "@/components/providers/wallet-provider";
 import { ThemeProvider } from "@/components/providers/theme-provider";
 import { TelegramProvider } from "@/components/providers/telegram-provider";
-import { AutoConnectProvider } from "@/components/auto-connect-provider";
+import { AutoConnectProvider } from "@/components/providers/auto-connect-provider";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",

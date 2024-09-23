@@ -7,6 +7,7 @@ import {
   AnyAptosWallet,
   AptosPrivacyPolicy,
   WalletItem,
+  WalletName,
   groupAndSortWallets,
   isAptosConnectWallet,
   isInstallRequired,
@@ -42,12 +43,15 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "./ui/collapsible";
+import Link from "next/link";
 
 export function WalletSelector() {
-  const { account, connected, disconnect, wallet } = useWallet();
+  const { account, connected, disconnect, wallet, wallets, connect } =
+    useWallet();
   const notifySuccess = (message: string) => toast.success(message);
   const notifyError = (message: string) => toast.error(message);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [aptosConnectUrl, setAptosConnectUrl] = useState<string | null>(null);
 
   const closeDialog = useCallback(() => setIsDialogOpen(false), []);
 
@@ -60,6 +64,28 @@ export function WalletSelector() {
       notifyError("Failed to copy wallet address.");
     }
   }, [account?.address]);
+
+  const handleConnect = async () => {
+    (function () {
+      const originalWindowOpen = window.open;
+
+      window.open = function (...args) {
+        const newWindow = originalWindowOpen.apply(this, args);
+        if (args[0]) {
+          setAptosConnectUrl(`${args[0]}`);
+        }
+        return newWindow;
+      };
+    })();
+
+    try {
+      await connect(
+        "Continue with Google" as WalletName<"Continue with Google">
+      );
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   return connected ? (
     <DropdownMenu>
@@ -90,12 +116,17 @@ export function WalletSelector() {
       </DropdownMenuContent>
     </DropdownMenu>
   ) : (
-    <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-      <DialogTrigger asChild>
-        <Button>Connect a Wallet</Button>
-      </DialogTrigger>
-      <ConnectWalletDialog close={closeDialog} />
-    </Dialog>
+    <>
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogTrigger asChild>
+          <Button>Connect a Wallet</Button>
+        </DialogTrigger>
+
+        <ConnectWalletDialog close={closeDialog} />
+      </Dialog>
+      <Button onClick={handleConnect}>Test</Button>
+      {aptosConnectUrl && <Link href={aptosConnectUrl}>Aptos Connect</Link>}
+    </>
   );
 }
 

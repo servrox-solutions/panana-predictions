@@ -1,6 +1,6 @@
 "use client";
 
-import { useAutoConnect } from "./auto-connect-provider";
+import { useAutoConnect } from "./providers/auto-connect-provider";
 import { Label } from "./ui/label";
 import { Switch } from "./ui/switch";
 

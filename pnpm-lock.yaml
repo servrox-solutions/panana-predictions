@@ -8,6 +8,9 @@ importers:
 
   .:
     dependencies:
+      '@aptos-connect/wallet-adapter-plugin':
+        specifier: ^2.0.2
+        version: 2.0.2(@aptos-labs/ts-sdk@1.28.0)(@aptos-labs/wallet-standard@0.2.0(@aptos-labs/ts-sdk@1.28.0)(@wallet-standard/core@1.0.3))(aptos@1.21.0)
       '@aptos-labs/ts-sdk':
         specifier: ^1.28.0
         version: 1.28.0
