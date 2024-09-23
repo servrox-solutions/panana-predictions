@@ -92,7 +92,7 @@ export function CreatedMarketsTable(props: CreatedMarketsTableProps) {
               <TableCell className="hidden sm:table-cell">
                 <div className={`h-full`}>
                   <div className="text-md text-muted-foreground flex justify-center align-center gap-2">
-                    <Web3Icon asset={latestCreatedMarket.assetSymbol} />
+                    <Web3Icon className="scale-[2]" asset={latestCreatedMarket.assetSymbol} />
                   </div>
                 </div>
               </TableCell>
@@ -177,7 +177,9 @@ export function CreatedMarketsTable(props: CreatedMarketsTableProps) {
 
 
               <TableCell className="sm:hidden px-0">
-                <div className="flex gap-2 text-xl pb-4 items-center"><NetworkAptos className="" /> APT / BTC </div>
+                <div className="flex gap-2 text-xl pb-4 items-center">
+                  <Web3Icon asset={latestCreatedMarket.assetSymbol} className="w-8 h-8" /> {latestCreatedMarket.assetSymbol}
+                </div>
                 <div className="grid grid-cols-2 grid-rows auto-rows-fr gap-4">
 
                   <div className="flex items-center">

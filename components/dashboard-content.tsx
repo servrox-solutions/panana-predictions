@@ -161,7 +161,7 @@ export function DashboardContent(props: DashboardContentProps) {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <ResolvedMarketsTable latestResolvedMarkets={latestResolvedMarkets} />
+                <ResolvedMarketsTable filter={filter} latestResolvedMarkets={latestResolvedMarkets} />
               </CardContent>
             </Card>
           </TabsContent>

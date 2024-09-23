@@ -27,6 +27,7 @@ import { createMarket } from "@/lib/create-market";
 import { useWallet } from "@aptos-labs/wallet-adapter-react";
 import { Address } from "@/lib/types/market";
 import { MODULE_ADDRESS_FROM_ABI } from '@/lib/aptos';
+import { Card } from './ui/card';
 
 export interface MarketCreateModalProps {
     marketplaces: { address: `0x${string}`, typeArgument: `${string}::${string}::${string}` }[];
@@ -195,8 +196,8 @@ export function MarketCreateModal(props: MarketCreateModalProps) {
                     </div>
                 </ModalTrigger>
 
-                <ModalBody closeOnClickOutside={false}>
-                    <ModalContent className="bg-gray-900 overflow-auto flex flex-col gap-4">
+                <ModalBody closeOnClickOutside={false} className="backdrop-grayscale-[.5] bg-gray-800 bg-opacity-30 backdrop-blur-lg rounded-3xl p-3 shadow-lg border border-white border-opacity-20">
+                    <ModalContent className="overflow-auto flex flex-col gap-4 ">
                         <h4 className="text-lg md:text-2xl text-neutral-600 dark:text-neutral-100 font-bold text-center mb-8">
                             Create a New Market
                         </h4>
@@ -248,7 +249,11 @@ export function MarketCreateModal(props: MarketCreateModalProps) {
                                                     DateTime.fromJSDate(form.getValues("startTime")!)
                                                 }
                                                 onDateChange={(date) => {
+                                                    if (form.getValues().startTime === date?.toJSDate()) {
+                                                        return;
+                                                    }
                                                     date && form.setValue("startTime", date.toJSDate());
+                                                    console.log('start Time trigger');
                                                     form.trigger("startTime");
                                                 }}
                                             />

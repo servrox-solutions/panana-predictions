@@ -21,15 +21,15 @@ export function Web3Icon(props: Web3IconProps) {
 
   switch (asset) {
     case 'APT':
-      return <NetworkAptos variant='branded' className={cn("w-4 h-4 dark:invert scale-[2]", className)} />
+      return <NetworkAptos variant='branded' className={cn("w-4 h-4 dark:invert", className)} />
     case 'SOL':
-      return <NetworkSolana variant='branded' className={cn("w-4 h-4 scale-125 scale-[2]", className)} />
+      return <NetworkSolana variant='branded' className={cn("w-4 h-4 scale-125", className)} />
     case 'USDC':
-      return <TokenUSDC variant='branded' className={cn("w-4 h-4 scale-125 scale-[2]", className)} />
+      return <TokenUSDC variant='branded' className={cn("w-4 h-4 scale-125", className)} />
     case 'BTC':
-      return <NetworkBitcoin variant='branded' className={cn("w-4 h-4 scale-125 scale-[2]", className)} />
+      return <NetworkBitcoin variant='branded' className={cn("w-4 h-4 scale-125", className)} />
     case 'ETH':
-      return <NetworkEthereum variant='branded' className={cn("w-4 h-4 scale-125 scale-[2]", className)} />
+      return <NetworkEthereum variant='branded' className={cn("w-4 h-4 scale-125", className)} />
     default:
       return <CircleHelp className={cn("w-4 h-4 scale-125 scale-[2]", className)} />
   }
