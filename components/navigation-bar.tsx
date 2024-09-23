@@ -7,7 +7,8 @@ export function NavigationBar() {
     <div className="fixed bottom-0 left-0 z-50 w-full h-16 bg-white/30 backdrop-blur-lg border-t border-gray-200 dark:bg-gray-700/30 dark:border-gray-600 sm:hidden">
       <div
         className={cn(
-          `grid h-full max-w-lg mx-auto font-medium grid-cols-${sidenavItems.length}`
+          `grid h-full max-w-lg mx-auto font-medium`,
+          `grid-cols-${sidenavItems.length}`
         )}
       >
         {sidenavItems.map((item) => (
