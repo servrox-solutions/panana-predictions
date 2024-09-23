@@ -25,6 +25,7 @@ import { DateTime } from "luxon";
 import { getExplorerObjectLink } from "@/lib/aptos";
 import { Web3Icon } from "./web3-icon";
 import { SupportedAsset } from "@/lib/types/market";
+import { useIsMounted } from "@/lib/hooks/useIsMounted";
 
 export interface ResolvedMarket {
   assetSymbol: SupportedAsset;
@@ -52,6 +53,8 @@ export function ResolvedMarketsTable({
   latestResolvedMarkets,
   filter = [],
 }: ResolvedMarketsTable) {
+  const isMounted = useIsMounted();
+
   return (
     <Table>
       <TableHeader>
@@ -143,9 +146,10 @@ export function ResolvedMarketsTable({
                 <Lock className="h-4 w-4 mr-2" />
                 <div className="flex flex-col">
                   <span>
-                    {DateTime.fromSeconds(
-                      latestResolvedMarket.startTimeTimestamp
-                    ).toLocaleString(DateTime.DATETIME_MED)}
+                    {isMounted &&
+                      DateTime.fromSeconds(
+                        latestResolvedMarket.startTimeTimestamp
+                      ).toLocaleString(DateTime.DATETIME_MED)}
                   </span>
                 </div>
               </div>
@@ -155,9 +159,10 @@ export function ResolvedMarketsTable({
                 <PartyPopper className="h-4 w-4 mr-2" />
                 <div className="flex flex-col">
                   <span>
-                    {DateTime.fromSeconds(
-                      latestResolvedMarket.endTimeTimestamp
-                    ).toLocaleString(DateTime.DATETIME_MED)}
+                    {isMounted &&
+                      DateTime.fromSeconds(
+                        latestResolvedMarket.endTimeTimestamp
+                      ).toLocaleString(DateTime.DATETIME_MED)}
                   </span>
                 </div>
               </div>
@@ -290,9 +295,10 @@ export function ResolvedMarketsTable({
                       </span>
                       <div className="flex flex-col">
                         <span>
-                          {DateTime.fromSeconds(
-                            latestResolvedMarket.startTimeTimestamp
-                          ).toLocaleString(DateTime.DATETIME_MED)}
+                          {isMounted &&
+                            DateTime.fromSeconds(
+                              latestResolvedMarket.startTimeTimestamp
+                            ).toLocaleString(DateTime.DATETIME_MED)}
                         </span>
                       </div>
                     </div>
@@ -307,9 +313,10 @@ export function ResolvedMarketsTable({
                       </span>
                       <div className="flex flex-col">
                         <span>
-                          {DateTime.fromSeconds(
-                            latestResolvedMarket.endTimeTimestamp
-                          ).toLocaleString(DateTime.DATETIME_MED)}
+                          {isMounted &&
+                            DateTime.fromSeconds(
+                              latestResolvedMarket.endTimeTimestamp
+                            ).toLocaleString(DateTime.DATETIME_MED)}
                         </span>
                       </div>
                     </div>

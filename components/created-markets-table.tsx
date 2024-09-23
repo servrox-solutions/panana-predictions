@@ -20,10 +20,10 @@ import {
 } from "@/components/ui/table";
 import Link from "next/link";
 import { DateTime } from "luxon";
-import { NetworkAptos } from "@web3icons/react";
 import { getExplorerObjectLink } from "@/lib/aptos";
 import { SupportedAsset } from "@/lib/types/market";
 import { Web3Icon } from "./web3-icon";
+import { useIsMounted } from "@/lib/hooks/useIsMounted";
 
 export interface CreatedMarket {
   assetSymbol: SupportedAsset;
@@ -45,6 +45,8 @@ export function CreatedMarketsTable({
   latestCreatedMarkets,
   filter = [],
 }: CreatedMarketsTableProps) {
+  const isMounted = useIsMounted();
+
   return (
     <Table>
       <TableHeader>
@@ -103,9 +105,10 @@ export function CreatedMarketsTable({
                 <Banana className="h-4 w-4 mr-2" />
                 <div className="flex flex-col">
                   <span>
-                    {DateTime.fromSeconds(
-                      latestCreatedMarket.createdAtTimestamp
-                    ).toLocaleString(DateTime.DATETIME_MED)}
+                    {isMounted &&
+                      DateTime.fromSeconds(
+                        latestCreatedMarket.createdAtTimestamp
+                      ).toLocaleString(DateTime.DATETIME_MED)}
                   </span>
                 </div>
               </div>
@@ -115,9 +118,10 @@ export function CreatedMarketsTable({
                 <Lock className="h-4 w-4 mr-2" />
                 <div className="flex flex-col">
                   <span>
-                    {DateTime.fromSeconds(
-                      latestCreatedMarket.startTimeTimestamp
-                    ).toLocaleString(DateTime.DATETIME_MED)}
+                    {isMounted &&
+                      DateTime.fromSeconds(
+                        latestCreatedMarket.startTimeTimestamp
+                      ).toLocaleString(DateTime.DATETIME_MED)}
                   </span>
                 </div>
               </div>
@@ -220,9 +224,10 @@ export function CreatedMarketsTable({
                     </span>
                     <span>
                       <div className={`flex items-center w-full relative`}>
-                        {DateTime.fromSeconds(
-                          latestCreatedMarket.createdAtTimestamp
-                        ).toLocaleString(DateTime.DATETIME_MED)}
+                        {isMounted &&
+                          DateTime.fromSeconds(
+                            latestCreatedMarket.createdAtTimestamp
+                          ).toLocaleString(DateTime.DATETIME_MED)}
                       </div>
                     </span>
                   </div>
@@ -237,9 +242,10 @@ export function CreatedMarketsTable({
                       </span>
                       <div className="flex flex-col">
                         <span>
-                          {DateTime.fromSeconds(
-                            latestCreatedMarket.startTimeTimestamp
-                          ).toLocaleString(DateTime.DATETIME_MED)}
+                          {isMounted &&
+                            DateTime.fromSeconds(
+                              latestCreatedMarket.startTimeTimestamp
+                            ).toLocaleString(DateTime.DATETIME_MED)}
                         </span>
                       </div>
                     </div>
@@ -254,9 +260,10 @@ export function CreatedMarketsTable({
                       </span>
                       <div className="flex flex-col">
                         <span>
-                          {DateTime.fromSeconds(
-                            latestCreatedMarket.endTimeTimestamp
-                          ).toLocaleString(DateTime.DATETIME_MED)}
+                          {isMounted &&
+                            DateTime.fromSeconds(
+                              latestCreatedMarket.endTimeTimestamp
+                            ).toLocaleString(DateTime.DATETIME_MED)}
                         </span>
                       </div>
                     </div>
