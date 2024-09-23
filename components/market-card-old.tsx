@@ -26,7 +26,7 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useWallet } from "@aptos-labs/wallet-adapter-react";
 
-import { aptos } from "@/lib/aptos";
+import { MODULE_ADDRESS_FROM_ABI, aptos } from "@/lib/aptos";
 import { createEntryPayload } from "@thalalabs/surf";
 import { ABI as MarketAbi } from "@/lib/market-abi";
 
@@ -114,7 +114,7 @@ export function MarketCardOld({ market }: { market: MarketOld }) {
 
     try {
       const moduleAddress =
-        "0x0a007e13d9a6ac196cacf33e077f1682fa49649f1aa3b129afa9fab1ea93501b";
+        MODULE_ADDRESS_FROM_ABI;
 
       const payload = createEntryPayload(MarketAbi, {
         function: "place_bet",

@@ -14,6 +14,7 @@ module panana::market {
     use aptos_framework::aptos_account::{Self};
     use aptos_framework::aptos_coin::AptosCoin;
     use aptos_framework::event;
+    use aptos_framework::randomness_config::current;
     use panana::marketplace::{Marketplace, Self};
 
 
@@ -42,6 +43,7 @@ module panana::market {
 
     struct Market<phantom C> has key, store {
         creator: address, // creator address of the market
+        created_at_timestamp: u64, // timestamp of the market creation in seconds
         start_price: option::Option<u64>, // initial price after market was opened
         end_price: option::Option<u64>, // final price after closing the market
         start_time: u64, // timestamp in sec after which no more bets are accepted
@@ -69,8 +71,11 @@ module panana::market {
     // Emit whenever a new market is created
     #[event]
     struct CreateMarket<phantom C> has drop, store {
+        creator: address,
+        min_bet: u64,
         marketplace: Object<Marketplace<C>>,
         market: Object<Market<C>>,
+        created_at_timestamp: u64,
         start_time_timestamp: u64,
         end_time_timestamp: u64,
     }
@@ -78,10 +83,15 @@ module panana::market {
     // Emit whenever a market is resolved
     #[event]
     struct ResolveMarket<phantom C> has drop, store {
+        creator: address,
+        min_bet: u64,
         marketplace: Object<Marketplace<C>>,
         market: Object<Market<C>>,
+        created_at_timestamp: u64,
         start_time_timestamp: u64,
         end_time_timestamp: u64,
+        start_price: u64,
+        end_price: u64,
         market_cap: u64,
         dissolved: bool,
     }
@@ -99,98 +109,6 @@ module panana::market {
     #[view]
     public fun max_resolve_market_timespan(): u64 {
         MAX_RESOLVE_MARKET_TIMESPAN
-    }
-
-    #[view]
-    public fun creator<C>(market_address: address): address acquires Market {
-        borrow_global<Market<C>>(market_address).creator
-    }
-
-    #[view]
-    public fun min_bet<C>(market_address: address): u64 acquires Market {
-        borrow_global<Market<C>>(market_address).min_bet
-    }
-
-    #[view]
-    public fun start_price<C>(market_address: address): option::Option<u64> acquires Market {
-        borrow_global<Market<C>>(market_address).start_price
-    }
-
-    #[view]
-    public fun start_time<C>(market_address: address): u64 acquires Market {
-        borrow_global<Market<C>>(market_address).start_time
-    }
-
-    #[view]
-    public fun end_time<C>(market_address: address): u64 acquires Market {
-        borrow_global<Market<C>>(market_address).end_time
-    }
-
-    #[view]
-    public fun up_bets_sum<C>(market_address: address): u64 acquires Market {
-        borrow_global<Market<C>>(market_address).up_bets_sum
-    }
-
-    #[view]
-    public fun down_bets_sum<C>(market_address: address): u64 acquires Market {
-        borrow_global<Market<C>>(market_address).down_bets_sum
-    }
-
-    #[view]
-    public fun fee<C>(market_address: address): (u64, u64) acquires Market {
-        let nominator = borrow_global<Market<C>>(market_address).fee.numerator;
-        let denominator= borrow_global<Market<C>>(market_address).fee.denominator;
-        (nominator, denominator)
-    }
-
-    #[view]
-    public fun up_bet<C>(market_address: address, user_address: address): option::Option<u64> acquires Market {
-        let up_bets = borrow_global<Market<C>>(market_address).up_bets;
-        return if (!simple_map::contains_key(&up_bets, &user_address))
-            option::none()
-        else
-            option::some(*simple_map::borrow(&up_bets, &user_address))
-    }
-
-    #[view]
-    public fun down_bet<C>(market_address: address, user_address: address): option::Option<u64> acquires Market {
-        let down_bets  = borrow_global<Market<C>>(market_address).down_bets;
-        return if (!simple_map::contains_key(&down_bets, &user_address))
-            option::none()
-        else
-            option::some(*simple_map::borrow(&down_bets, &user_address))
-    }
-
-    #[view]
-    public fun up_bets<C>(market_address: address): u64 acquires Market {
-        let up_bets  = borrow_global<Market<C>>(market_address).up_bets;
-        simple_map::length(&up_bets)
-    }
-
-    #[view]
-    public fun down_bets<C>(market_address: address): u64 acquires Market {
-        let down_bets  = borrow_global<Market<C>>(market_address).down_bets;
-        simple_map::length(&down_bets)
-    }
-
-
-    #[view]
-    public fun get_up_votes_sum<C>(market_address: address): u64 acquires Market {
-        borrow_global<Market<C>>(market_address).up_votes_sum
-    }
-
-    #[view]
-    public fun get_down_votes_sum<C>(market_address: address): u64 acquires Market {
-        borrow_global<Market<C>>(market_address).down_votes_sum
-    }
-
-    #[view]
-    public fun get_vote<C>(market_address: address, user_address: address): option::Option<bool> acquires Market {
-        let user_votes = borrow_global<Market<C>>(market_address).user_votes;
-        if (simple_map::contains_key(&user_votes, &user_address))
-            option::some(*simple_map::borrow(&user_votes, &user_address))
-        else
-            option::none<bool>()
     }
 
     public entry fun vote<C>(account: &signer, market: Object<Market<C>>, vote_up: bool) acquires Market {
@@ -241,6 +159,7 @@ module panana::market {
             &market_signer,
             Market<C> {
                 creator: signer::address_of(account),
+                created_at_timestamp: current_timestamp,
                 start_price: option::none(),
                 end_price: option::none(),
                 end_time: end_time_timestamp,
@@ -276,8 +195,11 @@ module panana::market {
         panana::marketplace::add_open_market<C>(marketplace_address, object::object_address(&market_object));
 
         event::emit(CreateMarket{
+            creator: account_address,
+            min_bet,
             marketplace,
             market: market_object,
+            created_at_timestamp: current_timestamp,
             start_time_timestamp,
             end_time_timestamp,
         });
@@ -399,12 +321,17 @@ module panana::market {
         market_ref.resolved_at = option::some(current_timestamp);
         market_ref.end_price = option::some(end_price_u64);
 
-        panana::marketplace::remove_open_market<C>(marketplace_address, market_address);
+        panana::marketplace::remove_open_market<C>(marketplace_address, market_address, (market_ref.down_bets_sum as u128) + (market_ref.up_bets_sum as u128));
         event::emit(ResolveMarket{
+            creator: market_ref.creator,
             marketplace: object::address_to_object(marketplace_address),
             market: market_obj,
+            min_bet: market_ref.min_bet,
+            created_at_timestamp: market_ref.created_at_timestamp,
             start_time_timestamp: market_ref.start_time,
             end_time_timestamp: market_ref.end_time,
+            start_price,
+            end_price: end_price_u64,
             market_cap: market_ref.up_bets_sum + market_ref.down_bets_sum,
             dissolved: should_dissolve,
         });
@@ -544,27 +471,27 @@ module panana::market {
         });
     }
 
-    #[view]
-    #[test_only]
-    public fun test_create_market_event<C>(
-        marketplace: Object<Marketplace<C>>,
-        market: Object<Market<C>>,
-        start_time_timestamp: u64,
-        end_time_timestamp: u64,
-    ): CreateMarket<C> {
-        CreateMarket<C>{marketplace, market, start_time_timestamp, end_time_timestamp}
-    }
-
-    #[view]
-    #[test_only]
-    public fun test_resolve_market_event<C>(
-        marketplace: Object<Marketplace<C>>,
-        market: Object<Market<C>>,
-        start_time_timestamp: u64,
-        end_time_timestamp: u64,
-        market_cap: u64,
-        dissolved: bool,
-    ): ResolveMarket<C> {
-        ResolveMarket<C>{marketplace, market, start_time_timestamp, end_time_timestamp, market_cap, dissolved}
-    }
+    // #[view]
+    // #[test_only]
+    // public fun test_create_market_event<C>(
+    //     marketplace: Object<Marketplace<C>>,
+    //     market: Object<Market<C>>,
+    //     start_time_timestamp: u64,
+    //     end_time_timestamp: u64,
+    // ): CreateMarket<C> {
+    //     CreateMarket<C>{marketplace, market, start_time_timestamp, end_time_timestamp}
+    // }
+    //
+    // #[view]
+    // #[test_only]
+    // public fun test_resolve_market_event<C>(
+    //     marketplace: Object<Marketplace<C>>,
+    //     market: Object<Market<C>>,
+    //     start_time_timestamp: u64,
+    //     end_time_timestamp: u64,
+    //     market_cap: u64,
+    //     dissolved: bool,
+    // ): ResolveMarket<C> {
+    //     ResolveMarket<C>{marketplace, market, start_time_timestamp, end_time_timestamp, market_cap, dissolved}
+    // }
 }

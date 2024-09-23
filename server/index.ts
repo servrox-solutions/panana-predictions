@@ -15,6 +15,7 @@ import {RecurrenceRule, scheduledJobs, scheduleJob} from 'node-schedule';
 import * as yaml from 'js-yaml';
 import { readFileSync } from "fs";
 import {DateTime} from "luxon";
+import {MODULE_ADDRESS_FROM_ABI} from "../lib/aptos.ts";
 const yamlConfig = yaml.load(
   readFileSync("../.aptos/config.yaml", "utf8")
 ) as any;
@@ -69,7 +70,7 @@ async function provider<Req, Res>(
   }
 }
 
-const MODULE_ID = process.env.MODULE_ID ?? '0x0a007e13d9a6ac196cacf33e077f1682fa49649f1aa3b129afa9fab1ea93501b';
+const MODULE_ID = MODULE_ADDRESS_FROM_ABI;
 
 const config = new AptosConfig({
   network: Network.TESTNET,
