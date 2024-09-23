@@ -27,19 +27,33 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Link from "next/link";
 import { ResolvedMarket, ResolvedMarketsTable } from './resolved-markets-table';
 import { CreatedMarket, CreatedMarketsTable } from './created-markets-table';
+import { useEffect, useState } from 'react';
+import { SupportedAsset } from '@/lib/types/market';
 
 
 export interface DashboardContentProps {
   latestCreatedMarkets: CreatedMarket[];
   latestResolvedMarkets: ResolvedMarket[];
+  totalVolume: {
+    usd: number;
+    apt: number;
+  };
 }
 
 export function DashboardContent(props: DashboardContentProps) {
-  const { latestCreatedMarkets, latestResolvedMarkets } = props;
-
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const router = useRouter();
+
+  const { latestCreatedMarkets, latestResolvedMarkets, totalVolume } = props;
+  const [filter, setFilter] = useState<SupportedAsset | 'No Filter'>(searchParams.get('filter') as SupportedAsset || 'No Filter');
+
+  const filterNetworks: (SupportedAsset | 'No Filter')[] = Array.from(
+    new Set(
+      [...latestCreatedMarkets.map(x => x.assetSymbol), ...latestResolvedMarkets.map(x => x.assetSymbol)]
+    )
+  ).sort((x, y) => x.localeCompare(y));
+  filterNetworks.unshift('No Filter');
 
   const setQuery = (q: string, value: string) => {
     const current = new URLSearchParams(Array.from(searchParams.entries()));
@@ -78,18 +92,18 @@ export function DashboardContent(props: DashboardContentProps) {
           <Card x-chunk="dashboard-05-chunk-1">
             <CardHeader className="pb-2">
               <CardDescription>Total Volume (all assets)</CardDescription>
-              <CardTitle className="text-4xl">$1,2 mio.</CardTitle>
+              <CardTitle className="text-4xl">${totalVolume.usd} mio.</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="text-xs text-muted-foreground">
-                (25123 APT)
+                ({totalVolume.apt} APT)
               </div>
             </CardContent>
             {/* <CardFooter>
               <Progress value={25} aria-label="25% increase" />
             </CardFooter> */}
           </Card>
-          <Card x-chunk="dashboard-05-chunk-2">
+          {/* <Card x-chunk="dashboard-05-chunk-2">
             <CardHeader className="pb-2">
               <CardDescription>Last 7 Days</CardDescription>
               <CardTitle className="text-4xl">$35,329</CardTitle>
@@ -99,10 +113,7 @@ export function DashboardContent(props: DashboardContentProps) {
                 (2345 APT)
               </div>
             </CardContent>
-            {/* <CardFooter>
-              <Progress value={12} aria-label="12% increase" />
-            </CardFooter> */}
-          </Card>
+          </Card> */}
         </div>
         <Tabs defaultValue={searchParams.get('nav') || 'resolvedMarkets'}>
           <div className="flex items-center">
@@ -125,12 +136,17 @@ export function DashboardContent(props: DashboardContentProps) {
                 <DropdownMenuContent align="end">
                   <DropdownMenuLabel>Filter by</DropdownMenuLabel>
                   <DropdownMenuSeparator />
-                  <DropdownMenuCheckboxItem checked>
-                    APT
-                  </DropdownMenuCheckboxItem>
+                  {
+                    filterNetworks.map(filterNetwork => (
+                      <DropdownMenuCheckboxItem key={filterNetwork} checked={filter === filterNetwork} onCheckedChange={() => setFilter(filterNetwork)}>{filterNetwork}</DropdownMenuCheckboxItem>
+                    ))
+                  }
+                  {/*                   
+                  <DropdownMenuCheckboxItem checked={filter === 'all'} onCheckedChange={() => setFilter('')}>APT</DropdownMenuCheckboxItem>
                   <DropdownMenuCheckboxItem>BTC</DropdownMenuCheckboxItem>
                   <DropdownMenuCheckboxItem>ETH</DropdownMenuCheckboxItem>
                   <DropdownMenuCheckboxItem>SOL</DropdownMenuCheckboxItem>
+                  <DropdownMenuCheckboxItem>USDC</DropdownMenuCheckboxItem> */}
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
@@ -157,7 +173,7 @@ export function DashboardContent(props: DashboardContentProps) {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <CreatedMarketsTable latestCreatedMarkets={latestCreatedMarkets} />
+                <CreatedMarketsTable filter={filter} latestCreatedMarkets={latestCreatedMarkets} />
               </CardContent>
             </Card>
           </TabsContent>

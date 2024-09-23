@@ -27,14 +27,19 @@ import {
   NetworkAptos,
 } from "@web3icons/react";
 import { getExplorerObjectLink } from '@/lib/aptos';
+import { Web3Icon } from './web3-icon';
+import { SupportedAsset } from '@/lib/types/market';
 
 
 export interface ResolvedMarket {
+  assetSymbol: SupportedAsset,
   endTimeTimestamp: number,
   startTimeTimestamp: number,
   marketAddress: string;
   marketplaceAddress: string;
   creator: string;
+  startPrice: number;
+  endPrice: number;
   marketCap: {
     asset: number;
     usd: number;
@@ -92,7 +97,7 @@ export function ResolvedMarketsTable(props: ResolvedMarketsTable) {
               <TableCell className="hidden sm:table-cell">
                 <div className={`h-full ${idx !== 3 && idx !== 5 ? `text-green-600/90 hover:text-green-500/10` : 'text-red-600/90  hover:text-red-500/10'}`}>
                   <div className="text-md text-muted-foreground flex justify-center align-center gap-2">
-                    <NetworkAptos className='scale-125 stroke-green' />
+                    <Web3Icon asset={latestResolvedMarket.assetSymbol} />
                   </div>
                 </div>
               </TableCell>
@@ -110,8 +115,8 @@ export function ResolvedMarketsTable(props: ResolvedMarketsTable) {
 
               </TableCell>
               <TableCell className="hidden sm:table-cell">
-                <div className={`flex items-center w-full font-semibold ${idx === 3 || idx === 6 ? 'text-green-600/70 hover:text-green-500' : 'text-red-600/70 hover:text-red-500'} relative`}>
-                  7.31$ {idx === 3 || idx === 6 ? <ChevronsUp /> : <ChevronsDown />} 7.44$
+                <div className={`flex items-center w-full font-semibold ${latestResolvedMarket.startPrice < latestResolvedMarket.endPrice ? 'text-green-600/70 hover:text-green-500' : 'text-red-600/70 hover:text-red-500'} relative`}>
+                  {latestResolvedMarket.startPrice / 10 ** 9} $ {latestResolvedMarket.startPrice === latestResolvedMarket.endPrice ? '=' : latestResolvedMarket.startPrice < latestResolvedMarket.endPrice ? <ChevronsUp /> : <ChevronsDown />} {latestResolvedMarket.endPrice / 10 ** 9}$
                 </div>
               </TableCell>
               <TableCell className="hidden lg:table-cell">
@@ -197,8 +202,8 @@ export function ResolvedMarketsTable(props: ResolvedMarketsTable) {
                         Result
                       </span>
                       <span>
-                        <div className={`flex items-center w-full font-semibold ${idx === 3 || idx === 6 ? 'text-green-600/70 hover:text-green-500' : 'text-red-600/70 hover:text-red-500'} relative`}>
-                          7.31$ {idx === 3 || idx === 6 ? <ChevronsUp /> : <ChevronsDown />} 7.44$
+                        <div className={`flex items-center w-full font-semibold ${latestResolvedMarket.startPrice < latestResolvedMarket.endPrice ? 'text-green-600/70 hover:text-green-500' : 'text-red-600/70 hover:text-red-500'} relative`}>
+                          {latestResolvedMarket.startPrice / 10 ** 9} $ {latestResolvedMarket.startPrice === latestResolvedMarket.endPrice ? '=' : latestResolvedMarket.startPrice < latestResolvedMarket.endPrice ? <ChevronsUp /> : <ChevronsDown />} {latestResolvedMarket.endPrice / 10 ** 9}$
                         </div>
                       </span>
                     </div>

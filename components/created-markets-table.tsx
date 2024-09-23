@@ -4,7 +4,6 @@ import {
   PartyPopper,
   Lock,
   Coins,
-  DollarSign,
   Store,
   Banana,
   User,
@@ -23,12 +22,15 @@ import {
 import Link from "next/link";
 import { DateTime } from 'luxon';
 import {
-  NetworkAptos,
+  NetworkAptos, NetworkBitcoin, NetworkEthereum, NetworkSolana, TokenUSDC,
 } from "@web3icons/react";
 import { getExplorerObjectLink } from '@/lib/aptos';
+import { SupportedAsset } from '@/lib/types/market';
+import { Web3Icon } from './web3-icon';
 
 
 export interface CreatedMarket {
+  assetSymbol: SupportedAsset,
   createdAtTimestamp: number,
   endTimeTimestamp: number,
   startTimeTimestamp: number,
@@ -38,12 +40,14 @@ export interface CreatedMarket {
   creator: string;
 }
 
+export type Filter = SupportedAsset | 'No Filter';
 export interface CreatedMarketsTableProps {
   latestCreatedMarkets: CreatedMarket[];
+  filter: Filter;
 }
 
 export function CreatedMarketsTable(props: CreatedMarketsTableProps) {
-  const { latestCreatedMarkets } = props;
+  const { latestCreatedMarkets, filter } = props;
 
   return (
     <Table>
@@ -84,11 +88,11 @@ export function CreatedMarketsTable(props: CreatedMarketsTableProps) {
       <TableBody>
         {
           latestCreatedMarkets.map((latestCreatedMarket, idx) => (
-            <TableRow className="hover:bg-initial" key={latestCreatedMarket.marketAddress}>
+            <TableRow className={`hover:bg-initial ${filter === 'No Filter' || filter === latestCreatedMarket.assetSymbol ? '' : 'hidden'}`} key={latestCreatedMarket.marketAddress}>
               <TableCell className="hidden sm:table-cell">
                 <div className={`h-full`}>
                   <div className="text-md text-muted-foreground flex justify-center align-center gap-2">
-                    <NetworkAptos className='scale-125 stroke-green' />
+                    <Web3Icon asset={latestCreatedMarket.assetSymbol} />
                   </div>
                 </div>
               </TableCell>

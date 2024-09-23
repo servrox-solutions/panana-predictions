@@ -6,7 +6,9 @@ creator: string;
     inner: string;
   }
   dissolved: boolean;
-  market_cap: string;
+    market_cap: string;
+    end_price: number;
+    start_price: number;
   marketplace: {
     inner: string;
   }
