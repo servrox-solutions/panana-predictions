@@ -43,6 +43,7 @@ import {
   NetworkAptos,
 } from "@web3icons/react";
 import { getExplorerObjectLink } from '@/lib/aptos';
+import { ResolvedMarket, ResolvedMarketsTable } from './resolved-markets-table';
 
 
 export interface CreatedMarket {
@@ -50,18 +51,6 @@ export interface CreatedMarket {
   startTimeTimestamp: number,
   marketAddress: string;
   marketplaceAddress: string;
-}
-
-export interface ResolvedMarket {
-  endTimeTimestamp: number,
-  startTimeTimestamp: number,
-  marketAddress: string;
-  marketplaceAddress: string;
-  marketCap: {
-    asset: number;
-    usd: number;
-  };
-  dissolved: boolean;
 }
 
 export interface DashboardContentProps {
@@ -158,115 +147,7 @@ export function DashboardContent(props: DashboardContentProps) {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>
-                        Assetpair
-                      </TableHead>
-                      <TableHead>
-                        Market Information
-                      </TableHead>
-                      <TableHead className="hidden md:table-cell">
-                        Addresses
-                      </TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {
-                      latestResolvedMarkets.map((latestResolvedMarket, idx) => (
-                        <TableRow key={latestResolvedMarket.marketAddress} className={idx !== 3 && idx !== 5 ? `bg-green-600/10 hover:bg-green-500/10` : 'bg-red-600/10  hover:bg-red-500/10'}>
-                          <TableCell className="flex-grow h-full text-center">
-                            <div className="h-full">
-                              <div className="font-medium text-xs mb-1 md:flex justify-center align-center">APT/USD</div>
-                              <div className="text-md text-muted-foreground flex justify-center align-center">
-                                <NetworkAptos className='scale-125' />
-                              </div>
-                            </div>
-                          </TableCell>
-                          <TableCell className="flex-grow flex-shrink-0">
-                            <div className="flex flex-col gap-2">
-                              <div className="flex items-center">
-                                <Lock className="h-4 w-4 mx-4" />
-                                <div className="flex flex-col">
-                                  <span className="text-muted-foreground dark:text-neutral-300 text-xs ">
-                                    End betting:
-                                  </span>
-                                  <span>
-                                    {DateTime.fromSeconds(latestResolvedMarket.startTimeTimestamp).toLocaleString(DateTime.DATETIME_MED)}
-                                  </span>
-                                </div>
-                              </div>
-                              <div className="flex items-center">
-                                <PartyPopper className="h-4 w-4 mx-4" />
-                                <div className="flex flex-col">
-                                  <span className="text-muted-foreground dark:text-neutral-300 text-xs">
-                                    Market resolution:
-                                  </span>
-                                  <span>
-                                    {DateTime.fromSeconds(latestResolvedMarket.endTimeTimestamp).toLocaleString(DateTime.DATETIME_MED)}
-                                  </span>
-                                </div>
-                              </div>
-                              <div className="flex items-center">
-                                <DollarSign className="h-4 w-4 mx-4" />
-                                <div className="flex flex-col">
-                                  <span className="text-muted-foreground dark:text-neutral-300 text-xs">
-                                    Final Price Pool:
-                                  </span>
-                                  <div className="flex gap-2">
-                                    <span>$ {latestResolvedMarket.marketCap.usd}</span><span className="text-muted-foreground">
-                                      ({latestResolvedMarket.marketCap.asset} APT)
-                                    </span>
-                                  </div>
-                                </div>
-                              </div>
-
-                              {/* <div className="text-md flex flex-col justify-center align-center">
-                                <div className="text-bold text-xl">
-                                 
-                                </div>
-                                
-                              </div> */}
-
-                            </div>
-                          </TableCell>
-                          <TableCell className="hidden md:table-cell flex-grow max-w-[150px]">
-                            <div className="flex flex-col gap-2">
-                              <div className="flex items-center">
-                                <ChartNoAxesColumn className="h-4 w-4 mx-4" />
-                                <div className="flex flex-col max-w-[150px]">
-                                  <span className="text-neutral-700 dark:text-neutral-300 text-xs">
-                                    Market:
-                                  </span>
-                                  <p className="text-ellipsis overflow-hidden">
-                                    <Link className="underline" target='_blank' href={getExplorerObjectLink(latestResolvedMarket.marketAddress, true)}>
-                                      {latestResolvedMarket.marketAddress}
-                                    </Link>
-                                  </p>
-                                </div>
-                              </div>
-                              <div className="flex items-center">
-                                <Store className="h-4 w-4 mx-4" />
-                                <div className="flex flex-col max-w-[150px]">
-                                  <span className="text-neutral-700 dark:text-neutral-300 text-xs">
-                                    Marketplace:
-                                  </span>
-                                  <p className="text-ellipsis overflow-hidden">
-                                    <Link className="underline" target='_blank' href={getExplorerObjectLink(latestResolvedMarket.marketplaceAddress, true)}>
-                                      {latestResolvedMarket.marketplaceAddress}
-                                    </Link>
-                                  </p>
-                                </div>
-                              </div>
-                            </div>
-                          </TableCell>
-                        </TableRow>
-                      )
-                      )
-                    }
-                  </TableBody>
-                </Table>
+                <ResolvedMarketsTable latestResolvedMarkets={latestResolvedMarkets} />
               </CardContent>
             </Card>
           </TabsContent>

@@ -1,6 +1,7 @@
 import { aptos } from './aptos';
 
 export interface MarketResolvedEventData {
+creator: string;
   market: {
     inner: string;
   }
