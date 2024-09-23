@@ -1,73 +1,46 @@
-"use client";
-
-import { FloatingDockDesktop } from "@/components/ui/floating-dock";
-
-import {
-  Home,
-  ChartCandlestick,
-  LineChart,
-  Medal,
-  FlaskConical,
-} from "lucide-react";
+import Link from "next/link";
+import { sidenavItems } from "./sidenav/sidenav-items";
+import { cn } from "@/lib/utils";
 
 export function NavigationBar() {
-  const links = [
-    {
-      title: "Dashboard",
-      icon: (
-        <Home className="h-full w-full text-neutral-500 dark:text-neutral-300" />
-      ),
-      href: "/",
-    },
-
-    {
-      title: "Markets",
-      icon: (
-        <ChartCandlestick className="h-full w-full text-neutral-500 dark:text-neutral-300" />
-      ),
-      href: "/markets",
-    },
-    {
-      title: "Analytics",
-      icon: (
-        <LineChart className="h-full w-full text-neutral-500 dark:text-neutral-300" />
-      ),
-      href: "/analytics",
-    },
-    // {
-    //   title: "Aceternity UI",
-    //   icon: (
-    //     <Image
-    //       src="https://assets.aceternity.com/logo-dark.png"
-    //       width={20}
-    //       height={20}
-    //       alt="Aceternity Logo"
-    //     />
-    //   ),
-    //   href: "#",
-    // },
-    {
-      title: "Ranking",
-      icon: (
-        <Medal className="h-full w-full text-neutral-500 dark:text-neutral-300" />
-      ),
-      href: "/ranking",
-    },
-
-    {
-      title: "Test",
-      icon: (
-        <FlaskConical className="h-full w-full text-neutral-500 dark:text-neutral-300" />
-      ),
-      href: "/test",
-    },
-  ];
   return (
-    <div className="fixed z-50 w-full sm:w-auto -translate-x-1/2  bottom-0 sm:bottom-4 left-1/2 sm:hidden">
-      <FloatingDockDesktop
-        items={links}
-        className="flex gap-0 space-x-4 justify-between rounded-none sm:rounded-2xl backdrop-blur-xl bg-transparent dark:bg-transparent"
-      />
+    <div className="fixed bottom-0 left-0 z-50 w-full h-16 bg-white/30 backdrop-blur-lg border-t border-gray-200 dark:bg-gray-700/30 dark:border-gray-600 sm:hidden">
+      <div
+        className={cn(
+          `grid h-full max-w-lg mx-auto font-medium grid-cols-${sidenavItems.length}`
+        )}
+      >
+        {sidenavItems.map((item) => (
+          <NavItem
+            key={item.name}
+            href={item.path}
+            label={item.name}
+            icon={item.icon.type}
+          />
+        ))}
+      </div>
     </div>
+  );
+}
+
+function NavItem({
+  href,
+  label,
+  icon: Icon,
+}: {
+  href: string;
+  label: string;
+  icon: React.ElementType;
+}) {
+  return (
+    <Link
+      href={href}
+      className="inline-flex flex-col items-center justify-center px-5 hover:bg-gray-100/20 dark:hover:bg-gray-800/20 group"
+    >
+      <Icon className="w-5 h-5 mb-2 text-gray-200 dark:text-gray-400 group-hover:text-gray-50 dark:group-hover:text-gray-50" />
+      <span className="text-xs text-gray-200 dark:text-gray-400 group-hover:text-gray-50 dark:group-hover:text-gray-50">
+        {label}
+      </span>
+    </Link>
   );
 }

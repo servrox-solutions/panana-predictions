@@ -53,12 +53,8 @@ body {
     --radius: 0.5rem;
   }
 
-.dark {
-    --background: linear-gradient(
-      130deg,
-      hsl(276 20% 18%),
-      hsl(239 35% 16%)
-    );
+  .dark {
+    --background: linear-gradient(130deg, hsl(276 20% 18%), hsl(239 35% 16%));
     --foreground: #ededed;
 
     --muted: 30 20% 15%;
@@ -86,9 +82,7 @@ body {
     --destructive-foreground: 30 10% 97%;
 
     --ring: 44 100% 55%;
-}
-
-
+  }
 }
 
 @layer base {
