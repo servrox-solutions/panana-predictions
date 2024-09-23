@@ -24,38 +24,38 @@ export function Web3Icon(props: Web3IconProps) {
       return (
         <NetworkAptos
           variant="branded"
-          className={cn("w-4 h-4 dark:invert scale-[2]", className)}
+          className={cn("w-4 h-4 dark:invert", className)}
         />
       );
     case "SOL":
       return (
         <NetworkSolana
           variant="branded"
-          className={cn("w-4 h-4 scale-[2]", className)}
+          className={cn("w-4 h-4 scale-125", className)}
         />
       );
     case "USDC":
       return (
         <TokenUSDC
           variant="branded"
-          className={cn("w-4 h-4 scale-[2]", className)}
+          className={cn("w-4 h-4 scale-125", className)}
         />
       );
     case "BTC":
       return (
         <NetworkBitcoin
           variant="branded"
-          className={cn("w-4 h-4 scale-[2]", className)}
+          className={cn("w-4 h-4 scale-125", className)}
         />
       );
     case "ETH":
       return (
         <NetworkEthereum
           variant="branded"
-          className={cn("w-4 h-4 scale-[2]", className)}
+          className={cn("w-4 h-4 scale-125", className)}
         />
       );
     default:
-      return <CircleHelp className={cn("w-4 h-4 scale-[2]", className)} />;
+      return <CircleHelp className={cn("w-4 h-4 scale-125", className)} />;
   }
 }

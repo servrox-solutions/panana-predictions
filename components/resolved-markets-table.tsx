@@ -42,6 +42,7 @@ export interface ResolvedMarket {
   dissolved: boolean;
 }
 
+export type Filter = SupportedAsset | "No Filter";
 export interface ResolvedMarketsTable {
   latestResolvedMarkets: ResolvedMarket[];
   filter: SupportedAsset[];
