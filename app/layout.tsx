@@ -4,6 +4,7 @@ import "./globals.css";
 import { WalletProvider } from "@/components/providers/wallet-provider";
 import { ThemeProvider } from "@/components/providers/theme-provider";
 import { TelegramProvider } from "@/components/providers/telegram-provider";
+import { AutoConnectProvider } from "@/components/auto-connect-provider";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -38,9 +39,11 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <WalletProvider>
-            <TelegramProvider>{children}</TelegramProvider>
-          </WalletProvider>
+          <AutoConnectProvider>
+            <WalletProvider>
+              <TelegramProvider>{children}</TelegramProvider>
+            </WalletProvider>
+          </AutoConnectProvider>
         </ThemeProvider>
       </body>
     </html>

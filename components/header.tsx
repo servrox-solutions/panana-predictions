@@ -1,5 +1,5 @@
 import { ModeToggle } from "./mode-toggle";
-import { WalletSelector } from "./wallet-connect";
+import { WalletSelector } from "./wallet-selector";
 import EmojiCanvas from "./emoji-canvas";
 import { Logo } from "./sidenav/logo";
 

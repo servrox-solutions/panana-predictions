@@ -79,7 +79,7 @@ export const FilterDropdown: React.FC<FilterDropdownProps> = ({
             key={item}
             checked={selectedFilters.includes(item)}
             onCheckedChange={() => handleFilterChange(item)}
-            onSelect={event => event.preventDefault()}
+            onSelect={(event) => event.preventDefault()}
           >
             <Web3Icon asset={item} className="scale-100 mr-2" />
             {item}
