@@ -1,10 +1,5 @@
 "use client";
 
-import {
-  ListFilter,
-} from "lucide-react";
-
-
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -14,35 +9,40 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import {
-  DropdownMenu,
-  DropdownMenuCheckboxItem,
-  DropdownMenuContent,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+
+import { usePathname, useRouter } from "next/navigation";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Link from "next/link";
-import { ResolvedMarket, ResolvedMarketsTable } from './resolved-markets-table';
-import { CreatedMarket, CreatedMarketsTable } from './created-markets-table';
-
+import { ResolvedMarket, ResolvedMarketsTable } from "./resolved-markets-table";
+import { CreatedMarket, CreatedMarketsTable } from "./created-markets-table";
+import { FilterDropdown } from "./filter-dropdown";
 
 export interface DashboardContentProps {
   latestCreatedMarkets: CreatedMarket[];
   latestResolvedMarkets: ResolvedMarket[];
+  searchParams: { [key: string]: string | string[] | undefined };
 }
 
-export function DashboardContent(props: DashboardContentProps) {
-  const { latestCreatedMarkets, latestResolvedMarkets } = props;
+export function DashboardContent({
+  latestCreatedMarkets,
+  latestResolvedMarkets,
+  searchParams,
+}: DashboardContentProps) {
+  const urlSearchParams = new URLSearchParams(
+    Object.entries(searchParams).flatMap(([key, value]) =>
+      value === undefined
+        ? []
+        : Array.isArray(value)
+        ? value.map((v) => [key, v])
+        : [[key, value]]
+    )
+  );
 
-  const searchParams = useSearchParams();
   const pathname = usePathname();
   const router = useRouter();
 
   const setQuery = (q: string, value: string) => {
-    const current = new URLSearchParams(Array.from(searchParams.entries()));
+    const current = new URLSearchParams(Array.from(urlSearchParams.entries()));
 
     if (!value) {
       current.delete(q);
@@ -56,7 +56,7 @@ export function DashboardContent(props: DashboardContentProps) {
     const query = search ? `?${search}` : "";
 
     router.push(`${pathname}${query}`);
-  }
+  };
 
   return (
     <div className="grid flex-1 items-start gap-4 p-4 sm:px-6 sm:py-0 md:gap-8 lg:grid-cols-3 xl:grid-cols-3">
@@ -66,12 +66,13 @@ export function DashboardContent(props: DashboardContentProps) {
             <CardHeader className="pb-3">
               <CardTitle>All Markets</CardTitle>
               <CardDescription className="max-w-lg text-balance leading-relaxed">
-                You can also create your own market to predict the future price of an asset.
+                You can also create your own market to predict the future price
+                of an asset.
               </CardDescription>
             </CardHeader>
             <CardFooter>
               <Link href="/markets">
-                <Button className='capitalize'>Create new market</Button>
+                <Button className="capitalize">Create new market</Button>
               </Link>
             </CardFooter>
           </Card>
@@ -81,9 +82,7 @@ export function DashboardContent(props: DashboardContentProps) {
               <CardTitle className="text-4xl">$1,2 mio.</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-xs text-muted-foreground">
-                (25123 APT)
-              </div>
+              <div className="text-xs text-muted-foreground">(25123 APT)</div>
             </CardContent>
             {/* <CardFooter>
               <Progress value={25} aria-label="25% increase" />
@@ -95,56 +94,46 @@ export function DashboardContent(props: DashboardContentProps) {
               <CardTitle className="text-4xl">$35,329</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-xs text-muted-foreground">
-                (2345 APT)
-              </div>
+              <div className="text-xs text-muted-foreground">(2345 APT)</div>
             </CardContent>
             {/* <CardFooter>
               <Progress value={12} aria-label="12% increase" />
             </CardFooter> */}
           </Card>
         </div>
-        <Tabs defaultValue={searchParams.get('nav') || 'resolvedMarkets'}>
+        <Tabs defaultValue={urlSearchParams.get("nav") || "resolvedMarkets"}>
           <div className="flex items-center">
             <TabsList>
-              <TabsTrigger value="resolvedMarkets" onClick={() => setQuery('nav', 'resolvedMarkets')}>Resolved Markets</TabsTrigger>
-              <TabsTrigger value="createdMarkets" onClick={() => setQuery('nav', 'createdMarkets')}>New Markets</TabsTrigger>
+              <TabsTrigger
+                value="resolvedMarkets"
+                onClick={() => setQuery("nav", "resolvedMarkets")}
+              >
+                Resolved Markets
+              </TabsTrigger>
+              <TabsTrigger
+                value="createdMarkets"
+                onClick={() => setQuery("nav", "createdMarkets")}
+              >
+                New Markets
+              </TabsTrigger>
             </TabsList>
             <div className="ml-auto flex items-center gap-2">
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="h-7 gap-1 text-sm"
-                  >
-                    <ListFilter className="h-3.5 w-3.5" />
-                    <span className="sr-only sm:not-sr-only">Filter</span>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuLabel>Filter by</DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuCheckboxItem checked>
-                    APT
-                  </DropdownMenuCheckboxItem>
-                  <DropdownMenuCheckboxItem>BTC</DropdownMenuCheckboxItem>
-                  <DropdownMenuCheckboxItem>ETH</DropdownMenuCheckboxItem>
-                  <DropdownMenuCheckboxItem>SOL</DropdownMenuCheckboxItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+              <FilterDropdown
+                items={["APT", "BTC", "ETH", "SOL"]}
+                preSelected={searchParams?.filter}
+              />
             </div>
           </div>
           <TabsContent value="resolvedMarkets">
             <Card x-chunk="dashboard-05-chunk-3">
               <CardHeader className="px-7">
                 <CardTitle>Resolved Markets</CardTitle>
-                <CardDescription>
-                  Recently resolved markets
-                </CardDescription>
+                <CardDescription>Recently resolved markets</CardDescription>
               </CardHeader>
               <CardContent>
-                <ResolvedMarketsTable latestResolvedMarkets={latestResolvedMarkets} />
+                <ResolvedMarketsTable
+                  latestResolvedMarkets={latestResolvedMarkets}
+                />
               </CardContent>
             </Card>
           </TabsContent>
@@ -152,12 +141,12 @@ export function DashboardContent(props: DashboardContentProps) {
             <Card x-chunk="dashboard-05-chunk-3">
               <CardHeader className="px-7">
                 <CardTitle>New Markets</CardTitle>
-                <CardDescription>
-                  Recently created markets
-                </CardDescription>
+                <CardDescription>Recently created markets</CardDescription>
               </CardHeader>
               <CardContent>
-                <CreatedMarketsTable latestCreatedMarkets={latestCreatedMarkets} />
+                <CreatedMarketsTable
+                  latestCreatedMarkets={latestCreatedMarkets}
+                />
               </CardContent>
             </Card>
           </TabsContent>
@@ -316,6 +305,6 @@ export function DashboardContent(props: DashboardContentProps) {
           </CardFooter>
         </Card>
       </div> */}
-    </div >
+    </div>
   );
 }
