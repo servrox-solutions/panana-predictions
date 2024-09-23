@@ -28,6 +28,7 @@ import { useWallet } from "@aptos-labs/wallet-adapter-react";
 import { Address } from "@/lib/types/market";
 import { MODULE_ADDRESS_FROM_ABI } from '@/lib/aptos';
 import { Card } from './ui/card';
+import { Input } from './ui/input';
 
 export interface MarketCreateModalProps {
     marketplaces: { address: `0x${string}`, typeArgument: `${string}::${string}::${string}` }[];
@@ -65,6 +66,9 @@ export function MarketCreateModal(props: MarketCreateModalProps) {
         durationSeconds: z.number().gt(0, {
             message: "Duration must be set",
         }),
+        minBet: z.coerce.number().gte(0.01, {
+            message: `Minimal bet is ${Number(0.01).toLocaleString()}`
+        })
     });
     const form = useForm<z.infer<typeof FormSchema>>({
         resolver: zodResolver(FormSchema),
@@ -72,6 +76,7 @@ export function MarketCreateModal(props: MarketCreateModalProps) {
             asset: marketplaces[0].typeArgument, // use first marketplace as default
             startTime: undefined,
             durationSeconds: undefined,
+            minBet: 0.01,
         },
     });
 
@@ -174,7 +179,7 @@ export function MarketCreateModal(props: MarketCreateModalProps) {
             marketplace: marketplaces.find(x => x.typeArgument === data.asset)!.address,
             startTimeTimestampSeconds: Math.floor(startTime.toSeconds()),
             endTimeTimestampSeconds: Math.floor(endTime.toSeconds()),
-            minBet: 10000,
+            minBet: data.minBet * 10 ** 8,
         });
         console.log(res);
     }
@@ -198,7 +203,7 @@ export function MarketCreateModal(props: MarketCreateModalProps) {
 
                 <ModalBody closeOnClickOutside={false} className="backdrop-grayscale-[.5] bg-gray-800 bg-opacity-30 backdrop-blur-lg rounded-3xl p-3 shadow-lg border border-white border-opacity-20">
                     <ModalContent className="overflow-auto flex flex-col gap-4 ">
-                        <h4 className="text-lg md:text-2xl text-neutral-600 dark:text-neutral-100 font-bold text-center mb-8">
+                        <h4 className="text-lg md:text-2xl text-neutral-600 dark:text-neutral-100 font-bold text-center mb-4">
                             Create a New Market
                         </h4>
                         <Form {...form}>
@@ -230,9 +235,9 @@ export function MarketCreateModal(props: MarketCreateModalProps) {
                                                     ))}
                                                 </div>
                                             </div>
-                                            <FormDescription>
+                                            {/* <FormDescription>
                                                 Bet on the change of this asset pair.
-                                            </FormDescription>
+                                            </FormDescription> */}
                                             <FormMessage />
                                         </FormItem>
                                     )}
@@ -257,10 +262,10 @@ export function MarketCreateModal(props: MarketCreateModalProps) {
                                                     form.trigger("startTime");
                                                 }}
                                             />
-                                            <FormDescription>
+                                            {/* <FormDescription>
                                                 This is the starting date of the market. After this
                                                 date, no new bets can be placed.
-                                            </FormDescription>
+                                            </FormDescription> */}
                                             <FormMessage />
                                         </FormItem>
                                     )}
@@ -296,9 +301,25 @@ export function MarketCreateModal(props: MarketCreateModalProps) {
                                                     ))}
                                                 </div>
                                             </div>
-                                            <FormDescription>
+                                            {/* <FormDescription>
                                                 No bets can be placed for the given duration.
-                                            </FormDescription>
+                                            </FormDescription> */}
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={form.control}
+                                    name="minBet"
+                                    render={({ field }) => (
+                                        <FormItem className={`flex flex-col`}>
+                                            <FormLabel>Min Bet (APT)</FormLabel>
+                                            <div className="max-w-full overflow-auto">
+                                                <Input type="number" step="0.01" {...field} />
+                                            </div>
+                                            {/* <FormDescription>
+                                                No bets can be placed for the given duration.
+                                            </FormDescription> */}
                                             <FormMessage />
                                         </FormItem>
                                     )}
