@@ -6,7 +6,7 @@ import { MODULE_ADDRESS_FROM_ABI } from "@/lib/aptos";
 import { getAvailableMarketplaces } from "@/lib/get-available-marketplaces";
 import { SupportedAsset } from "@/lib/types/market";
 import { getMarketplaceRessource } from "@/lib/get-marketplace-ressource";
-import { DashboardContent } from "@/components/dashboard-content";
+import { DashboardContent } from '@/components/dashboard-content';
 
 export interface MarketResolvedEventData {
   market: {

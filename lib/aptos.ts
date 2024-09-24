@@ -3,6 +3,8 @@ import { createSurfClient } from "@thalalabs/surf";
 import { ABI as MarketplaceAbi } from "./marketplace-abi";
 import { ABI as MarketAbi } from "./market-abi";
 import { Address } from "./types/market";
+import { TxnBuilderTypes } from 'aptos';
+
 
 const config = new AptosConfig({ network: Network.TESTNET });
 export const aptos = new Aptos(config);
@@ -37,3 +39,11 @@ export const getExplorerObjectLink = (
     isTestnet ? "?network=testnet" : ""
   }`;
 };
+
+export const isValidAddress = (address: string): boolean => {
+  try {
+    return TxnBuilderTypes.AccountAddress.isValid(address);
+  } catch (err: unknown) {
+    return false;
+  }
+}

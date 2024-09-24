@@ -52,4 +52,6 @@ export interface MarketOld {
   };
 }
 
-export type SupportedAsset = 'USDC' | 'SOL' | 'ETH' | 'APT' | 'BTC';
+export const SupportedAssets = ['USDC', 'SOL', 'ETH', 'APT', 'BTC'] as const;
+
+export type SupportedAsset = typeof SupportedAssets[number];

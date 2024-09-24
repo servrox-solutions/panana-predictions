@@ -5,7 +5,7 @@ import { useAutoConnect } from "./providers/auto-connect-provider";
 import { Label } from "./ui/label";
 import { Switch } from "./ui/switch";
 
-export function WalletReconnect({ className }: { className?: string }) {
+export function WalletReconnect({ className, label }: { className?: string, label?: string }) {
   const { autoConnect, setAutoConnect } = useAutoConnect();
 
   return (
@@ -16,7 +16,7 @@ export function WalletReconnect({ className }: { className?: string }) {
         onCheckedChange={setAutoConnect}
         className="data-[state=checked]:bg-primary data-[state=unchecked]:bg-secondary-foreground"
       />
-      <Label htmlFor="auto-connect-switch">Auto reconnect on page load</Label>
+      <Label htmlFor="auto-connect-switch">{label}</Label>
     </label>
   );
 }
