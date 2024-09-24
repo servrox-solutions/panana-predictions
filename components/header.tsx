@@ -45,8 +45,8 @@ export function Header() {
         /> */}
       </div>
 
-      <ModeToggle className="hidden sm:block" />
-      <WalletReconnect className="hidden sm:block" />
+      <ModeToggle className="hidden sm:flex" />
+      <WalletReconnect className="hidden sm:flex" />
       <WalletSelector />
       {/* <DropdownMenu>
         <DropdownMenuTrigger asChild>
