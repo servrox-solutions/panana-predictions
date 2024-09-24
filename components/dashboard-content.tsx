@@ -14,9 +14,9 @@ import { ResolvedMarket, ResolvedMarketsTable } from "./resolved-markets-table";
 import { CreatedMarket, CreatedMarketsTable } from "./created-markets-table";
 import { useState } from "react";
 import { FilterDropdown } from "./filter-dropdown";
-import { Web3Icon } from "./web3-icon";
 import { DateTime } from "luxon";
 import { marketTypes } from "@/lib/get-available-markets";
+import { Web3AmountCard } from "./web3-amount-card";
 
 export interface DashboardContentProps {
   latestCreatedMarkets: CreatedMarket[];
@@ -82,36 +82,11 @@ export function DashboardContent({
     <div className="grid flex-1 items-start gap-4 p-4 sm:px-6 sm:py-0 md:gap-8 lg:grid-cols-3 xl:grid-cols-3">
       <div className="grid auto-rows-max items-start gap-4 md:gap-8 lg:col-span-3">
         <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-2 xl:grid-cols-4">
-          <Card
+          <Web3AmountCard
             className="col-span-2 lg:col-span-1"
-            x-chunk="dashboard-05-chunk-2"
-          >
-            <CardHeader className="pb-2">
-              <CardDescription>Open Markets</CardDescription>
-              <CardTitle className="text-4xl">
-                <div className="flex gap-6 flex-wrap">
-                  {Object.entries(openMarkets).map(([asset, amount]) => (
-                    <div key={asset} className="flex items-center gap-1">
-                      {amount}{" "}
-                      <Web3Icon
-                        className="w-8 h-8"
-                        asset={asset as (typeof marketTypes)[number]}
-                      />
-                    </div>
-                  ))}
-                </div>
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-xs text-muted-foreground">
-                Total:{" "}
-                {Object.values(openMarkets).reduce(
-                  (prev, cur) => prev + cur,
-                  0
-                )}
-              </div>
-            </CardContent>
-          </Card>
+            title="Open Markets"
+            assetCounts={openMarkets}
+          />
           <Card
             className="col-span-2 lg:col-span-1"
             x-chunk="dashboard-05-chunk-1"

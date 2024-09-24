@@ -1,5 +1,6 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
+import { marketTypes } from "./get-available-markets";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -47,4 +48,12 @@ export function calculateUserWin(
     const userPotentialWin = totalDownPotentialWinnings * userShare;
     return userPotentialWin;
   }
+}
+
+export function extractAsset(input: string): (typeof marketTypes)[number] {
+  const parts = input.split("::");
+  if (parts.length !== 3) {
+    throw new Error("cannot extract asset");
+  }
+  return parts.pop() as (typeof marketTypes)[number];
 }
