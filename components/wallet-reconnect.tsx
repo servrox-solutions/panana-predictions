@@ -13,6 +13,7 @@ export function WalletReconnect() {
         id="auto-connect-switch"
         checked={autoConnect}
         onCheckedChange={setAutoConnect}
+        className="data-[state=checked]:bg-primary data-[state=unchecked]:bg-secondary-foreground"
       />
       <Label htmlFor="auto-connect-switch" className="hidden sm:block">
         Auto reconnect on page load
