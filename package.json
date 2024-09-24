@@ -21,6 +21,7 @@
     "@aptos-labs/wallet-adapter-react": "^3.7.0",
     "@grammyjs/menu": "^1.2.2",
     "@hookform/resolvers": "^3.9.0",
+    "@nozbe/microfuzz": "^1.0.0",
     "@radix-ui/react-collapsible": "^1.1.0",
     "@radix-ui/react-dialog": "^1.1.1",
     "@radix-ui/react-dropdown-menu": "^2.1.1",

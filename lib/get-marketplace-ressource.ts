@@ -1,18 +1,18 @@
 import { surfClientMarketplace } from "./aptos";
+import { marketTypes } from "./get-available-markets";
 import { getLogger } from "./logger";
-import { Address, SupportedAsset } from './types/market';
+import { Address } from "./types/market";
 
 export interface MarketplaceRessource {
-  available_markets: Address[], // contains all addresses of running and open markets
-  switchboard_feed: Address, // switchboard asset feed for market resolution
-  all_time_volume: number, // total volume that was traded on this marketplace
+  available_markets: Address[]; // contains all addresses of running and open markets
+  switchboard_feed: Address; // switchboard asset feed for market resolution
+  all_time_volume: number; // total volume that was traded on this marketplace
 }
 
 export interface MarketplaceRessourceIdentifier {
   address: Address;
-  type: `${string}::${string}::${SupportedAsset}`;
+  type: `${string}::${string}::${(typeof marketTypes)[number]}`;
 }
-
 
 export const getMarketplaceRessource = async (
   ressourceIdentifier: MarketplaceRessourceIdentifier

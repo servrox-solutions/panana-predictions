@@ -21,12 +21,12 @@ import {
 import Link from "next/link";
 import { DateTime } from "luxon";
 import { getExplorerObjectLink } from "@/lib/aptos";
-import { SupportedAsset } from "@/lib/types/market";
 import { Web3Icon } from "./web3-icon";
 import { useIsMounted } from "@/lib/hooks/useIsMounted";
+import { marketTypes } from "@/lib/get-available-markets";
 
 export interface CreatedMarket {
-  assetSymbol: SupportedAsset;
+  assetSymbol: (typeof marketTypes)[number];
   createdAtTimestamp: number;
   endTimeTimestamp: number;
   startTimeTimestamp: number;
@@ -38,7 +38,7 @@ export interface CreatedMarket {
 
 export interface CreatedMarketsTableProps {
   latestCreatedMarkets: CreatedMarket[];
-  filter: SupportedAsset[];
+  filter: (typeof marketTypes)[number][];
 }
 
 export function CreatedMarketsTable({

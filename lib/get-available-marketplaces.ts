@@ -1,6 +1,7 @@
 import { MODULE_ADDRESS_FROM_ABI, surfClientMarketplace } from "@/lib/aptos";
 import { getLogger } from "./logger";
-import { Address, SupportedAsset } from "./types/market";
+import { Address } from "./types/market";
+import { marketTypes } from "./get-available-markets";
 
 export interface AvailableMarketplacesResponse {
   data: { key: Address; value: Address }[];
@@ -8,7 +9,7 @@ export interface AvailableMarketplacesResponse {
 
 export interface AvailableMarketplace {
   address: Address;
-  typeArgument: `${string}::${string}::${SupportedAsset}`;
+  typeArgument: `${string}::${string}::${(typeof marketTypes)[number]}`;
 }
 
 export const getAvailableMarketplaces = async (): Promise<
@@ -30,7 +31,8 @@ export const getAvailableMarketplaces = async (): Promise<
     (marketplaces as AvailableMarketplacesResponse[])?.[0]?.data.map(
       (marketplace) => ({
         address: marketplace.key,
-        typeArgument: marketplace.value as `${string}::${string}::${SupportedAsset}`,
+        typeArgument:
+          marketplace.value as `${string}::${string}::${(typeof marketTypes)[number]}`,
       })
     ) ?? [];
 

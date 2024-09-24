@@ -9,11 +9,11 @@ import {
   NetworkSolana,
   TokenUSDC,
 } from "@web3icons/react";
-import { SupportedAsset } from "@/lib/types/market";
 import { cn } from "@/lib/utils";
+import { marketTypes } from "@/lib/get-available-markets";
 
 export interface Web3IconProps extends React.HTMLAttributes<HTMLDivElement> {
-  asset: SupportedAsset;
+  asset: (typeof marketTypes)[number];
 }
 
 export function Web3Icon(props: Web3IconProps) {

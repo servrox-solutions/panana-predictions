@@ -51,5 +51,3 @@ export interface MarketOld {
     >;
   };
 }
-
-export type SupportedAsset = 'USDC' | 'SOL' | 'ETH' | 'APT' | 'BTC';

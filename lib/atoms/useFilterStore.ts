@@ -11,7 +11,7 @@ const marketsFilterAtom = (name: string) => {
   return namedAtom;
 };
 
-export function useFilter(name: string) {
+export function useFilterStore(name: string) {
   const [filter, setFilter] = useAtom(marketsFilterAtom(name));
   return { filter, setFilter };
 }

@@ -13,14 +13,14 @@ import { Button } from "./ui/button";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useState, useEffect } from "react";
 import { Web3Icon } from "./web3-icon";
-import { SupportedAsset } from "@/lib/types/market";
-import { useFilter } from "@/lib/atoms/useFilter";
+import { useFilterStore } from "@/lib/atoms/useFilterStore";
+import { marketTypes } from "@/lib/get-available-markets";
 
 interface FilterDropdownProps {
   name: string;
-  items: SupportedAsset[];
+  items: (typeof marketTypes)[number][];
   preSelected?: string | string[];
-  onFilterChange?: (filter: SupportedAsset[]) => void;
+  onFilterChange?: (filter: (typeof marketTypes)[number][]) => void;
 }
 
 export const FilterDropdown: React.FC<FilterDropdownProps> = ({
@@ -32,7 +32,7 @@ export const FilterDropdown: React.FC<FilterDropdownProps> = ({
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const { setFilter } = useFilter(name);
+  const { setFilter } = useFilterStore(name);
 
   const [selectedFilters, setSelectedFilters] = useState<string[]>(
     Array.isArray(preSelected) ? preSelected : preSelected ? [preSelected] : []
@@ -66,13 +66,18 @@ export const FilterDropdown: React.FC<FilterDropdownProps> = ({
 
     setFilter(updatedFilters);
 
-    onFilterChange?.(updatedFilters as SupportedAsset[]);
+    onFilterChange?.(updatedFilters as (typeof marketTypes)[number][]);
   };
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline" size="sm" className="h-7 gap-1 text-sm">
+        <Button
+          variant="outline"
+          size="sm"
+          className="h-8 gap-1 text-sm"
+          disabled={items.length === 0}
+        >
           <ListFilter className="h-3.5 w-3.5" />
           <span className="sr-only sm:not-sr-only">Filter</span>
         </Button>

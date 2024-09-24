@@ -13,10 +13,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ResolvedMarket, ResolvedMarketsTable } from "./resolved-markets-table";
 import { CreatedMarket, CreatedMarketsTable } from "./created-markets-table";
 import { useState } from "react";
-import { SupportedAsset } from "@/lib/types/market";
 import { FilterDropdown } from "./filter-dropdown";
 import { Web3Icon } from "./web3-icon";
 import { DateTime } from "luxon";
+import { marketTypes } from "@/lib/get-available-markets";
 
 export interface DashboardContentProps {
   latestCreatedMarkets: CreatedMarket[];
@@ -25,7 +25,7 @@ export interface DashboardContentProps {
     usd: number;
     apt: number;
   };
-  openMarkets: { [key in SupportedAsset]: number };
+  openMarkets: { [key in (typeof marketTypes)[number]]: number };
   searchParams: { [key: string]: string | string[] | undefined };
 }
 
@@ -48,11 +48,13 @@ export function DashboardContent({
   const pathname = usePathname();
   const router = useRouter();
 
-  const [filter, setFilter] = useState<SupportedAsset[]>(
-    (urlSearchParams.get("dashboard")?.split(",") as SupportedAsset[]) ?? []
+  const [filter, setFilter] = useState<(typeof marketTypes)[number][]>(
+    (urlSearchParams
+      .get("dashboard")
+      ?.split(",") as (typeof marketTypes)[number][]) ?? []
   );
 
-  const filterNetworks: SupportedAsset[] = Array.from(
+  const filterNetworks: (typeof marketTypes)[number][] = Array.from(
     new Set([
       ...latestCreatedMarkets.map((x) => x.assetSymbol),
       ...latestResolvedMarkets.map((x) => x.assetSymbol),
@@ -89,11 +91,11 @@ export function DashboardContent({
               <CardTitle className="text-4xl">
                 <div className="flex gap-6 flex-wrap">
                   {Object.entries(openMarkets).map(([asset, amount]) => (
-                    <div className="flex items-center gap-1">
+                    <div key={asset} className="flex items-center gap-1">
                       {amount}{" "}
                       <Web3Icon
                         className="w-8 h-8"
-                        asset={asset as SupportedAsset}
+                        asset={asset as (typeof marketTypes)[number]}
                       />
                     </div>
                   ))}

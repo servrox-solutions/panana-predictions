@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { AvailableMarket } from "../get-available-markets";
 import { initializeMarket } from "../initialize-market";
 import { MarketData } from "../types/market";
+import { useMarketData } from "./useMarketData";
 
 export function useMarket(
   availableMarket: AvailableMarket,
@@ -11,11 +12,15 @@ export function useMarket(
   const [marketData, setMarketData] = useState<MarketData | null>(
     initialData || null
   );
+  const { addMarketData } = useMarketData(); // Use addMarketData only for managing global state
   const fetchIntervalId = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const refreshAttributes = async () => {
     const newMarketData = await initializeMarket(availableMarket);
     setMarketData(newMarketData);
+
+    // Add or update the market data in the global atom
+    addMarketData(newMarketData); // This handles both adding new and updating existing entries
     console.log("Market attributes updated.");
   };
 

@@ -20,12 +20,11 @@ import { createMarket } from "@/lib/create-market";
 import { useWallet } from "@aptos-labs/wallet-adapter-react";
 import { MODULE_ADDRESS_FROM_ABI } from "@/lib/aptos";
 import { Input } from "./ui/input";
+import { AvailableMarketplace } from "@/lib/get-available-marketplaces";
 
 export interface MarketCreateModalProps {
-  marketplaces: {
-    address: `0x${string}`;
-    typeArgument: `${string}::${string}::${string}`;
-  }[];
+  marketplaces: AvailableMarketplace[];
+  onMarketCreated?: () => void;
 }
 
 function getEarliestStartDate(): DateTime {
@@ -35,8 +34,10 @@ function getEarliestStartDate(): DateTime {
     .set({ second: 0, millisecond: 0 });
 }
 
-export function MarketCreateModal(props: MarketCreateModalProps) {
-  const { marketplaces } = props;
+export function MarketCreateModal({
+  marketplaces,
+  onMarketCreated,
+}: MarketCreateModalProps) {
   const { account, signAndSubmitTransaction } = useWallet();
 
   const FormSchema = z.object({
@@ -180,6 +181,10 @@ export function MarketCreateModal(props: MarketCreateModalProps) {
       minBet: data.minBet * 10 ** 8,
     });
     console.log(res);
+
+    onMarketCreated?.();
+
+    window.location.reload(); // TODO: fix this
   }
 
   // function getEndDate(date?: Date, durationSeconds?: number): DateTime | null {
@@ -193,9 +198,15 @@ export function MarketCreateModal(props: MarketCreateModalProps) {
   return (
     <>
       <Modal>
-        <ModalTrigger className="flex justify-center">
-          <div onClick={() => scrollIntoView()} className="text-black">
-            <Banana className="inline h-5 w-5" /> Create New Market
+        <ModalTrigger className="h-8 flex justify-center ">
+          <div
+            onClick={() => scrollIntoView()}
+            className="flex items-center gap-1 text-secondary"
+          >
+            <Banana className="h-3.5 w-3.5" />
+            <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
+              Create Market
+            </span>
           </div>
         </ModalTrigger>
 

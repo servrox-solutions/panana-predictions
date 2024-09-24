@@ -4,9 +4,9 @@ import { getMarketResolvedEvents } from "@/lib/get-market-resolved-events";
 import { fetchPriceUSD } from "@/lib/fetch-price";
 import { MODULE_ADDRESS_FROM_ABI } from "@/lib/aptos";
 import { getAvailableMarketplaces } from "@/lib/get-available-marketplaces";
-import { SupportedAsset } from "@/lib/types/market";
 import { getMarketplaceRessource } from "@/lib/get-marketplace-ressource";
 import { DashboardContent } from "@/components/dashboard-content";
+import { marketTypes } from "@/lib/get-available-markets";
 
 export interface MarketResolvedEventData {
   market: {
@@ -33,17 +33,25 @@ export default async function Dashboard({
   const symbols = marketplaces.map((marketplace) => {
     const parts = marketplace.typeArgument.split("::");
     return parts[parts.length - 1];
-  }, {}) as SupportedAsset[];
+  }, {}) as (typeof marketTypes)[number][];
 
   // TODO: fetch data parallel
   const createdEvents = await Promise.all(
     marketplaces.map((marketplace) =>
-      getMarketCreatedEvents(MODULE_ADDRESS_FROM_ABI, marketplace.typeArgument, 25)
+      getMarketCreatedEvents(
+        MODULE_ADDRESS_FROM_ABI,
+        marketplace.typeArgument,
+        25
+      )
     )
   );
   const resolvedEvents = await Promise.all(
     marketplaces.map((marketplace) =>
-      getMarketResolvedEvents(MODULE_ADDRESS_FROM_ABI, marketplace.typeArgument, 25)
+      getMarketResolvedEvents(
+        MODULE_ADDRESS_FROM_ABI,
+        marketplace.typeArgument,
+        25
+      )
     )
   );
   const price = await fetchPriceUSD("aptos");
@@ -59,7 +67,7 @@ export default async function Dashboard({
   const totalVolumeApt = allMarketplaces
     .map((marketplace) => +marketplace.all_time_volume)
     .reduce((prev, cur) => prev + cur, 0);
-  console.log(totalVolumeApt)
+  console.log(totalVolumeApt);
   const totalVolume = {
     apt: totalVolumeApt / 10 ** 8,
     usd: (totalVolumeApt / 10 ** 8) * price,
@@ -100,11 +108,22 @@ export default async function Dashboard({
       }))
     )
     .flat()
-    .filter(createdMarket => !resolvedMarkets.some(resolvedMarket => resolvedMarket.marketAddress === createdMarket.marketAddress))
+    .filter(
+      (createdMarket) =>
+        !resolvedMarkets.some(
+          (resolvedMarket) =>
+            resolvedMarket.marketAddress === createdMarket.marketAddress
+        )
+    )
     .sort((x, y) => y.createdAtTimestamp - x.createdAtTimestamp);
 
-
-  const openMarkets = allMarketplaces.reduce((prev, cur, idx) => ({ ...prev, [symbols[idx]]: cur.available_markets.length }), {}) as ({ [key in SupportedAsset]: number });
+  const openMarkets = allMarketplaces.reduce(
+    (prev, cur, idx) => ({
+      ...prev,
+      [symbols[idx]]: cur.available_markets.length,
+    }),
+    {}
+  ) as { [key in (typeof marketTypes)[number]]: number };
 
   return (
     <>

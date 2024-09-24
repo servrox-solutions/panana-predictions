@@ -24,11 +24,11 @@ import Link from "next/link";
 import { DateTime } from "luxon";
 import { getExplorerObjectLink } from "@/lib/aptos";
 import { Web3Icon } from "./web3-icon";
-import { SupportedAsset } from "@/lib/types/market";
 import { useIsMounted } from "@/lib/hooks/useIsMounted";
+import { marketTypes } from "@/lib/get-available-markets";
 
 export interface ResolvedMarket {
-  assetSymbol: SupportedAsset;
+  assetSymbol: (typeof marketTypes)[number];
   endTimeTimestamp: number;
   startTimeTimestamp: number;
   marketAddress: string;
@@ -43,10 +43,9 @@ export interface ResolvedMarket {
   dissolved: boolean;
 }
 
-export type Filter = SupportedAsset | "No Filter";
 export interface ResolvedMarketsTable {
   latestResolvedMarkets: ResolvedMarket[];
-  filter: SupportedAsset[];
+  filter: (typeof marketTypes)[number][];
 }
 
 export function ResolvedMarketsTable({
