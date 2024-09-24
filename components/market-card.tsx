@@ -34,6 +34,7 @@ export const MarketCard: React.FC<MarketCardProps> = ({
 
   return (
     <MarketCardSimpleUi
+      address={marketData?.address ?? "1337"}
       minBet={marketData?.minBet ?? 1337}
       betCloseTime={marketData?.startTime ?? 1336}
       resolveTime={marketData?.endTime ?? 1337}

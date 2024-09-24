@@ -1,10 +1,4 @@
-import {
-  Home,
-  LineChart,
-  Medal,
-  FlaskConical,
-  ChartCandlestick,
-} from "lucide-react";
+import { Home, FlaskConical, ChartCandlestick } from "lucide-react";
 
 export interface SidenavItem {
   name: string;
@@ -23,19 +17,13 @@ export const sidenavItems: SidenavItem[] = [
     icon: <ChartCandlestick />,
     path: "/markets",
   },
-  {
-    name: "Analytics",
-    icon: <LineChart />,
-    path: "/analytics",
-  },
-  {
-    name: "Ranking",
-    icon: <Medal />,
-    path: "/ranking",
-  },
-  {
-    name: "Test",
-    icon: <FlaskConical />,
-    path: "/test",
-  },
+  ...(process.env.NODE_ENV === "development"
+    ? [
+        {
+          name: "Test",
+          icon: <FlaskConical />,
+          path: "/test",
+        },
+      ]
+    : []),
 ];

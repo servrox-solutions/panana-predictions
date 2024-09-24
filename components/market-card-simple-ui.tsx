@@ -16,6 +16,7 @@ import { Input } from "./ui/input";
 import { calculateUserWin, cn } from "@/lib/utils";
 import { MarketCardTimeline } from "./market-card-timeline";
 import { DateTime } from "luxon";
+import Link from "next/link";
 
 export interface MarketCardSimpleUiProps {
   tradingPair: { one: (typeof marketTypes)[number]; two: string };
@@ -30,6 +31,7 @@ export interface MarketCardSimpleUiProps {
   downBetsSum: number;
   upBetsCount: number;
   downBetsCount: number;
+  address: string;
   onPlaceBet: (betUp: boolean, amount: number) => void;
   onVote: (isVoteUp: boolean) => void;
 }
@@ -47,6 +49,7 @@ export const MarketCardSimpleUi: React.FC<MarketCardSimpleUiProps> = ({
   downBetsSum,
   upBetsCount,
   downBetsCount,
+  address,
   onPlaceBet,
   onVote,
 }) => {
@@ -59,17 +62,19 @@ export const MarketCardSimpleUi: React.FC<MarketCardSimpleUiProps> = ({
       <div className="flex justify-between ">
         <div className="flex-1">
           <div className="text-left">
-            <h2 className="text-lg font-semibold">
-              Will
-              <span className="text-lg text-secondary bg-primary  p-1 rounded mx-1">
-                {tradingPair.one}/{tradingPair.two}
-              </span>
-              go up or down within{" "}
-              {DateTime.fromSeconds(resolveTime)
-                .diff(DateTime.fromSeconds(betCloseTime))
-                .toFormat("hh:mm:ss")}{" "}
-              hours?
-            </h2>
+            <Link href={`/markets/${address}`} className="hover:underline">
+              <h2 className="text-lg font-semibold">
+                Will
+                <span className="text-lg text-secondary bg-primary  p-1 rounded mx-1">
+                  {tradingPair.one}/{tradingPair.two}
+                </span>
+                go up or down within{" "}
+                {DateTime.fromSeconds(resolveTime)
+                  .diff(DateTime.fromSeconds(betCloseTime))
+                  .toFormat("hh:mm:ss")}{" "}
+                hours?
+              </h2>
+            </Link>
           </div>
         </div>
         {bet && (
