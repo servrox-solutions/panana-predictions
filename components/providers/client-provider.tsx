@@ -1,20 +1,20 @@
 "use client";
 
 import { Fragment, PropsWithChildren } from "react";
-import WebApp from "@twa-dev/sdk";
 import { ThemeProvider } from "next-themes";
 import { AutoConnectProvider } from "./auto-connect-provider";
 import { WalletProvider } from "./wallet-provider";
 
-export function ClientProvider({ children, ...props }: PropsWithChildren) {
-  if (typeof window !== "undefined") {
-    WebApp.ready();
-    WebApp.expand();
-    WebApp.setHeaderColor("##ffc80a");
-    WebApp.setBackgroundColor("##ffc80a");
-    WebApp.setBottomBarColor("##ffc80a");
-  }
+import Script from "next/script";
+import { Telegram } from "@twa-dev/types";
 
+declare global {
+  interface Window {
+    Telegram: Telegram;
+  }
+}
+
+export function ClientProvider({ children, ...props }: PropsWithChildren) {
   return (
     <Fragment {...props}>
       <ThemeProvider
@@ -27,6 +27,17 @@ export function ClientProvider({ children, ...props }: PropsWithChildren) {
           <WalletProvider>{children}</WalletProvider>
         </AutoConnectProvider>
       </ThemeProvider>
+      <Script
+        id="TelegramWebApp"
+        src="https://telegram.org/js/telegram-web-app.js"
+        onReady={() => {
+          window.Telegram.WebApp.ready();
+          window.Telegram.WebApp.expand();
+          window.Telegram.WebApp.setHeaderColor("##ffc80a");
+          window.Telegram.WebApp.setBackgroundColor("##ffc80a");
+          window.Telegram.WebApp.setBottomBarColor("##ffc80a");
+        }}
+      />
     </Fragment>
   );
 }

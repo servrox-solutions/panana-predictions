@@ -4,7 +4,6 @@ import { useWallet, WalletName } from "@aptos-labs/wallet-adapter-react";
 import { useState } from "react";
 import { Button } from "./ui/button";
 import Link from "next/link";
-import WebApp from "@twa-dev/sdk";
 
 export function TelegramTest() {
   const [aptosConnectUrl, setAptosConnectUrl] = useState<string | null>(null);
@@ -43,13 +42,15 @@ export function TelegramTest() {
               <Button>next/link</Button>
             </Link>
             <br />
-            <Button onClick={() => WebApp.openLink(aptosConnectUrl)}>
+            <Button
+              onClick={() => window.Telegram.WebApp.openLink(aptosConnectUrl)}
+            >
               Open link in external browser
             </Button>
             <br />
             <Button
               onClick={() =>
-                WebApp.openLink(aptosConnectUrl, {
+                window.Telegram.WebApp.openLink(aptosConnectUrl, {
                   try_instant_view: true,
                 })
               }
@@ -59,11 +60,13 @@ export function TelegramTest() {
           </>
         )}
         <br />
-        <h1>Welcome {WebApp.initDataUnsafe.user?.username}</h1>
+        <h1>Welcome {window.Telegram.WebApp.initDataUnsafe.user?.username}</h1>
         User data:
-        <pre>{JSON.stringify(WebApp.initDataUnsafe.user, null, 2)}</pre>
+        <pre>
+          {JSON.stringify(window.Telegram.WebApp.initDataUnsafe.user, null, 2)}
+        </pre>
         Eniter Web App data:
-        <pre>{JSON.stringify(WebApp, null, 2)}</pre>
+        <pre>{JSON.stringify(window.Telegram.WebApp, null, 2)}</pre>
       </div>
       )
     </div>
