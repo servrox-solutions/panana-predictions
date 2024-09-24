@@ -29,13 +29,13 @@ export function ClientProvider({ children, ...props }: PropsWithChildren) {
       </ThemeProvider>
       <Script
         id="TelegramWebApp"
-        src="https://telegram.org/js/telegram-web-app.js"
+        src="./telegram-web-apps.js"
         onReady={() => {
           window.Telegram.WebApp.ready();
           window.Telegram.WebApp.expand();
-          window.Telegram.WebApp.setHeaderColor("##ffc80a");
-          window.Telegram.WebApp.setBackgroundColor("##ffc80a");
-          window.Telegram.WebApp.setBottomBarColor("##ffc80a");
+          window.Telegram.WebApp.setHeaderColor("#ffc80a");
+          window.Telegram.WebApp.setBackgroundColor("#ffc80a");
+          window.Telegram.WebApp.setBottomBarColor("#ffc80a");
         }}
       />
     </Fragment>

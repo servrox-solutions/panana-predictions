@@ -57,7 +57,7 @@ export const MarketCardSimpleUi: React.FC<MarketCardSimpleUiProps> = ({
   const [amount, setAmount] = useState<number>(minBet + 1);
 
   return (
-    <div className="flex flex-col max-w-sm w-96 backdrop-grayscale-[.5] bg-gray-800 bg-opacity-30 backdrop-blur-lg rounded-3xl p-3 shadow-lg border border-white border-opacity-20">
+    <div className="flex flex-col max-w-full w-96 backdrop-grayscale-[.5] bg-gray-800 bg-opacity-30 backdrop-blur-lg rounded-3xl p-3 shadow-lg border border-white border-opacity-20">
       {/* Header */}
       <div className="flex justify-between ">
         <div className="flex-1">

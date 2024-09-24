@@ -9,6 +9,7 @@ import { useSubmitVote } from "@/lib/hooks/useSubmitVote";
 import { useFilterStore } from "@/lib/atoms/useFilterStore";
 import { useMarketData } from "@/lib/hooks/useMarketData";
 import { useMarketDataStore } from "@/lib/atoms/useMarketDataStore";
+import { cn } from "@/lib/utils";
 
 interface MarketCardProps {
   availableMarket: AvailableMarket;
@@ -62,7 +63,7 @@ export const MarketCard: React.FC<MarketCardProps> = ({
   const shouldShow = isInFilter && isInSearch;
 
   return (
-    <div className={shouldShow ? "" : "hidden"}>
+    <div className={cn("max-w-full", !shouldShow && "hidden")}>
       <MarketCardSimpleUi
         address={marketData?.address ?? "1337"}
         minBet={marketData?.minBet ?? 1337}
