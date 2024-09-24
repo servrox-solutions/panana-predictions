@@ -39,6 +39,7 @@
     "@radix-ui/react-tooltip": "^1.1.2",
     "@tabler/icons-react": "^3.17.0",
     "@thalalabs/surf": "^1.7.3",
+    "@twa-dev/sdk": "^7.10.1",
     "@web3icons/react": "^3.6.1",
     "aptos": "^1.21.0",
     "class-variance-authority": "^0.7.0",

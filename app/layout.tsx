@@ -1,10 +1,7 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
-import { WalletProvider } from "@/components/providers/wallet-provider";
-import { ThemeProvider } from "@/components/providers/theme-provider";
-import { TelegramProvider } from "@/components/providers/telegram-provider";
-import { AutoConnectProvider } from "@/components/providers/auto-connect-provider";
+import { ClientProvider } from "@/components/providers/client-provider";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -33,18 +30,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
-          <AutoConnectProvider>
-            <WalletProvider>
-              <TelegramProvider>{children}</TelegramProvider>
-            </WalletProvider>
-          </AutoConnectProvider>
-        </ThemeProvider>
+        <ClientProvider>{children}</ClientProvider>
       </body>
     </html>
   );
