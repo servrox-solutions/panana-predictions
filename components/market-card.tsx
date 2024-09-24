@@ -34,28 +34,33 @@ export const MarketCard: React.FC<MarketCardProps> = ({
     }
   };
 
+  const showMarketCard =
+    !marketData?.tradingPair.one ||
+    !filter ||
+    filter.length === 0 ||
+    filter.includes(marketData.tradingPair.one);
+
   return (
     <>
-      {!marketData?.tradingPair.one ||
-        (!filter?.includes(marketData?.tradingPair.one) && (
-          <MarketCardSimpleUi
-            address={marketData?.address ?? "1337"}
-            minBet={marketData?.minBet ?? 1337}
-            betCloseTime={marketData?.startTime ?? 1336}
-            resolveTime={marketData?.endTime ?? 1337}
-            tradingPair={marketData?.tradingPair ?? { one: "APT", two: "USD" }}
-            upVotesSum={marketData?.upVotesSum ?? 1337}
-            downVotesSum={marketData?.downVotesSum ?? 1337}
-            upWinFactor={marketData?.upWinFactor ?? 1337}
-            downWinFactor={marketData?.downWinFactor ?? 1337}
-            upBetsSum={marketData?.upBetsSum ?? 1337}
-            downBetsSum={marketData?.downBetsSum ?? 1337}
-            upBetsCount={marketData?.upBets.size ?? 1337}
-            downBetsCount={marketData?.downBets.size ?? 1337}
-            onPlaceBet={onPlaceBet}
-            onVote={onVote}
-          />
-        ))}
+      {showMarketCard && (
+        <MarketCardSimpleUi
+          address={marketData?.address ?? "1337"}
+          minBet={marketData?.minBet ?? 1337}
+          betCloseTime={marketData?.startTime ?? 1336}
+          resolveTime={marketData?.endTime ?? 1337}
+          tradingPair={marketData?.tradingPair ?? { one: "APT", two: "USD" }}
+          upVotesSum={marketData?.upVotesSum ?? 1337}
+          downVotesSum={marketData?.downVotesSum ?? 1337}
+          upWinFactor={marketData?.upWinFactor ?? 1337}
+          downWinFactor={marketData?.downWinFactor ?? 1337}
+          upBetsSum={marketData?.upBetsSum ?? 1337}
+          downBetsSum={marketData?.downBetsSum ?? 1337}
+          upBetsCount={marketData?.upBets.size ?? 1337}
+          downBetsCount={marketData?.downBets.size ?? 1337}
+          onPlaceBet={onPlaceBet}
+          onVote={onVote}
+        />
+      )}
     </>
   );
 };
