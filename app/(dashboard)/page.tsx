@@ -38,12 +38,12 @@ export default async function Dashboard({
   // TODO: fetch data parallel
   const createdEvents = await Promise.all(
     marketplaces.map((marketplace) =>
-      getMarketCreatedEvents(MODULE_ADDRESS_FROM_ABI, marketplace.typeArgument)
+      getMarketCreatedEvents(MODULE_ADDRESS_FROM_ABI, marketplace.typeArgument, 25)
     )
   );
   const resolvedEvents = await Promise.all(
     marketplaces.map((marketplace) =>
-      getMarketResolvedEvents(MODULE_ADDRESS_FROM_ABI, marketplace.typeArgument)
+      getMarketResolvedEvents(MODULE_ADDRESS_FROM_ABI, marketplace.typeArgument, 25)
     )
   );
   const price = await fetchPriceUSD("aptos");
@@ -55,30 +55,15 @@ export default async function Dashboard({
       })
     )
   );
+
   const totalVolumeApt = allMarketplaces
-    .map((marketplace) => marketplace.all_time_volume)
+    .map((marketplace) => +marketplace.all_time_volume)
     .reduce((prev, cur) => prev + cur, 0);
+  console.log(totalVolumeApt)
   const totalVolume = {
     apt: totalVolumeApt / 10 ** 8,
     usd: (totalVolumeApt / 10 ** 8) * price,
   };
-
-  // TODO: sort data
-  const createdMarkets = createdEvents
-    .map((marketplaceEvents, idx) =>
-      marketplaceEvents.map((x) => ({
-        creator: x.creator,
-        assetSymbol: symbols[idx],
-        createdAtTimestamp: +x.created_at_timestamp,
-        endTimeTimestamp: +x.end_time_timestamp,
-        startTimeTimestamp: +x.start_time_timestamp,
-        marketAddress: x.market.inner,
-        marketplaceAddress: x.marketplace.inner,
-        minBet: +x.min_bet,
-      }))
-    )
-    .flat()
-    .sort((x, y) => y.createdAtTimestamp - x.createdAtTimestamp);
 
   const resolvedMarkets = resolvedEvents
     .map((marketplaceEvents, idx) =>
@@ -101,6 +86,26 @@ export default async function Dashboard({
     .flat()
     .sort((x, y) => y.endTimeTimestamp - x.endTimeTimestamp);
 
+  const createdMarkets = createdEvents
+    .map((marketplaceEvents, idx) =>
+      marketplaceEvents.map((x) => ({
+        creator: x.creator,
+        assetSymbol: symbols[idx],
+        createdAtTimestamp: +x.created_at_timestamp,
+        endTimeTimestamp: +x.end_time_timestamp,
+        startTimeTimestamp: +x.start_time_timestamp,
+        marketAddress: x.market.inner,
+        marketplaceAddress: x.marketplace.inner,
+        minBet: +x.min_bet,
+      }))
+    )
+    .flat()
+    .filter(createdMarket => !resolvedMarkets.some(resolvedMarket => resolvedMarket.marketAddress === createdMarket.marketAddress))
+    .sort((x, y) => y.createdAtTimestamp - x.createdAtTimestamp);
+
+
+  const openMarkets = allMarketplaces.reduce((prev, cur, idx) => ({ ...prev, [symbols[idx]]: cur.available_markets.length }), {}) as ({ [key in SupportedAsset]: number });
+
   return (
     <>
       <DashboardContent
@@ -108,6 +113,7 @@ export default async function Dashboard({
         latestCreatedMarkets={createdMarkets}
         latestResolvedMarkets={resolvedMarkets}
         searchParams={searchParams}
+        openMarkets={openMarkets}
       />
       <ToastContainer />
     </>
