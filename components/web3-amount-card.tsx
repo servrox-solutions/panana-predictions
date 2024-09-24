@@ -31,7 +31,7 @@ export function Web3AmountCard({
             {Object.entries(assetCounts)
               .sort((x, y) => x[0].localeCompare(y[0]))
               .map(([asset, amount]) => (
-                <div className="flex items-center gap-1">
+                <div key={asset} className="flex items-center gap-1">
                   {amount}{" "}
                   <Web3Icon
                     className="w-8 h-8"

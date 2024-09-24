@@ -17,6 +17,7 @@ import { FilterDropdown } from "./filter-dropdown";
 import { DateTime } from "luxon";
 import { marketTypes } from "@/lib/get-available-markets";
 import { Web3AmountCard } from "./web3-amount-card";
+import { useIsMounted } from "@/lib/hooks/useIsMounted";
 
 export interface DashboardContentProps {
   latestCreatedMarkets: CreatedMarket[];
@@ -36,6 +37,8 @@ export function DashboardContent({
   searchParams,
   openMarkets,
 }: DashboardContentProps) {
+  const isMounted = useIsMounted();
+
   const urlSearchParams = new URLSearchParams(
     Object.entries(searchParams).flatMap(([key, value]) =>
       value === undefined
@@ -94,7 +97,7 @@ export function DashboardContent({
             <CardHeader className="pb-2">
               <CardDescription>Total Volume (all assets)</CardDescription>
               <CardTitle className="text-4xl">
-                $ {totalVolume.usd.toLocaleString()}
+                {isMounted ? `$${totalVolume.usd.toLocaleString()}` : "..."}
               </CardTitle>
             </CardHeader>
             <CardContent>
