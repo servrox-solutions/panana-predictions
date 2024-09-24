@@ -7,11 +7,13 @@ import { AutoConnectProvider } from "./auto-connect-provider";
 import { WalletProvider } from "./wallet-provider";
 
 export function ClientProvider({ children, ...props }: PropsWithChildren) {
-  WebApp.ready();
-  WebApp.expand();
-  WebApp.setHeaderColor("##ffc80a");
-  WebApp.setBackgroundColor("##ffc80a");
-  WebApp.setBottomBarColor("##ffc80a");
+  if (typeof window !== "undefined") {
+    WebApp.ready();
+    WebApp.expand();
+    WebApp.setHeaderColor("##ffc80a");
+    WebApp.setBackgroundColor("##ffc80a");
+    WebApp.setBottomBarColor("##ffc80a");
+  }
 
   return (
     <Fragment {...props}>
