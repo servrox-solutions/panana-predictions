@@ -13,7 +13,6 @@ export const WalletProvider = ({ children }: PropsWithChildren) => {
 
   return (
     <AptosWalletAdapterProvider
-      optInWallets={["Mizu Wallet", "Continue with Google"]}
       autoConnect={autoConnect}
       dappConfig={{
         network: (process.env.NEXT_PUBLIC_APP_NETWORK ?? "testnet") as Network,
