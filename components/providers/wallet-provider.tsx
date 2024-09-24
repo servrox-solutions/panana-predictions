@@ -19,8 +19,7 @@ export const WalletProvider = ({ children }: PropsWithChildren) => {
         aptosApiKey: process.env.NEXT_PUBLIC_APTOS_API_KEY,
         aptosConnect: { dappId: "f44746dc-fd46-4765-a37c-f1b61fee51fa" },
         mizuwallet: {
-          manifestURL:
-            "https://panana-predictions.xyz/mizuwallet-connect-manifest.json",
+          manifestURL: "https://panana-predictions.xyz/manifest.json",
         },
       }}
       onError={(error) => notifyError(error || "Unknown wallet error")}

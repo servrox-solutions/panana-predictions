@@ -40,14 +40,19 @@ export function TelegramTest() {
       {user ? (
         <div>
           <Button onClick={handleConnect}>Test</Button>
+          <br />
           {aptosConnectUrl && (
             <>
-              <Link href={aptosConnectUrl}>next/link</Link>
+              <Link href={aptosConnectUrl}>
+                <Button>next/link</Button>
+              </Link>
+              <br />
               <Button
                 onClick={() => (webApp as any)?.openLink(aptosConnectUrl)}
               >
                 Open link in external browser
               </Button>
+              <br />
               <Button
                 onClick={() =>
                   (webApp as any)?.openLink(aptosConnectUrl, {
@@ -59,8 +64,6 @@ export function TelegramTest() {
               </Button>
             </>
           )}
-          {JSON.stringify(webApp)}
-          {JSON.stringify(aptosConnectUrl)}
           <br />
           <h1>Welcome {user?.username}</h1>
           User data:
