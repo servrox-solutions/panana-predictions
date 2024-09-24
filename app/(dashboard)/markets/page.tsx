@@ -24,6 +24,7 @@ export default async function Markets({
     <div className="p-3 flex flex-col gap-4 pb-20">
       <div className="ml-auto flex items-center gap-2">
         <FilterDropdown
+          name="markets"
           items={Array.from(
             new Set(availableMarkets.map((market) => market.type))
           )}

@@ -48,7 +48,7 @@ export function DashboardContent({
   const router = useRouter();
 
   const [filter, setFilter] = useState<SupportedAsset[]>(
-    urlSearchParams.get("filter")?.split(",") as SupportedAsset[]
+    urlSearchParams.get("dashboard")?.split(",") as SupportedAsset[]
   );
 
   const filterNetworks: SupportedAsset[] = Array.from(
@@ -137,6 +137,7 @@ export function DashboardContent({
             </TabsList>
             <div className="ml-auto flex items-center gap-2">
               <FilterDropdown
+                name="dashboard"
                 items={filterNetworks}
                 preSelected={searchParams?.filter}
                 onFilterChange={(filter) => setFilter(filter)}

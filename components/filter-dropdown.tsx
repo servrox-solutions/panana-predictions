@@ -14,14 +14,17 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useState, useEffect } from "react";
 import { Web3Icon } from "./web3-icon";
 import { SupportedAsset } from "@/lib/types/market";
+import { useFilter } from "@/lib/atoms/useFilter";
 
 interface FilterDropdownProps {
+  name: string;
   items: SupportedAsset[];
   preSelected?: string | string[];
   onFilterChange?: (filter: SupportedAsset[]) => void;
 }
 
 export const FilterDropdown: React.FC<FilterDropdownProps> = ({
+  name,
   items,
   preSelected,
   onFilterChange,
@@ -29,13 +32,14 @@ export const FilterDropdown: React.FC<FilterDropdownProps> = ({
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const { setFilter } = useFilter(name);
 
   const [selectedFilters, setSelectedFilters] = useState<string[]>(
     Array.isArray(preSelected) ? preSelected : preSelected ? [preSelected] : []
   );
 
   useEffect(() => {
-    const filtersFromParams = searchParams.get("filter");
+    const filtersFromParams = searchParams.get(name);
     if (filtersFromParams) {
       setSelectedFilters(filtersFromParams.split(","));
     }
@@ -52,13 +56,15 @@ export const FilterDropdown: React.FC<FilterDropdownProps> = ({
     const params = new URLSearchParams(searchParams.toString());
 
     if (updatedFilters.length > 0) {
-      params.set("filter", updatedFilters.join(",")); // Set filters as a comma-separated string
+      params.set(name, updatedFilters.join(",")); // Set filters as a comma-separated string
     } else {
-      params.delete("filter"); // Remove 'filter' param if no filters selected
+      params.delete(name); // Remove 'filter' param if no filters selected
     }
 
     // Push updated URL with shallow routing to prevent full page reload
     router.push(`${pathname}?${params.toString()}`);
+
+    setFilter(updatedFilters);
 
     onFilterChange?.(updatedFilters as SupportedAsset[]);
   };
