@@ -22,12 +22,12 @@ const items: SidenavItem[] = [
   },
   ...(process.env.NODE_ENV === "development"
     ? [
-        {
-          name: "Test",
-          icon: <FlaskConical />,
-          path: "/test",
-        },
-      ]
+      {
+        name: "Test",
+        icon: <FlaskConical />,
+        path: "/test",
+      },
+    ]
     : []),
 ];
 
