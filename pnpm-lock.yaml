@@ -71,6 +71,12 @@ importers:
       '@tabler/icons-react':
         specifier: ^3.17.0
         version: 3.17.0(react@18.3.1)
+      '@telegram-apps/init-data-node':
+        specifier: ^1.0.4
+        version: 1.0.4
+      '@telegram-apps/sdk-react':
+        specifier: ^1.1.3
+        version: 1.1.3(@types/react@18.3.8)(react@18.3.1)
       '@thalalabs/surf':
         specifier: ^1.7.3
         version: 1.7.3(@aptos-labs/ts-sdk@1.28.0)(@aptos-labs/wallet-adapter-react@3.7.0(@aptos-labs/ts-sdk@1.28.0)(@mizuwallet-sdk/core@1.3.2(@aptos-labs/ts-sdk@1.28.0)(graphql-request@7.1.0(graphql@16.9.0)))(@mizuwallet-sdk/protocol@0.0.1)(@types/react@18.3.8)(@wallet-standard/core@1.0.3)(aptos@1.21.0)(react@18.3.1))(react@18.3.1)
@@ -1178,6 +1184,21 @@ packages:
 
   '@tabler/icons@3.17.0':
     resolution: {integrity: sha512-sCSfAQ0w93KSnSL7tS08n73CdIKpuHP8foeLMWgDKiZaCs8ZE//N3ytazCk651ZtruTtByI3b+ZDj7nRf+hHvA==}
+
+  '@telegram-apps/init-data-node@1.0.4':
+    resolution: {integrity: sha512-x44QyMaoaR0KWZ40ZRPF/1Z4yQaTJfpwIK9XTAIsiw3a5WxZqPE4/ceqLzT0u2TjaRM+BQHl7RoKgnDz5DmJ1A==}
+
+  '@telegram-apps/sdk-react@1.1.3':
+    resolution: {integrity: sha512-osddnacMIC4/KPvghsHQysPsomNXFQkr2K1owoMgf8MzmPQ2qZahR98xjeUlWU0JTCG+aAY9OHaPUFDNoxW/Bg==}
+    peerDependencies:
+      '@types/react': ^17.0.0 || ^18.0.0
+      react: ^17.0.0 || ^18.0.0
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+
+  '@telegram-apps/sdk@1.1.3':
+    resolution: {integrity: sha512-gvcXNttbCouDNTxjDUbO5FS/BdaHYO0ibSddQxiYitShPIDZDxGon0Eh3OSsgUIVPSQSNdXqkXaeqYgA+jeY0A==}
 
   '@thalalabs/surf@1.7.3':
     resolution: {integrity: sha512-bhZzQgVCVGiYaUwuIclseO0UXZJh6YkjfFi8iuKcpclbIfxELOJPPvDKCdsIKYN+BVTw8UeOXQvfuLJYwRszhA==}
@@ -4227,6 +4248,19 @@ snapshots:
       react: 18.3.1
 
   '@tabler/icons@3.17.0': {}
+
+  '@telegram-apps/init-data-node@1.0.4':
+    dependencies:
+      '@telegram-apps/sdk': 1.1.3
+
+  '@telegram-apps/sdk-react@1.1.3(@types/react@18.3.8)(react@18.3.1)':
+    dependencies:
+      '@telegram-apps/sdk': 1.1.3
+      react: 18.3.1
+    optionalDependencies:
+      '@types/react': 18.3.8
+
+  '@telegram-apps/sdk@1.1.3': {}
 
   '@thalalabs/surf@1.7.3(@aptos-labs/ts-sdk@1.28.0)(@aptos-labs/wallet-adapter-react@3.7.0(@aptos-labs/ts-sdk@1.28.0)(@mizuwallet-sdk/core@1.3.2(@aptos-labs/ts-sdk@1.28.0)(graphql-request@7.1.0(graphql@16.9.0)))(@mizuwallet-sdk/protocol@0.0.1)(@types/react@18.3.8)(@wallet-standard/core@1.0.3)(aptos@1.21.0)(react@18.3.1))(react@18.3.1)':
     dependencies:

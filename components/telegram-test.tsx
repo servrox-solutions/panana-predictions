@@ -3,9 +3,12 @@
 import { useWallet, WalletName } from "@aptos-labs/wallet-adapter-react";
 import { useState } from "react";
 import { Button } from "./ui/button";
-import Link from "next/link";
+import { useInitData, useLaunchParams } from "@telegram-apps/sdk-react";
 
 export function TelegramTest() {
+  const lp = useLaunchParams(true);
+  const initData = useInitData(true);
+
   const [aptosConnectUrl, setAptosConnectUrl] = useState<string | null>(null);
   const { connect } = useWallet();
 
@@ -36,7 +39,7 @@ export function TelegramTest() {
       <div>
         <Button onClick={handleConnect}>Test</Button>
         <br />
-        {aptosConnectUrl && (
+        {/* {aptosConnectUrl && (
           <>
             <Link href={aptosConnectUrl}>
               <Button>next/link</Button>
@@ -58,17 +61,26 @@ export function TelegramTest() {
               Open link inside Telegram webview
             </Button>
           </>
-        )}
+        )} */}
         <br />
-        <h1>Welcome {window.Telegram?.WebApp.initDataUnsafe.user?.username}</h1>
+        <h1>
+          Welcome {window.Telegram?.WebApp?.initDataUnsafe?.user?.username}
+        </h1>
         User data:
         <pre>
-          {JSON.stringify(window.Telegram?.WebApp.initDataUnsafe.user, null, 2)}
+          {JSON.stringify(
+            window.Telegram?.WebApp?.initDataUnsafe?.user,
+            null,
+            2
+          )}
         </pre>
-        Eniter Web App data:
+        Web App data:
         <pre>{JSON.stringify(window.Telegram?.WebApp, null, 2)}</pre>
+        useLaunchParams:
+        <pre>{JSON.stringify(lp, null, 2)}</pre>
+        useInitData:
+        <pre>{JSON.stringify(initData, null, 2)}</pre>
       </div>
-      )
     </div>
   );
 }

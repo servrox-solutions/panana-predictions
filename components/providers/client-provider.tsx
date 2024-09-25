@@ -5,8 +5,10 @@ import { ThemeProvider } from "next-themes";
 import { AutoConnectProvider } from "./auto-connect-provider";
 import { WalletProvider } from "./wallet-provider";
 
-import Script from "next/script";
+// import Script from "next/script";
 import { Telegram } from "@twa-dev/types";
+import { SDKProvider } from "@telegram-apps/sdk-react";
+import { TelegramProvider } from "./telegram-provider";
 
 declare global {
   interface Window {
@@ -23,11 +25,15 @@ export function ClientProvider({ children, ...props }: PropsWithChildren) {
         enableSystem
         disableTransitionOnChange
       >
-        <AutoConnectProvider>
-          <WalletProvider>{children}</WalletProvider>
-        </AutoConnectProvider>
+        <SDKProvider acceptCustomStyles>
+          <TelegramProvider>
+            <AutoConnectProvider>
+              <WalletProvider>{children}</WalletProvider>
+            </AutoConnectProvider>
+          </TelegramProvider>
+        </SDKProvider>
       </ThemeProvider>
-      <Script
+      {/* <Script
         id="TelegramWebApp"
         src="./telegram-web-apps.js"
         onReady={() => {
@@ -37,7 +43,7 @@ export function ClientProvider({ children, ...props }: PropsWithChildren) {
           window.Telegram?.WebApp.setBackgroundColor("#ffc80a");
           window.Telegram?.WebApp.setBottomBarColor("#ffc80a");
         }}
-      />
+      /> */}
     </Fragment>
   );
 }
