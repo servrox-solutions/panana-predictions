@@ -109,11 +109,11 @@ body {
   }
 }
 
-.pb-safe-combined {
+/* .pb-safe-combined {
   padding-bottom: calc(
     var(
       --safe-area-inset-bottom,
       env(safe-area-inset-bottom, 8px) + var(--base-pb, 0)
     )
   );
-}
+} */

@@ -27,7 +27,7 @@ export function NavigationBar() {
   const pathname = headerList.get("x-current-path");
 
   return (
-    <div className="w-full bg-white/30 backdrop-blur-lg border-t border-gray-200 dark:bg-gray-700/30 dark:border-gray-600 pt-2 [--base-pb:0.5rem] pb-safe-combined transition-all px-3">
+    <div className="w-full bg-white/30 backdrop-blur-lg border-t border-gray-200 dark:bg-gray-700/30 dark:border-gray-600 pt-2 pb-[calc(0.5rem+var(--safe-area-inset-bottom))] px-3 transition-all -mb-[--safe-area-inset-bottom]">
       <div className="grid grid-flow-col auto-cols-fr max-w-lg mx-auto font-medium">
         {items.map((item) => (
           <NavigationBarItem
