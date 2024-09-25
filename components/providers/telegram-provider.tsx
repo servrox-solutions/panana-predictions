@@ -13,10 +13,10 @@ import {
 import { Fragment, PropsWithChildren, useEffect } from "react";
 
 export function TelegramProvider({ children, ...props }: PropsWithChildren) {
-  if (process.env.NODE_ENV === "development") {
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    useTelegramMock();
-  }
+  // if (process.env.NODE_ENV === "development") {
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  useTelegramMock();
+  // }
 
   const miniApp = useMiniApp(true);
   const themeParams = useThemeParams(true);
@@ -37,7 +37,6 @@ export function TelegramProvider({ children, ...props }: PropsWithChildren) {
     miniApp.setHeaderColor("#ffc80a");
     miniApp.setBgColor("#ffc80a");
     //   miniApp.setBottomBarColor("#ffc80a");
-    console.log(miniApp);
   }, [miniApp]);
 
   useEffect(() => {

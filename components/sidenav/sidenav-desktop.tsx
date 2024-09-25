@@ -3,6 +3,7 @@ import { headers } from "next/headers";
 import { SidenavDesktopItem } from "./sidenav-desktop-item";
 import { sidenavItems } from "./sidenav-items";
 import { Logo } from "./logo";
+import { DebugSidenavDesktopItem } from "./debug-sidenav-desktop-item";
 
 export function SidenavDesktop() {
   const headerList = headers();
@@ -22,6 +23,7 @@ export function SidenavDesktop() {
             preSelected={pathname === item.path}
           />
         ))}
+        <DebugSidenavDesktopItem pathname={pathname} />
       </nav>
       <nav className="mt-auto flex flex-col items-center gap-4 px-2 sm:py-5">
         <SidenavDesktopItem

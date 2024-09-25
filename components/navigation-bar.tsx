@@ -2,7 +2,8 @@ import { SidenavItem } from "./sidenav/sidenav-items";
 import { cn } from "@/lib/utils";
 import { headers } from "next/headers";
 import { NavigationBarItem } from "./navigation-bar-item";
-import { Home, ChartCandlestick, FlaskConical, User } from "lucide-react";
+import { Home, ChartCandlestick, User } from "lucide-react";
+import { DebugNavigationBarItem } from "./debug-navigation-bar-item";
 
 const items: SidenavItem[] = [
   {
@@ -20,15 +21,6 @@ const items: SidenavItem[] = [
     icon: <User />,
     path: "/profile",
   },
-  ...(process.env.NODE_ENV === "development"
-    ? [
-      {
-        name: "Test",
-        icon: <FlaskConical />,
-        path: "/test",
-      },
-    ]
-    : []),
 ];
 
 export function NavigationBar() {
@@ -56,6 +48,7 @@ export function NavigationBar() {
             preSelected={pathname === item.path}
           />
         ))}
+        <DebugNavigationBarItem pathname={pathname} />
       </div>
     </div>
   );

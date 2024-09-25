@@ -1,11 +1,11 @@
 import { PanelLeft } from "lucide-react";
 import { headers } from "next/headers";
-
 import { Sheet, SheetContent, SheetTrigger } from "../ui/sheet";
 import { Button } from "../ui/button";
 import { SidenavMobileItem } from "./sidenav-mobile-item";
 import { sidenavItems } from "./sidenav-items";
 import { Logo } from "./logo";
+import { DebugSidenavMobileItem } from "./debug-sidenav-mobile-item";
 
 export function SidenavMobile() {
   const headerList = headers();
@@ -32,6 +32,7 @@ export function SidenavMobile() {
               preSelected={pathname === item.path}
             />
           ))}
+          <DebugSidenavMobileItem pathname={pathname} />
         </nav>
       </SheetContent>
     </Sheet>
