@@ -81,7 +81,7 @@ export function ResolvedMarketsTable({
       <TableBody>
         {latestResolvedMarkets.map((latestResolvedMarket, idx) => (
           <TableRow
-            className={`hover:bg-initial ${filter.length === 0 ||
+            className={`hover:bg-gray-500 hover:bg-opacity-50 ${filter.length === 0 ||
               filter.includes(latestResolvedMarket.assetSymbol)
               ? ""
               : "hidden"

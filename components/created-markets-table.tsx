@@ -72,12 +72,11 @@ export function CreatedMarketsTable({
       <TableBody>
         {latestCreatedMarkets.map((latestCreatedMarket, idx) => (
           <TableRow
-            className={`hover:bg-initial ${
-              filter.length === 0 ||
-              filter.includes(latestCreatedMarket.assetSymbol)
+            className={`hover:bg-gray-500 hover:bg-opacity-50 ${filter.length === 0 ||
+                filter.includes(latestCreatedMarket.assetSymbol)
                 ? ""
                 : "hidden"
-            }`}
+              }`}
             key={latestCreatedMarket.marketAddress}
           >
             <TableCell className="hidden sm:table-cell">
