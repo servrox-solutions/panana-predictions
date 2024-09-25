@@ -2,7 +2,6 @@ import { ModeToggle } from "./mode-toggle";
 import { WalletSelector } from "./wallet-selector";
 import EmojiCanvas from "./emoji-canvas";
 import { Logo } from "./sidenav/logo";
-import { WalletReconnect } from "./wallet-reconnect";
 
 export function Header() {
   return (
