@@ -110,5 +110,10 @@ body {
 }
 
 .pb-safe-combined {
-  padding-bottom: calc(env(safe-area-inset-bottom, 0) + 8px);
+  padding-bottom: calc(
+    var(
+      --safe-area-inset-bottom,
+      env(safe-area-inset-bottom, 8px) + var(--base-pb, 0)
+    )
+  );
 }
