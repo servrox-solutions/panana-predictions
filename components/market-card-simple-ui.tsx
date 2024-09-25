@@ -108,9 +108,8 @@ export const MarketCardSimpleUi: React.FC<MarketCardSimpleUiProps> = ({
           </div>
 
           <div className="text-center">
-            <p className="font-bold text-base">{`${
-              downBetsCount + upBetsCount
-            } Bets`}</p>
+            <p className="font-bold text-base">{`${downBetsCount + upBetsCount
+              } Bets`}</p>
             <p className="text-sm">{downBetsSum + upBetsSum} APT</p>
           </div>
 
@@ -126,7 +125,7 @@ export const MarketCardSimpleUi: React.FC<MarketCardSimpleUiProps> = ({
         <div className="flex items-center justify-between">
           <div className="flex-1">
             <Button
-              className="group w-full font-semibold bg-green-600/70  hover:bg-green-500 text-white relative"
+              className="group w-full font-semibold bg-gradient-to-r from-positive-1 to-positive-2 transition-all hover:to-green-500 text-white relative"
               onClick={() => setBet("up")}
             >
               <span className="z-10">Bet Up</span>
@@ -148,7 +147,7 @@ export const MarketCardSimpleUi: React.FC<MarketCardSimpleUiProps> = ({
 
           <div className="flex-1">
             <Button
-              className={`group w-full font-semibold bg-red-600/70  hover:bg-red-500 text-white relative`}
+              className={`group w-full font-semibold bg-gradient-to-r from-negative-1 to-negative-2 transition-all hover:to-red-500 text-white relative`}
               onClick={() => setBet("down")}
             >
               <span className="z-10">Bet Down</span>
@@ -179,8 +178,8 @@ export const MarketCardSimpleUi: React.FC<MarketCardSimpleUiProps> = ({
             type="submit"
             className={
               bet === "up"
-                ? "w-full font-semibold bg-green-600/70  hover:bg-green-500 text-white relative"
-                : "w-full font-semibold bg-red-600/70  hover:bg-red-500 text-white relative"
+                ? "w-full font-semibold bg-gradient-to-r from-positive-1 to-positive-2 transition-all hover:to-green-500 text-white relative"
+                : "w-full font-semibold bg-gradient-to-r from-negative-1 to-negative-2 transition-all hover:to-red-500 text-white relative"
             }
             onClick={() => onPlaceBet(bet === "up", amount)}
           >

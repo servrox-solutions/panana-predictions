@@ -18,10 +18,6 @@ export default async function Profile({
 }: {
   params: { address: string };
 }) {
-  if (!isValidAddress(params.address)) {
-    return <>Please Login First</>;
-  }
-
   const balance = await getAccountBalance(params.address);
   const totalTransactions = await getTotalTransactionCount(params.address);
   const res = await getLatestNAccountTransactions(
@@ -72,8 +68,7 @@ export default async function Profile({
     const asset = extractAsset(t.payload.type_arguments[0]);
     createdMarkets[asset]++;
   });
-  // res.map(x => x)
-  // const filteredTransactions = res.filter(x => x.)
+
 
   return (
     <div className="flex justify-center items-center pb-16 h-full">

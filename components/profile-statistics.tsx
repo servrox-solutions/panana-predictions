@@ -18,6 +18,7 @@ export default function Statistics(props: StatisticsProps) {
   const { createdMarkets, placedBetsAmount, totalBettingAmount, totalVotes } =
     props;
 
+
   return (
     <div className="grid grid-cols-2 gap-4 text-white">
       <Web3AmountCard

@@ -62,7 +62,7 @@ export const FilterDropdown: React.FC<FilterDropdownProps> = ({
     }
 
     // Push updated URL with shallow routing to prevent full page reload
-    router.push(`${pathname}?${params.toString()}`);
+    router.push(`${pathname}?${params.toString()}`, { scroll: false });
 
     setFilter(updatedFilters);
 

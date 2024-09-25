@@ -44,8 +44,8 @@ export function DashboardContent({
       value === undefined
         ? []
         : Array.isArray(value)
-        ? value.map((v) => [key, v])
-        : [[key, value]]
+          ? value.map((v) => [key, v])
+          : [[key, value]]
     )
   );
   const pathname = usePathname();
@@ -78,7 +78,7 @@ export function DashboardContent({
     // or const query = `${'?'.repeat(search.length && 1)}${search}`;
     const query = search ? `?${search}` : "";
 
-    router.push(`${pathname}${query}`);
+    router.push(`${pathname}${query}`, { scroll: false });
   };
 
   return (
@@ -97,7 +97,7 @@ export function DashboardContent({
             <CardHeader className="pb-2">
               <CardDescription>Total Volume (all assets)</CardDescription>
               <CardTitle className="text-4xl">
-                {isMounted ? `$${totalVolume.usd.toLocaleString()}` : "..."}
+                {isMounted ? `$ ${totalVolume.usd.toLocaleString()}` : "..."}
               </CardTitle>
             </CardHeader>
             <CardContent>

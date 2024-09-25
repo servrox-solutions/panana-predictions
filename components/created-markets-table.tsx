@@ -47,6 +47,8 @@ export function CreatedMarketsTable({
 }: CreatedMarketsTableProps) {
   const isMounted = useIsMounted();
 
+  const filteredRowsLength = filter.length === 0 ? latestCreatedMarkets.length : latestCreatedMarkets.filter(latestCreatedMarket => filter.includes(latestCreatedMarket.assetSymbol)).length;
+
   return (
     <Table>
       <TableHeader>
@@ -70,14 +72,23 @@ export function CreatedMarketsTable({
         </TableRow>
       </TableHeader>
       <TableBody>
+        <TableRow className={`table-row hover:bg-gray-500 hover:bg-opacity-50 ${latestCreatedMarkets.filter(latestCreatedMarket => filter.length === 0 ? true : filter.includes(latestCreatedMarket.assetSymbol)).length === 0
+          ? ""
+          : "hidden"
+          }`}
+          key='empty table'
+        >
+          <TableCell className="table-cell text-center" colSpan={8}>
+            <span className="p-4">No Values</span>
+          </TableCell>
+        </TableRow>
         {latestCreatedMarkets.map((latestCreatedMarket, idx) => (
           <TableRow
-            className={`hover:bg-initial ${
-              filter.length === 0 ||
+            className={`hover:bg-gray-500 hover:bg-opacity-50 ${filter.length === 0 ||
               filter.includes(latestCreatedMarket.assetSymbol)
-                ? ""
-                : "hidden"
-            }`}
+              ? ""
+              : "hidden"
+              }`}
             key={latestCreatedMarket.marketAddress}
           >
             <TableCell className="hidden sm:table-cell">

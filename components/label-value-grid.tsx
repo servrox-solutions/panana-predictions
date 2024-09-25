@@ -36,8 +36,8 @@ export function DisplayValue({
       <p
         className={
           isCorrect
-            ? "text-green-700 dark:text-green-300"
-            : "text-red-600 dark:text-red-400"
+            ? "text-positive-1"
+            : "text-negative-1"
         }
       >
         {value}

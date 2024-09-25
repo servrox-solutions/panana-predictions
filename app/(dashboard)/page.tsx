@@ -134,7 +134,6 @@ export default async function Dashboard({
         searchParams={searchParams}
         openMarkets={openMarkets}
       />
-
     </>
   );
 }
