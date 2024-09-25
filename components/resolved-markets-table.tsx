@@ -79,7 +79,7 @@ export function ResolvedMarketsTable({
         </TableRow>
       </TableHeader>
       <TableBody>
-        <TableRow className={`table-row hover:bg-gray-500 hover:bg-opacity-50 ${latestResolvedMarkets.filter(latestResolvedMarket => filter.length === 0 ? true : filter.includes(latestResolvedMarket.assetSymbol)).length === 0
+        <TableRow className={`table-row hover:bg-initial hover:sm:bg-gray-500 hover:sm:bg-opacity-50 ${latestResolvedMarkets.filter(latestResolvedMarket => filter.length === 0 ? true : filter.includes(latestResolvedMarket.assetSymbol)).length === 0
           ? ""
           : "hidden"
           }`}
@@ -91,7 +91,7 @@ export function ResolvedMarketsTable({
         </TableRow>
         {latestResolvedMarkets.map((latestResolvedMarket, idx) => (
           <TableRow
-            className={`hover:bg-gray-500 hover:bg-opacity-50 ${filter.length === 0 ||
+            className={`hover:bg-initial hover:sm:bg-gray-500 hover:sm:bg-opacity-50 ${filter.length === 0 ||
               filter.includes(latestResolvedMarket.assetSymbol)
               ? ""
               : "hidden"

@@ -1,1 +1,1 @@
-export const isTelegramApp = () => typeof window !== "undefined" && (window?.Telegram?.WebApp?.initData || window?.Telegram?.WebApp?.initDataUnsafe);
+export const isTelegramApp = () => false;  // typeof window !== "undefined" && (window?.Telegram?.WebApp?.initData || window?.Telegram?.WebApp?.initDataUnsafe);
