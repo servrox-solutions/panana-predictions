@@ -1,1 +1,1 @@
-export const isTelegramApp = () => !!(window.Telegram as any)?.WebView?.isIframe;
+export const isTelegramApp = () => navigator.userAgent.includes('Telegram');
