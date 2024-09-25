@@ -94,7 +94,9 @@ export function WalletSelector() {
     <>
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogTrigger asChild>
-          <Button>Connect a Wallet</Button>
+          <Button className="bg-gradient-to-r from-[#321575] via-[#8D0B93] to-[#9c0f85] text-[#e6c8ff]">
+            Connect a Wallet
+          </Button>
         </DialogTrigger>
 
         <ConnectWalletDialog close={closeDialog} />
