@@ -1,10 +1,7 @@
 import type { Config } from "tailwindcss";
-const {
-  default: flattenColorPalette,
-} = require("tailwindcss/lib/util/flattenColorPalette");
 
 const config: Config = {
-  darkMode: ["class"],
+  darkMode: "selector",
   content: [
     "./pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./components/**/*.{js,ts,jsx,tsx,mdx}",
@@ -12,6 +9,18 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      height: {
+        viewportStable: "var(--tg-viewport-stable-height)",
+        viewport: "var(--tg-viewport-height)",
+      },
+      minHeight: {
+        viewportStable: "var(--tg-viewport-stable-height)",
+        viewport: "var(--tg-viewport-height)",
+      },
+      maxHeight: {
+        viewportStable: "var(--tg-viewport-stable-height)",
+        viewport: "var(--tg-viewport-height)",
+      },
       colors: {
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
@@ -62,9 +71,7 @@ const config: Config = {
       },
     },
   },
-  plugins: [
-    require("tailwindcss-animate")
-  ],
+  plugins: [require("tailwindcss-animate")],
 };
 
 export default config;

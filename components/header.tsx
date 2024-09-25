@@ -6,7 +6,7 @@ import { WalletReconnect } from "./wallet-reconnect";
 
 export function Header() {
   return (
-    <header className="top-0 z-30 flex h-14 w-full items-center gap-4 border-b sticky backdrop-blur-xl px-4 sm:border-0 py-8">
+    <header className="flex w-full items-center gap-4 backdrop-blur-lg px-3 py-3 border-b border-gray-200 dark:border-gray-600 sm:border-0 dark:bg-gray-700/30 bg-white/30 sm:bg-transparent sm:dark:bg-transparent">
       <link
         rel="icon"
         // href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><style>text { filter: invert(1) grayscale(100%); } @media (prefers-color-scheme: dark) { text { filter: invert(0) grayscale(100%); } }</style><text y=%22.9em%22 font-size=%2290%22>🍌</text></svg>"
@@ -46,7 +46,7 @@ export function Header() {
       </div>
 
       <ModeToggle className="hidden sm:flex" />
-      <WalletReconnect className="hidden sm:flex" />
+      {/* <WalletReconnect className="hidden sm:flex" /> */}
       <WalletSelector />
       {/* <DropdownMenu>
         <DropdownMenuTrigger asChild>

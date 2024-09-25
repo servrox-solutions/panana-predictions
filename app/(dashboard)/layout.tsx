@@ -8,14 +8,14 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex flex-col min-h-screen w-full lg:bg-[url('/bg-light.jpg')] lg:dark:bg-[url('/bg-dark.jpg')] bg-[url('/bg-light-mobile.jpg')] dark:bg-[url('/bg-dark-mobile.jpg')] bg-no-repeat bg-cover bg-top">
+    <div className="flex flex-col min-h-viewportStable max-h-viewportStable min-w-full lg:bg-[url('/bg-light.jpg')] lg:dark:bg-[url('/bg-dark.jpg')] bg-[url('/bg-light-mobile.jpg')] dark:bg-[url('/bg-dark-mobile.jpg')] bg-no-repeat bg-cover bg-top">
       <SidenavDesktop />
-      <div className="flex flex-col flex-shrink-0 sm:pl-14 max-h-screen">
+      <div className="flex flex-col sm:pl-14 min-h-viewportStable max-h-viewportStable">
         <Header />
-        <main className="overflow-auto flex-shrink-0 max-h-[calc(100vh-130px)] min-h-[calc(100vh-130px)] sm:max-h-[calc(100vh-65px)] sm:min-h-[calc(100vh-65px)] sm:pb-8">
-          {children}
-        </main>
-        <NavigationBar />
+        <main className="grow overflow-y-auto sm:pb-9">{children}</main>
+        <div className="sm:hidden block">
+          <NavigationBar />
+        </div>
       </div>
     </div>
   );

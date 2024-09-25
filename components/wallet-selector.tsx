@@ -42,7 +42,7 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "./ui/collapsible";
-import { isTelegramApp } from '@/lib/telegram';
+import { isTelegramApp } from "@/lib/telegram";
 
 export function WalletSelector() {
   const { account, connected, disconnect, wallet } = useWallet();
@@ -117,7 +117,7 @@ function ConnectWalletDialog({ close }: ConnectWalletDialogProps) {
 
   return (
     <DialogContent
-      className="max-h-screen overflow-auto backdrop-blur-md"
+      className="max-h-screen overflow-auto backdrop-blur-md w-[calc(100%-1.5rem)]"
       aria-describedby="Connect Wallet Dialog"
     >
       <AboutAptosConnect renderEducationScreen={renderEducationScreen}>
@@ -164,15 +164,25 @@ function ConnectWalletDialog({ close }: ConnectWalletDialogProps) {
         ) : (
           <DialogHeader className="flex flex-col items-center">
             <DialogTitle className="flex flex-col text-center leading-snug">
-              <span>{isTelegramApp() ? 'Connect a Telegram Wallet' : 'Connect a Wallet'}</span>
-              {isTelegramApp() && <span className="text-sm font-normal">Telegram currently only supports Mizu Wallet</span>}
+              <span>
+                {isTelegramApp()
+                  ? "Connect a Telegram Wallet"
+                  : "Connect a Wallet"}
+              </span>
+              {isTelegramApp() && (
+                <span className="text-sm font-normal">
+                  Telegram currently only supports Mizu Wallet
+                </span>
+              )}
             </DialogTitle>
           </DialogHeader>
         )}
         <div className="flex flex-col gap-3 pt-3">
-          {availableWallets.filter(x => isTelegramApp() ? x.name === "Mizu Wallet" : true).map((wallet) => (
-            <WalletRow key={wallet.name} wallet={wallet} onConnect={close} />
-          ))}
+          {availableWallets
+            .filter((x) => (isTelegramApp() ? x.name === "Mizu Wallet" : true))
+            .map((wallet) => (
+              <WalletRow key={wallet.name} wallet={wallet} onConnect={close} />
+            ))}
           {!isTelegramApp() && !!installableWallets.length && (
             <Collapsible className="flex flex-col gap-3">
               <CollapsibleTrigger asChild>
