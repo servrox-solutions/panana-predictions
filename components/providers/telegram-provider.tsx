@@ -5,6 +5,7 @@ import {
   bindMiniAppCSSVars,
   bindThemeParamsCSSVars,
   bindViewportCSSVars,
+  retrieveLaunchParams,
   useLaunchParams,
   useMiniApp,
   useThemeParams,
@@ -13,10 +14,7 @@ import {
 import { Fragment, PropsWithChildren, useEffect } from "react";
 
 export function TelegramProvider({ children, ...props }: PropsWithChildren) {
-  // if (process.env.NODE_ENV === "development") {
-  // eslint-disable-next-line react-hooks/rules-of-hooks
   useTelegramMock();
-  // }
 
   const miniApp = useMiniApp(true);
   const themeParams = useThemeParams(true);
@@ -63,6 +61,16 @@ export function TelegramProvider({ children, ...props }: PropsWithChildren) {
 
   useEffect(() => {
     if (!initDataRaw) return;
+
+    let isMocked = false;
+    try {
+      const launchParams = retrieveLaunchParams();
+      isMocked = launchParams.platform === "mock";
+    } catch (error) {
+      isMocked = true;
+    }
+
+    if (isMocked) return;
 
     fetch("/api/telegram/auth", {
       method: "POST",
