@@ -29,7 +29,7 @@ export function ClientProvider({ children, ...props }: PropsWithChildren) {
       </ThemeProvider>
       <Script
         id="TelegramWebApp"
-        src="./telegram-web-apps.js"
+        src="/telegram-web-apps.js"
         onReady={() => {
           window.Telegram?.WebApp.ready();
           window.Telegram?.WebApp.expand();

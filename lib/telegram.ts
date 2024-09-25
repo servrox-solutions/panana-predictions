@@ -1,0 +1,1 @@
+export const isTelegramApp = () => !!(window.Telegram as any)?.WebView?.isIframe;
