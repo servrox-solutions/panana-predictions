@@ -72,19 +72,22 @@ export function TelegramProvider({ children, ...props }: PropsWithChildren) {
 
     if (isMocked) return;
 
-    fetch("/api/telegram/auth", {
-      method: "POST",
-      headers: {
-        Authorization: `tma ${initDataRaw}`,
-      },
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        console.log(data);
-      })
-      .catch((error) => {
-        console.error(error);
-      });
+    const authCheck = async () => {
+      try {
+        const response = await fetch("/api/telegram/auth", {
+          method: "POST",
+          headers: {
+            Authorization: `tma ${initDataRaw}`,
+          },
+        });
+        if (!response.ok) {
+          miniApp?.close();
+        }
+      } catch {
+        miniApp?.close();
+      }
+    };
+    authCheck();
   }, [initDataRaw]);
 
   return <Fragment {...props}>{children}</Fragment>;
