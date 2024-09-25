@@ -81,21 +81,19 @@ export function ResolvedMarketsTable({
       <TableBody>
         {latestResolvedMarkets.map((latestResolvedMarket, idx) => (
           <TableRow
-            className={`hover:bg-initial ${
-              filter.length === 0 ||
+            className={`hover:bg-initial ${filter.length === 0 ||
               filter.includes(latestResolvedMarket.assetSymbol)
-                ? ""
-                : "hidden"
-            }`}
+              ? ""
+              : "hidden"
+              }`}
             key={latestResolvedMarket.marketAddress}
           >
             <TableCell className="hidden sm:table-cell">
               <div
-                className={`h-full ${
-                  idx !== 3 && idx !== 5
-                    ? `text-green-600/90 hover:text-green-500/10`
-                    : "text-red-600/90  hover:text-red-500/10"
-                }`}
+                className={`h-full ${idx !== 3 && idx !== 5
+                  ? `text-positive-1`
+                  : "text-negative-1"
+                  }`}
               >
                 <div className="text-md text-muted-foreground flex justify-center align-center gap-2">
                   <Web3Icon
@@ -110,9 +108,9 @@ export function ResolvedMarketsTable({
                 <DollarSign className="h-4 w-4 mr-2" />
                 <div className="flex flex-col">
                   <div className="flex gap-2">
-                    <span>{latestResolvedMarket.marketCap.usd}</span>
+                    <span>{latestResolvedMarket.marketCap.usd.toFixed(2)}</span>
                     <span className="text-muted-foreground">
-                      ({latestResolvedMarket.marketCap.asset} APT)
+                      ({latestResolvedMarket.marketCap.asset.toFixed(4)} APT)
                     </span>
                   </div>
                 </div>
@@ -120,16 +118,15 @@ export function ResolvedMarketsTable({
             </TableCell>
             <TableCell className="hidden sm:table-cell">
               <div
-                className={`flex items-center w-full font-semibold ${
-                  latestResolvedMarket.startPrice <
+                className={`flex items-center w-full font-semibold ${latestResolvedMarket.startPrice <
                   latestResolvedMarket.endPrice
-                    ? "text-green-600/70 hover:text-green-500"
-                    : "text-red-600/70 hover:text-red-500"
-                } relative`}
+                  ? `text-positive-1`
+                  : "text-negative-1"
+                  } relative`}
               >
-                {latestResolvedMarket.startPrice / 10 ** 9} ${" "}
+                {(latestResolvedMarket.startPrice / 10 ** 9).toFixed(3)} ${" "}
                 {latestResolvedMarket.startPrice ===
-                latestResolvedMarket.endPrice ? (
+                  latestResolvedMarket.endPrice ? (
                   <ChevronsLeftRight />
                 ) : latestResolvedMarket.startPrice <
                   latestResolvedMarket.endPrice ? (
@@ -137,7 +134,7 @@ export function ResolvedMarketsTable({
                 ) : (
                   <ChevronsDown />
                 )}{" "}
-                {latestResolvedMarket.endPrice / 10 ** 9} $
+                {(latestResolvedMarket.endPrice / 10 ** 9).toFixed(3)} $
               </div>
             </TableCell>
             <TableCell className="hidden lg:table-cell">
@@ -239,17 +236,17 @@ export function ResolvedMarketsTable({
                     <span className="text-neutral-700 dark:text-neutral-300 text-xs">
                       Final Price Pool
                     </span>
-                    <div className="flex w-full">
-                      <span>{latestResolvedMarket.marketCap.usd}</span>&nbsp;
+                    <div className="flex flex-col w-full">
+                      <span>{latestResolvedMarket.marketCap.usd.toFixed(2)}</span>
                       <span className="text-muted-foreground">
-                        ({latestResolvedMarket.marketCap.asset} APT)
+                        ({latestResolvedMarket.marketCap.asset.toFixed(2)} APT)
                       </span>
                     </div>
                   </div>
                 </div>
                 <div className="flex items-center">
                   {latestResolvedMarket.startPrice ===
-                  latestResolvedMarket.endPrice ? (
+                    latestResolvedMarket.endPrice ? (
                     <ChevronsLeftRight className="w-4 h-4 mr-4" />
                   ) : latestResolvedMarket.startPrice <
                     latestResolvedMarket.endPrice ? (
@@ -263,12 +260,11 @@ export function ResolvedMarketsTable({
                     </span>
                     <div className="flex">
                       <div
-                        className={`flex flex-col items-center w-full font-semibold relative ${
-                          latestResolvedMarket.startPrice <
+                        className={`flex flex-col items-center w-full font-semibold relative ${latestResolvedMarket.startPrice <
                           latestResolvedMarket.endPrice
-                            ? "text-green-600/70 hover:text-green-500"
-                            : "text-red-600/70 hover:text-red-500"
-                        }`}
+                          ? "text-positive-1"
+                          : "text-negative-1"
+                          }`}
                       >
                         <div>
                           {(latestResolvedMarket.startPrice / 10 ** 9).toFixed(

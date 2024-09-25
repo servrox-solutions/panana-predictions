@@ -43,6 +43,15 @@ body {
     --primary: 269 61% 21%;
     --primary-foreground: 269 1.22% 92.1%;
 
+    --positive-1: 174 100% 32%;
+    --positive-2: 172 100% 30%;
+
+    --negative-1: 332 55% 46%;
+    --negative-2: 334 91% 49%;
+
+    --negative: 269 61% 21%;
+    --negative-foreground: 269 1.22% 92.1%;
+
     --secondary: 269 3.05% 96.05%;
     --secondary-foreground: 269 4.66% 12.1%;
 

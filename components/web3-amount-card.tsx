@@ -27,7 +27,7 @@ export function Web3AmountCard({
       <CardHeader className="pb-2">
         <CardDescription>{title}</CardDescription>
         <CardTitle className="text-4xl">
-          <div className="flex gap-6 flex-wrap">
+          <div className="grid grid-cols-3 gap-4 2xl:grid-cols-5">
             {Object.entries(assetCounts)
               .sort((x, y) => x[0].localeCompare(y[0]))
               .map(([asset, amount]) => (

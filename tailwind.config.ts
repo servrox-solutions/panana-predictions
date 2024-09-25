@@ -15,6 +15,14 @@ const config: Config = {
       colors: {
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
+        "positive-1": "hsl(var(--positive-1))",
+        "positive-2": "hsl(var(--positive-2))",
+        "negative-1": "hsl(var(--negative-1))",
+        "negative-2": "hsl(var(--negative-2))",
+        negative: {
+          DEFAULT: "hsl(var(--negative))",
+          foreground: "hsl(var(--negative-foreground))",
+        },
         card: {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
@@ -61,7 +69,9 @@ const config: Config = {
       },
     },
   },
-  plugins: [require("tailwindcss-animate")],
+  plugins: [
+    require("tailwindcss-animate")
+  ],
 };
 
 export default config;
