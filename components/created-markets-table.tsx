@@ -72,7 +72,7 @@ export function CreatedMarketsTable({
         </TableRow>
       </TableHeader>
       <TableBody>
-        <TableRow className={`table-row hover:bg-gray-500 hover:bg-opacity-50 ${latestCreatedMarkets.filter(latestCreatedMarket => filter.length === 0 ? true : filter.includes(latestCreatedMarket.assetSymbol)).length === 0
+        <TableRow className={`table-row hover:sm:bg-gray-500 hover:sm:bg-opacity-50 ${latestCreatedMarkets.filter(latestCreatedMarket => filter.length === 0 ? true : filter.includes(latestCreatedMarket.assetSymbol)).length === 0
           ? ""
           : "hidden"
           }`}
@@ -84,7 +84,7 @@ export function CreatedMarketsTable({
         </TableRow>
         {latestCreatedMarkets.map((latestCreatedMarket, idx) => (
           <TableRow
-            className={`hover:bg-gray-500 hover:bg-opacity-50 ${filter.length === 0 ||
+            className={`hover:bg-initial hover:sm:bg-gray-500 hover:sm:bg-opacity-50 ${filter.length === 0 ||
               filter.includes(latestCreatedMarket.assetSymbol)
               ? ""
               : "hidden"

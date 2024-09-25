@@ -1,3 +1,4 @@
+import LoadingSpinner from '@/components/loadingspinner';
 import { ModeToggle } from "@/components/mode-toggle";
 import ProfileCard from "@/components/profile-card";
 import Statistics from "@/components/profile-statistics";
@@ -68,7 +69,6 @@ export default async function Profile({
     const asset = extractAsset(t.payload.type_arguments[0]);
     createdMarkets[asset]++;
   });
-
 
   return (
     <div className="flex justify-center items-center pb-16 h-full">

@@ -18,7 +18,7 @@ export default async function Markets({
   let availableMarkets = await getAvailableMarkets(marketplaces);
 
   return (
-    <div className="p-3 flex flex-col gap-4 pb-20">
+    <div className="p-3 flex flex-col gap-4">
       <div className="flex items-center justify-between">
         <MarketsSearch />
 
