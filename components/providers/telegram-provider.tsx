@@ -22,6 +22,13 @@ export function TelegramProvider({ children, ...props }: PropsWithChildren) {
   const themeParams = useThemeParams(true);
   const viewport = useViewport(true);
   const initDataRaw = useLaunchParams(true)?.initDataRaw;
+  const debug = useLaunchParams(true)?.startParam === "debug";
+
+  useEffect(() => {
+    if (debug) {
+      import("eruda").then((lib) => lib.default.init());
+    }
+  }, [debug]);
 
   useEffect(() => {
     if (!miniApp) return;

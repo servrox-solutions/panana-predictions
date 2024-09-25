@@ -171,6 +171,9 @@ importers:
       dotenv:
         specifier: ^16.4.5
         version: 16.4.5
+      eruda:
+        specifier: ^3.3.0
+        version: 3.3.0
       eslint:
         specifier: ^9.11.0
         version: 9.11.0(jiti@1.21.6)
@@ -1693,6 +1696,9 @@ packages:
   enhanced-resolve@5.17.1:
     resolution: {integrity: sha512-LMHl3dXhTcfv8gM4kEzIUeTQ+7fpdA0l2tUf34BddXPkz2A5xJ5L/Pchd5BL6rdccM9QGvu0sWZzK1Z1t4wwyg==}
     engines: {node: '>=10.13.0'}
+
+  eruda@3.3.0:
+    resolution: {integrity: sha512-WsAEUIa9SNgLqaROMqnSvNeq6bySpjiG2ZQJYYGZw6VHmJ3zBBPCYyZDz0Dmymm9azh8TalkY2pEX2C2PiHIjw==}
 
   es-abstract@1.23.3:
     resolution: {integrity: sha512-e+HfNH61Bj1X9/jLc5v1owaLYuHdeHHSQlkhCBiTK8rBvKaULl/beGMxwrMXjpYrv4pz22BlY570vVePA2ho4A==}
@@ -4838,6 +4844,8 @@ snapshots:
     dependencies:
       graceful-fs: 4.2.11
       tapable: 2.2.1
+
+  eruda@3.3.0: {}
 
   es-abstract@1.23.3:
     dependencies:
