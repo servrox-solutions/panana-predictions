@@ -79,6 +79,16 @@ export function ResolvedMarketsTable({
         </TableRow>
       </TableHeader>
       <TableBody>
+        <TableRow className={`table-row hover:bg-gray-500 hover:bg-opacity-50 ${latestResolvedMarkets.filter(latestResolvedMarket => filter.length === 0 ? true : filter.includes(latestResolvedMarket.assetSymbol)).length === 0
+          ? ""
+          : "hidden"
+          }`}
+          key='empty table'
+        >
+          <TableCell className="table-cell text-center" colSpan={8}>
+            <span className="p-4">No Values</span>
+          </TableCell>
+        </TableRow>
         {latestResolvedMarkets.map((latestResolvedMarket, idx) => (
           <TableRow
             className={`hover:bg-gray-500 hover:bg-opacity-50 ${filter.length === 0 ||
