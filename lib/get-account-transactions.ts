@@ -180,7 +180,7 @@ export const getUnlimitedAccountTransactions = async (
       accountAddress,
       options: {
         offset: fromOffset + idx * maxLimit,
-        limit: amount - (idx * maxLimit) >= maxLimit ? maxLimit : amount % maxLimit,
+        limit: (amount - (idx * maxLimit)) >= maxLimit ? maxLimit : amount % maxLimit,
       }
     }) as Promise<PlainTransaction[]>
   });
@@ -202,5 +202,6 @@ export const getLatestNAccountTransactions = async (
     accountTransactionNumber = await getTotalTransactionCount(accountAddress);
   }
   
-  return await getUnlimitedAccountTransactions(accountAddress, accountTransactionNumber - maxTransactions, maxTransactions);
+  const fromOffset = accountTransactionNumber - maxTransactions;
+  return await getUnlimitedAccountTransactions(accountAddress, fromOffset >= 0 ? fromOffset : 0, maxTransactions);
 };
