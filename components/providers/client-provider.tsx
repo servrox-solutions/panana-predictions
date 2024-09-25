@@ -10,7 +10,7 @@ import { Telegram } from "@twa-dev/types";
 
 declare global {
   interface Window {
-    Telegram: Telegram;
+    Telegram: Telegram | undefined;
   }
 }
 
@@ -31,11 +31,11 @@ export function ClientProvider({ children, ...props }: PropsWithChildren) {
         id="TelegramWebApp"
         src="./telegram-web-apps.js"
         onReady={() => {
-          window.Telegram.WebApp.ready();
-          window.Telegram.WebApp.expand();
-          window.Telegram.WebApp.setHeaderColor("#ffc80a");
-          window.Telegram.WebApp.setBackgroundColor("#ffc80a");
-          window.Telegram.WebApp.setBottomBarColor("#ffc80a");
+          window.Telegram?.WebApp.ready();
+          window.Telegram?.WebApp.expand();
+          window.Telegram?.WebApp.setHeaderColor("#ffc80a");
+          window.Telegram?.WebApp.setBackgroundColor("#ffc80a");
+          window.Telegram?.WebApp.setBottomBarColor("#ffc80a");
         }}
       />
     </Fragment>

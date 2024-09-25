@@ -47,8 +47,8 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         ref={ref}
         {...props}
         onClick={(event) => {
-          window.Telegram.WebApp.HapticFeedback.impactOccurred("heavy");
-          // window.Telegram.WebApp.HapticFeedback.selectionChanged()
+          window.Telegram?.WebApp.HapticFeedback.impactOccurred("heavy");
+          // window.Telegram?.WebApp.HapticFeedback.selectionChanged()
           props.onClick?.(event);
         }}
       />

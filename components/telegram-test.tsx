@@ -43,14 +43,14 @@ export function TelegramTest() {
             </Link>
             <br />
             <Button
-              onClick={() => window.Telegram.WebApp.openLink(aptosConnectUrl)}
+              onClick={() => window.Telegram?.WebApp.openLink(aptosConnectUrl)}
             >
               Open link in external browser
             </Button>
             <br />
             <Button
               onClick={() =>
-                window.Telegram.WebApp.openLink(aptosConnectUrl, {
+                window.Telegram?.WebApp.openLink(aptosConnectUrl, {
                   try_instant_view: true,
                 })
               }
@@ -60,13 +60,13 @@ export function TelegramTest() {
           </>
         )}
         <br />
-        <h1>Welcome {window.Telegram.WebApp.initDataUnsafe.user?.username}</h1>
+        <h1>Welcome {window.Telegram?.WebApp.initDataUnsafe.user?.username}</h1>
         User data:
         <pre>
-          {JSON.stringify(window.Telegram.WebApp.initDataUnsafe.user, null, 2)}
+          {JSON.stringify(window.Telegram?.WebApp.initDataUnsafe.user, null, 2)}
         </pre>
         Eniter Web App data:
-        <pre>{JSON.stringify(window.Telegram.WebApp, null, 2)}</pre>
+        <pre>{JSON.stringify(window.Telegram?.WebApp, null, 2)}</pre>
       </div>
       )
     </div>
