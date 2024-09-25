@@ -16,10 +16,6 @@ body {
 
 @layer base {
   :root {
-    --safe-area-inset-bottom: calc(
-      100vh - var(--tg-viewport-stable-height, 100vh)
-    );
-
     --background: linear-gradient(
       to top left,
       /* hsla(253, 61%, 21%, 0.525),
@@ -107,8 +103,5 @@ body {
 }
 
 .pb-safe-combined {
-  padding-bottom: calc(
-    var(--base-pb, 0) + env(safe-area-inset-bottom, 0) +
-      var(--safe-area-inset-bottom, 0)
-  );
+  padding-bottom: calc(env(safe-area-inset-bottom, 0) + 8px);
 }
