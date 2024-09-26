@@ -10,6 +10,8 @@ import { useFilterStore } from "@/lib/atoms/useFilterStore";
 import { useMarketData } from "@/lib/hooks/useMarketData";
 import { useMarketDataStore } from "@/lib/atoms/useMarketDataStore";
 import { cn } from "@/lib/utils";
+import { useWallet } from '@aptos-labs/wallet-adapter-react';
+import { toast } from 'react-toastify';
 
 interface MarketCardProps {
   availableMarket: AvailableMarket;
@@ -26,24 +28,33 @@ export const MarketCard: React.FC<MarketCardProps> = ({
     availableMarket,
     3000,
     initialMarketData ??
-      marketDataStore?.find(
-        (market) => market.address === availableMarket.address
-      ) ??
-      filteredMarketData.find(
-        (market) => market.address === availableMarket.address
-      )
+    marketDataStore?.find(
+      (market) => market.address === availableMarket.address
+    ) ??
+    filteredMarketData.find(
+      (market) => market.address === availableMarket.address
+    )
   );
+  const { account } = useWallet();
   const { placeBet } = usePlaceBet();
   const { submitVote } = useSubmitVote();
   const { filter } = useFilterStore("markets");
 
   const onPlaceBet = async (betUp: boolean, amount: number) => {
+    if (!account?.address) {
+      toast.info('Please connect your wallet first.');
+      return;
+    }
     if (marketData) {
       await placeBet(marketData, betUp, amount);
     }
   };
 
   const onVote = async (isVoteUp: boolean) => {
+    if (!account?.address) {
+      toast.info('Please connect your wallet first.');
+      return;
+    }
     if (marketData) {
       await submitVote(marketData, isVoteUp);
     }

@@ -56,7 +56,7 @@ export const MarketCardSimpleUi: React.FC<MarketCardSimpleUiProps> = ({
   onVote,
 }) => {
   const [bet, setBet] = useState<"up" | "down" | null>(null);
-  const [amount, setAmount] = useState<number>(minBet + 1);
+  const [amount, setAmount] = useState<number>(minBet / 10 ** 8);
   const getSocialMessage = (marketId: string) => `📈 Think you can predict the next move in crypto?\nJoin our latest market and put your forecast to the test!\n\nhttps://panana-predictions.xyz/markets/${marketId}\n\nOnly on 🍌Panana Predictions!`;
 
   return (
@@ -172,8 +172,9 @@ export const MarketCardSimpleUi: React.FC<MarketCardSimpleUiProps> = ({
         <div className="flex w-full max-w-sm items-center space-x-2">
           <Input
             type="number"
+            step="0.01"
             placeholder="Amount"
-            defaultValue={minBet + 1}
+            defaultValue={minBet / 10 ** 8}
             onChange={(ev) => setAmount(+ev.target.value)}
             className="text-foreground bg-white/40 dark:bg-black/40"
           />
@@ -184,7 +185,7 @@ export const MarketCardSimpleUi: React.FC<MarketCardSimpleUiProps> = ({
                 ? "w-full font-semibold bg-gradient-to-r from-positive-1 to-positive-2 transition-all hover:to-green-500 text-white relative"
                 : "w-full font-semibold bg-gradient-to-r from-negative-1 to-negative-2 transition-all hover:to-red-500 text-white relative"
             }
-            onClick={() => onPlaceBet(bet === "up", amount)}
+            onClick={() => onPlaceBet(bet === "up", amount * 10 ** 8)}
           >
             {bet === "up" ? "Bet Up" : "Bet Down"}
             {bet === "up" ? (

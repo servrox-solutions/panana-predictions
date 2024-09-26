@@ -1,4 +1,3 @@
-import { ToastContainer } from "react-toastify";
 import { getMarketCreatedEvents } from "@/lib/get-market-created-events";
 import { getMarketResolvedEvents } from "@/lib/get-market-resolved-events";
 import { fetchPriceUSD } from "@/lib/fetch-price";

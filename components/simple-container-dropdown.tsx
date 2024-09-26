@@ -20,15 +20,15 @@ export const SimpleContainerDropdown: React.FC<SocialShareDropdownProps> = ({
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button
-          variant="outline"
+          variant="ghost"
           size="sm"
-          className="h-8 gap-1 text-sm"
+          className="h-8 gap-1 text-sm hover:bg-initial"
           disabled={containers.length === 0}
         >
           <Share2 className="h-4 w-4" />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
+      <DropdownMenuContent align="end" className="bg-popover">
         {containers.map((item, idx) => (
           <DropdownMenuItem
             className="focus:bg-initial"

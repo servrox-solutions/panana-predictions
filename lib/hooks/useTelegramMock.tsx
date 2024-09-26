@@ -25,7 +25,7 @@ export function useTelegramMock(): void {
       // We could previously mock the environment. In case we did, we should do it again. The reason
       // is the page could be reloaded, and we should apply mock again, because mocking also
       // enables modifying the window object.
-      shouldMock = !!sessionStorage.getItem("____mocked");
+      shouldMock = typeof sessionStorage !== 'undefined' && !!sessionStorage.getItem("____mocked");
     } catch (e) {
       shouldMock = true;
     }
@@ -76,7 +76,7 @@ export function useTelegramMock(): void {
         // platform: "tdesktop",
         platform: "mock",
       });
-      sessionStorage.setItem("____mocked", "1");
+      if (typeof sessionStorage !== 'undefined') sessionStorage.setItem("____mocked", "1");
 
       // console.info(
       //   "As long as the current environment was not considered as the Telegram-based one, it was mocked. Take a note, that you should not do it in production and current behavior is only specific to the development process. Environment mocking is also applied only in development mode. So, after building the application, you will not see this behavior and related warning, leading to crashing the application outside Telegram."
