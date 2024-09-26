@@ -88,7 +88,7 @@ export function WalletConnection() {
                     label: "Public key",
                     value: (
                       <DisplayValue
-                        value={account?.publicKey.toString() ?? "Not Present"}
+                        value={account?.publicKey?.toString() ?? "Not Present"}
                         isCorrect={!!account?.publicKey}
                       />
                     ),

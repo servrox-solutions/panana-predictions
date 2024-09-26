@@ -5,6 +5,7 @@ import { sidenavItems } from "./sidenav-items";
 import { Logo } from "./logo";
 import { DebugSidenavDesktopItem } from "./debug-sidenav-desktop-item";
 
+
 export function SidenavDesktop() {
   const headerList = headers();
   const pathname = headerList.get("x-current-path");
