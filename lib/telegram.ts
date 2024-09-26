@@ -1,1 +1,8 @@
-export const isTelegramApp = () => false;  // typeof window !== "undefined" && (window?.Telegram?.WebApp?.initData || window?.Telegram?.WebApp?.initDataUnsafe);
+import { retrieveLaunchParams } from '@telegram-apps/sdk-react';
+
+
+
+export const isTelegramApp = () => {
+    const launchParams = retrieveLaunchParams();
+    return launchParams.platform !== "mock";
+};

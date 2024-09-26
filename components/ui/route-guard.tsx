@@ -1,6 +1,7 @@
 'use client';
 import { useWallet } from '@aptos-labs/wallet-adapter-react';
 import { redirect, usePathname } from 'next/navigation';
+import { useRouter } from 'next/router';
 import { URLPattern } from 'next/server';
 import { useEffect } from 'react';
 
@@ -24,11 +25,12 @@ export function RouteGuard(props: RouteGuardProps) {
     const { protectedRoutes } = props;
     const pathname = usePathname();
     const { connected } = useWallet();
+    const router = useRouter();
 
     useEffect(() => {
         const protectedRoute = protectedRoutes.find(protectedRoute => new URLPattern(protectedRoute.pattern).test(`https://test.org${pathname}`));
         if (protectedRoute && !connected) {
-            redirect(protectedRoute.redirectPath);
+            router.push(protectedRoute.redirectPath);
 
         }
     }, [protectedRoutes, pathname, connected])
