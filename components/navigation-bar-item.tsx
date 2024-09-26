@@ -25,7 +25,7 @@ export function NavigationBarItem({
         "inline-flex flex-col items-center justify-center px-5 group rounded-lg",
         (!pathname && preSelected) ||
         (pathname &&
-          pathname === href &&
+          pathname.startsWith(href) &&
           "bg-gray-600 bg-opacity-30")
       )}
     >
@@ -33,14 +33,14 @@ export function NavigationBarItem({
         className: cn(
           "w-5 h-5 mt-2 text-gray-200 dark:text-gray-400",
           (!pathname && preSelected) ||
-          (pathname && pathname === href && "text-gray-50 dark:text-gray-50")
+          (pathname && pathname.startsWith(href) && "text-gray-50 dark:text-gray-50")
         ),
       })}
       <span
         className={cn(
           "text-xs mb-1 text-gray-200 dark:text-gray-400",
           (!pathname && preSelected) ||
-          (pathname && pathname === href && "text-gray-50 dark:text-gray-50")
+          (pathname && pathname.startsWith(href) && "text-gray-50 dark:text-gray-50")
         )}
       >
         {label}

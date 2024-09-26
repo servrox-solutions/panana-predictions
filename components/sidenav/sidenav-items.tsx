@@ -10,7 +10,7 @@ export const sidenavItems: SidenavItem[] = [
   {
     name: "Dashboard",
     icon: <Home />,
-    path: "/",
+    path: "/dashboard",
   },
   {
     name: "Markets",

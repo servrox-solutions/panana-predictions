@@ -30,7 +30,7 @@ export default async function Profile({
   const pananaTransactions = res.filter(
     (x) => x.success && x.payload.function.startsWith(MODULE_ADDRESS_FROM_ABI)
   );
-  console.log(JSON.stringify(pananaTransactions));
+
   const betTransactions = pananaTransactions.filter(
     (x) =>
       x.payload.function === `${MODULE_ADDRESS_FROM_ABI}::market::place_bet`

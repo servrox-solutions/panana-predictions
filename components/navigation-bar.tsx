@@ -8,7 +8,7 @@ const items: SidenavItem[] = [
   {
     name: "Dashboard",
     icon: <Home />,
-    path: "/",
+    path: "/dashboard",
   },
   {
     name: "Markets",
@@ -25,6 +25,7 @@ const items: SidenavItem[] = [
 export function NavigationBar() {
   const headerList = headers();
   const pathname = headerList.get("x-current-path");
+  console.log(pathname)
 
   return (
     <div className="w-full bg-white/30 backdrop-blur-lg border-t border-gray-200 dark:bg-gray-700/30 dark:border-gray-600 pt-2 pb-[calc(0.5rem+var(--safe-area-inset-bottom))] px-3 transition-all -mb-[--safe-area-inset-bottom]">
@@ -35,7 +36,7 @@ export function NavigationBar() {
             href={item.path}
             label={item.name}
             icon={item.icon}
-            preSelected={pathname === item.path}
+            preSelected={pathname?.startsWith(item.path) ?? false}
           />
         ))}
         <DebugNavigationBarItem pathname={pathname} />

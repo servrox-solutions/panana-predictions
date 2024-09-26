@@ -129,7 +129,7 @@ export function MarketCreateModal({
   const assets = marketplaces.map((marketplace) => ({
     label:
       marketplace.typeArgument.split("::")[
-        marketplace.typeArgument.split("::").length - 1
+      marketplace.typeArgument.split("::").length - 1
       ],
     value: marketplace.typeArgument,
   }));
@@ -212,7 +212,7 @@ export function MarketCreateModal({
 
         <ModalBody
           closeOnClickOutside={false}
-          className="backdrop-grayscale-[.5] bg-gray-800 bg-opacity-30 backdrop-blur-lg rounded-3xl p-3 shadow-lg border border-white border-opacity-20"
+          className="bg-gray-800/20 backdrop-blur-lg rounded-3xl shadow-lg border border-white border-opacity-20"
         >
           <ModalContent className="overflow-auto flex flex-col gap-4 ">
             <h4 className="text-lg md:text-2xl text-neutral-600 dark:text-neutral-100 font-bold text-center mb-4">
@@ -234,11 +234,10 @@ export function MarketCreateModal({
                               variant="outline"
                               key={asset.value}
                               id={asset.value}
-                              className={`${
-                                field.value === asset.value
-                                  ? "bg-primary text-secondary hover:bg-primary hover:text-secondary"
-                                  : ""
-                              }`}
+                              className={`${field.value === asset.value
+                                ? "bg-primary text-secondary hover:bg-primary hover:text-secondary"
+                                : ""
+                                }`}
                               onClick={() => {
                                 form.setValue("asset", asset.value);
                               }}
@@ -297,11 +296,10 @@ export function MarketCreateModal({
                               variant="outline"
                               key={i.as("seconds")}
                               id={`${i.as("seconds")}`}
-                              className={`w-full ${
-                                field.value === i.as("seconds")
-                                  ? "bg-primary text-secondary hover:bg-primary hover:text-secondary"
-                                  : ""
-                              }`}
+                              className={`w-full ${field.value === i.as("seconds")
+                                ? "bg-primary text-secondary hover:bg-primary hover:text-secondary"
+                                : ""
+                                }`}
                               onClick={() => {
                                 form.setValue(
                                   "durationSeconds",
@@ -366,8 +364,8 @@ export function MarketCreateModal({
                       <span>
                         {form.getValues("startTime")
                           ? DateTime.fromJSDate(
-                              form.getValues("startTime")!
-                            ).toLocaleString(DateTime.DATETIME_SHORT)
+                            form.getValues("startTime")!
+                          ).toLocaleString(DateTime.DATETIME_SHORT)
                           : "tbd."}
                       </span>
                     </div>
@@ -380,12 +378,12 @@ export function MarketCreateModal({
                       </span>
                       <span>
                         {form.getValues("durationSeconds") &&
-                        form.getValues("startTime")
+                          form.getValues("startTime")
                           ? DateTime.fromJSDate(form.getValues("startTime"))
-                              .plus({
-                                second: form.getValues("durationSeconds"),
-                              })
-                              ?.toLocaleString(DateTime.DATETIME_SHORT)
+                            .plus({
+                              second: form.getValues("durationSeconds"),
+                            })
+                            ?.toLocaleString(DateTime.DATETIME_SHORT)
                           : "tbd."}
                       </span>
                     </div>
