@@ -43,9 +43,11 @@ export function Modal({ children }: { children: ReactNode }) {
 export const ModalTrigger = ({
     children,
     className,
+    onClick,
 }: {
     children: ReactNode;
     className?: string;
+    onClick: (evt: MouseEvent, open: () => void) => void;
 }) => {
     const { setOpen } = useModal();
     return (
@@ -54,7 +56,7 @@ export const ModalTrigger = ({
                 "px-4 py-2 rounded-md text-black dark:text-white text-center relative overflow-hidden",
                 className
             )}
-            onClick={() => setOpen(true)}
+            onClick={(evt: any) => onClick(evt, () => setOpen(true))}
         >
             {children}
         </Button>

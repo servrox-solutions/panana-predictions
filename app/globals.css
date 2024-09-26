@@ -34,7 +34,7 @@ body {
     --muted: 269 6.1% 92.1%;
     --muted-foreground: 269 3.05% 42.1%;
 
-    --popover: 269 41.2% 92.1%;
+    --popover: 264 58% 18%;
     --popover-foreground: 269 6.1% 1.05%;
 
     --card: 269 41.2% 92.1%;
@@ -76,7 +76,7 @@ body {
     --muted: 30 20% 15%;
     --muted-foreground: 30 10% 55%;
 
-    --popover: 30 25% 10%;
+    --popover: 264 58% 10%;
     --popover-foreground: 30 10% 97%;
 
     --card: 30 25% 10%;

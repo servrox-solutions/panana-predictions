@@ -21,6 +21,7 @@ import { useWallet } from "@aptos-labs/wallet-adapter-react";
 import { MODULE_ADDRESS_FROM_ABI } from "@/lib/aptos";
 import { Input } from "./ui/input";
 import { AvailableMarketplace } from "@/lib/get-available-marketplaces";
+import { toast } from 'react-toastify';
 
 export interface MarketCreateModalProps {
   marketplaces: AvailableMarketplace[];
@@ -198,7 +199,13 @@ export function MarketCreateModal({
   return (
     <>
       <Modal>
-        <ModalTrigger className="h-8 flex justify-center ">
+        <ModalTrigger className="h-8 flex justify-center" onClick={(evt, open) => {
+          if (!account?.address) {
+            toast.info('Please connect your wallet first.');
+            return;
+          }
+          open();
+        }}>
           <div
             onClick={() => scrollIntoView()}
             className="flex items-center gap-1 text-secondary"
@@ -212,7 +219,7 @@ export function MarketCreateModal({
 
         <ModalBody
           closeOnClickOutside={false}
-          className="bg-gray-800/20 backdrop-blur-lg rounded-3xl shadow-lg border border-white border-opacity-20"
+          className="bg-popover rounded-3xl shadow-lg border border-white border-opacity-20"
         >
           <ModalContent className="overflow-auto flex flex-col gap-4 ">
             <h4 className="text-lg md:text-2xl text-neutral-600 dark:text-neutral-100 font-bold text-center mb-4">
@@ -235,7 +242,7 @@ export function MarketCreateModal({
                               key={asset.value}
                               id={asset.value}
                               className={`${field.value === asset.value
-                                ? "bg-primary text-secondary hover:bg-primary hover:text-secondary"
+                                ? "bg-primary text-secondary"
                                 : ""
                                 }`}
                               onClick={() => {

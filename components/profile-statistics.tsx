@@ -6,6 +6,7 @@ import { marketTypes } from "@/lib/get-available-markets";
 export interface StatisticsProps {
   placedBetsAmount: number;
   totalBettingAmount: number;
+  totalInteractions: number;
   createdMarkets: { [key in (typeof marketTypes)[number]]: number };
   totalVotes: {
     up: number;
@@ -15,7 +16,7 @@ export interface StatisticsProps {
 
 // components/Statistics.js
 export default function Statistics(props: StatisticsProps) {
-  const { createdMarkets, placedBetsAmount, totalBettingAmount, totalVotes } =
+  const { createdMarkets, placedBetsAmount, totalBettingAmount, totalVotes, totalInteractions } =
     props;
 
 
@@ -28,27 +29,27 @@ export default function Statistics(props: StatisticsProps) {
       />
 
       <Card className="p-4 flex flex-col">
-        <span className="text-sm text-gray-500">Created Markets</span>
-        <span className="text-lg font-semibold">10</span>
+        <span className="text-sm text-gray-500">Interactions with Markets</span>
+        <span className="text-lg font-semibold">{totalInteractions.toLocaleString()}</span>
       </Card>
       <Card className="p-4 flex flex-col">
         <span className="text-sm text-gray-500">Placed Bets</span>
-        <span className="text-lg font-semibold">{placedBetsAmount}</span>
+        <span className="text-lg font-semibold">{placedBetsAmount.toLocaleString()}</span>
       </Card>
       <Card className="p-4 flex flex-col">
         <span className="text-sm text-gray-500">Volume Placed</span>
         <span className="text-lg font-semibold">
-          {totalBettingAmount / 10 ** 8} APT
+          {(totalBettingAmount / 10 ** 8).toFixed(5)} APT
         </span>
       </Card>
       <Card className="p-4 flex flex-col">
         <span className="text-sm text-gray-500">Total Votes</span>
         <span className="text-lg font-semibold flex gap-4">
           <div className="flex gap-2 items-center">
-            <span>{totalVotes.up}</span> <ThumbsUp className="w-4 h-4" />
+            <span>{totalVotes.up.toLocaleString()}</span> <ThumbsUp className="w-4 h-4" />
           </div>
           <div className="flex gap-2 items-center">
-            <span>{totalVotes.down}</span> <ThumbsDown className="h-4 w-4" />
+            <span>{totalVotes.down.toLocaleString()}</span> <ThumbsDown className="h-4 w-4" />
           </div>
         </span>
       </Card>

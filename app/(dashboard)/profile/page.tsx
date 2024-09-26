@@ -1,4 +1,4 @@
-import { ProfileRedirect } from '@/components/profile-redirect';
+import { ProfileRedirect } from '@/components/ProfileRedirect';
 
 export default function Profile() {
     return <ProfileRedirect />

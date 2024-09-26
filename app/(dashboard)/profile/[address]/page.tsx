@@ -13,6 +13,7 @@ import {
 import { marketTypes } from "@/lib/get-available-markets";
 import { Address } from "@/lib/types/market";
 import { extractAsset } from "@/lib/utils";
+import { useWallet } from '@aptos-labs/wallet-adapter-react';
 
 export default async function Profile({
   params,
@@ -71,7 +72,7 @@ export default async function Profile({
   });
 
   return (
-    <div className="flex justify-center items-center pb-16 h-full">
+    <div className="flex justify-center items-center h-full">
       <div className="max-w-[1200px] grid grid-cols-1 flex-1 items-start gap-4 p-4 sm:px-6 sm:py-0 md:gap-8 lg:grid-cols-2">
         <div className="flex flex-col gap-4">
           <ProfileCard
@@ -96,6 +97,7 @@ export default async function Profile({
         </div>
         <Statistics
           createdMarkets={createdMarkets}
+          totalInteractions={pananaTransactions.length}
           placedBetsAmount={placedBetsAmount}
           totalBettingAmount={totalBettingAmount}
           totalVotes={totalVotes}

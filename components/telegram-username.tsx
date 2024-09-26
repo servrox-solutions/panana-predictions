@@ -1,12 +1,14 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { useInitData } from "@telegram-apps/sdk-react";
+import { useInitData, useLaunchParams } from "@telegram-apps/sdk-react";
 
 export function TelegramUsername({ className }: { className?: string }) {
   const initData = useInitData(true);
+  const launchParams = useLaunchParams(true);
+
   const username = initData?.user?.username;
   return (
-    <>{username && <div className={cn(className)}>{`@${username}`}</div>}</>
+    <>{launchParams?.platform !== 'mock' && username && <div className={cn(className)}>{`@${username}`}</div>}</>
   );
 }

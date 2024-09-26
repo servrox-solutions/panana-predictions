@@ -3,6 +3,8 @@ import { Address } from "@/lib/types/market";
 import { Avatar } from "./avatar";
 import { addEllipsis, cn } from "@/lib/utils";
 import { TelegramUsername } from "./telegram-username";
+import Link from 'next/link';
+import { getExplorerAccountLink } from '@/lib/aptos';
 
 export interface ProfileCardProps {
   address: Address;
@@ -21,7 +23,7 @@ export default function ProfileCard(props: ProfileCardProps) {
         </h3>
         <Avatar address={address} />
         <h3 className="text-lg font-semibold text-white">
-          {addEllipsis(address)}
+          <Link href={getExplorerAccountLink(address)} className="underline" target="_blank">{addEllipsis(address)}</Link>
         </h3>
       </CardHeader>
       <CardContent className="mt-4">

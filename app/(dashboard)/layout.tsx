@@ -1,6 +1,8 @@
 import { Header } from "@/components/header";
 import { NavigationBar } from "@/components/navigation-bar";
 import { SidenavDesktop } from "@/components/sidenav/sidenav-desktop";
+import { RouteGuard } from '@/components/ui/route-guard';
+import { URLPattern } from 'next/server';
 
 export default function DashboardLayout({
   children,
@@ -17,6 +19,7 @@ export default function DashboardLayout({
           <NavigationBar />
         </div>
       </div>
+      <RouteGuard protectedRoutes={[{ pattern: { pathname: '/profile/:profileId' }, redirectPath: '/profile' }]} />
     </div>
   );
 }

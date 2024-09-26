@@ -40,6 +40,15 @@ export const getExplorerObjectLink = (
   }`;
 };
 
+export const getExplorerAccountLink = (
+  objectId: string,
+  isTestnet = false
+): string => {
+  return `https://explorer.aptoslabs.com/account/${objectId}${
+    isTestnet ? "?network=testnet" : ""
+  }`;
+};
+
 export const isValidAddress = (address: string): boolean => {
   try {
     return TxnBuilderTypes.AccountAddress.isValid(address);

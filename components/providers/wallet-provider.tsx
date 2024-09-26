@@ -1,7 +1,7 @@
 "use client";
 
 import { AptosWalletAdapterProvider } from "@aptos-labs/wallet-adapter-react";
-import { PropsWithChildren } from "react";
+import { PropsWithChildren, useEffect } from "react";
 import { Network } from "@aptos-labs/ts-sdk";
 import { toast } from "react-toastify";
 import { useAutoConnect } from "./auto-connect-provider";

@@ -45,7 +45,7 @@ import {
 import { isTelegramApp } from "@/lib/telegram";
 
 export function WalletSelector() {
-  const { account, connected, disconnect, wallet } = useWallet();
+  const { account, connected, disconnect, wallet, isLoading } = useWallet();
   const notifySuccess = (message: string) => toast.success(message);
   const notifyError = (message: string) => toast.error(message);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -95,7 +95,7 @@ export function WalletSelector() {
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogTrigger asChild>
           <Button className="bg-gradient-to-r from-[#321575] via-[#8D0B93] to-[#9c0f85] text-[#e6c8ff]">
-            Connect a Wallet
+            {isLoading ? 'Connecting Wallet...' : 'Connect a Wallet'}
           </Button>
         </DialogTrigger>
 
@@ -119,7 +119,7 @@ function ConnectWalletDialog({ close }: ConnectWalletDialogProps) {
 
   return (
     <DialogContent
-      className="max-h-screen overflow-auto backdrop-blur-md w-[calc(100%-1.5rem)]"
+      className="max-h-screen overflow-auto bg-popover w-[calc(100%-1.5rem)]"
       aria-describedby="Connect Wallet Dialog"
     >
       <AboutAptosConnect renderEducationScreen={renderEducationScreen}>
