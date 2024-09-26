@@ -23,11 +23,11 @@ export interface RouteGuardProps {
 export function RouteGuard(props: RouteGuardProps) {
     const { protectedRoutes } = props;
     const pathname = usePathname();
-    const { connected, isLoading } = useWallet();
+    const { connected } = useWallet();
 
     useEffect(() => {
         const protectedRoute = protectedRoutes.find(protectedRoute => new URLPattern(protectedRoute.pattern).test(`https://test.org${pathname}`));
-        if (protectedRoute && !isLoading && !connected) {
+        if (protectedRoute && !connected) {
             redirect(protectedRoute.redirectPath);
 
         }

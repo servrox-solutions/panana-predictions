@@ -45,7 +45,7 @@ import {
 import { isTelegramApp } from "@/lib/telegram";
 
 export function WalletSelector() {
-  const { account, connected, disconnect, wallet, isLoading } = useWallet();
+  const { account, connected, disconnect, wallet } = useWallet();
   const notifySuccess = (message: string) => toast.success(message);
   const notifyError = (message: string) => toast.error(message);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -95,7 +95,8 @@ export function WalletSelector() {
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogTrigger asChild>
           <Button className="bg-gradient-to-r from-[#321575] via-[#8D0B93] to-[#9c0f85] text-[#e6c8ff]">
-            {isLoading ? 'Connecting Wallet...' : 'Connect a Wallet'}
+            {/* {isLoading ? 'Connecting Wallet...' : 'Connect a Wallet'} TODO: uncomment as soon as https://github.com/aptos-labs/aptos-wallet-adapter/issues/259 is fixed */}
+            Connect a Wallet
           </Button>
         </DialogTrigger>
 
