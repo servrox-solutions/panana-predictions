@@ -19,7 +19,7 @@ export default function DashboardLayout({
           <NavigationBar />
         </div>
       </div>
-      <RouteGuard protectedRoutes={[{ pattern: { pathname: '/profile/:profileId' }, redirectPath: '/profile' }]} />
+      {/* <RouteGuard protectedRoutes={[{ pattern: { pathname: '/profile/:profileId' }, redirectPath: '/profile' }]} /> */}
     </div>
   );
 }
