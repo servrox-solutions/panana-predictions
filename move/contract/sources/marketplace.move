@@ -19,14 +19,19 @@ module panana::marketplace {
     #[test_only]
     friend panana::marketplace_test;
 
-    const E_MARKETPLACE_ALREADY_EXISTS: u64 = 0; // Error when the marketplace already exists
-    const E_UNAUTHORIZED: u64 = 1; // Error when the user is not authorized to perform an action
+    const E_MARKETPLACE_ALREADY_EXISTS: u64 = 0;
+    // Error when the marketplace already exists
+    const E_UNAUTHORIZED: u64 = 1;
+    // Error when the user is not authorized to perform an action
     const E_MARKET_ALREADY_EXISTS: u64 = 2; // Error when an existing market tries to register again
 
     struct Marketplace<phantom C> has key {
-        available_markets: vector<address>, // contains all addresses of running and open markets
-        switchboard_feed: address, // switchboard asset feed for market resolution
-        all_time_volume: u256, // total volume that was traded on this marketplace
+        available_markets: vector<address>,
+        // contains all addresses of running and open markets
+        switchboard_feed: address,
+        // switchboard asset feed for market resolution
+        all_time_volume: u256,
+        // total volume that was traded on this marketplace
     }
 
     struct MarketplaceList has key {
@@ -47,7 +52,9 @@ module panana::marketplace {
     }
 
     #[view]
-    public fun available_marketplaces(account_address: address): simple_map::SimpleMap<address, String> acquires MarketplaceList {
+    public fun available_marketplaces(
+        account_address: address
+    ): simple_map::SimpleMap<address, String> acquires MarketplaceList {
         borrow_global<MarketplaceList>(account_address).marketplaces
     }
 
@@ -67,7 +74,11 @@ module panana::marketplace {
         vector::push_back(open_markets, market_address);
     }
 
-    public(friend) fun remove_open_market<C>(marketplace_address: address, market_address: address, volume: u128) acquires Marketplace {
+    public(friend) fun remove_open_market<C>(
+        marketplace_address: address,
+        market_address: address,
+        volume: u128
+    ) acquires Marketplace {
         let marketplace_ref = borrow_global_mut<Marketplace<C>>(marketplace_address);
         let open_markets = &mut marketplace_ref.available_markets;
         vector::remove_value(open_markets, &market_address);
@@ -120,7 +131,7 @@ module panana::marketplace {
 
 
         if (!exists<MarketplaceList>(account_address)) {
-            move_to(account, MarketplaceList{
+            move_to(account, MarketplaceList {
                 marketplaces: simple_map::new<address, String>()
             });
         };
@@ -128,7 +139,11 @@ module panana::marketplace {
         simple_map::add(marketplaces, object::object_address(&marketplace_object), utils::key<C>());
     }
 
-    public entry fun payout_marketplace<C>(account: &signer, marketplace: Object<Marketplace<C>>, recipient: address) acquires ObjectController {
+    public entry fun payout_marketplace<C>(
+        account: &signer,
+        marketplace: Object<Marketplace<C>>,
+        recipient: address
+    ) acquires ObjectController {
         let owner_addr = object::owner(marketplace);
         let account_addr = signer::address_of(account);
         assert!(account_addr == owner_addr, E_UNAUTHORIZED); // ensure only owner can create markets

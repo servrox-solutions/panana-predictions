@@ -1,5 +1,7 @@
 #[test_only]
 module panana::marketplace_test {
+    use std::vector;
+    use aptos_std::simple_map;
     #[test_only]
     use aptos_framework::account;
     #[test_only]
@@ -43,12 +45,12 @@ module panana::marketplace_test {
 
         let open_markets = marketplace::available_markets<APT>(apt_marketplace_address);
         let marketplaces = marketplace::available_marketplaces(signer::address_of(owner));
-        assert!(open_markets.is_empty(), 0);
-        assert!(marketplaces.length() == 1, 1);
+        assert!(vector::is_empty(&open_markets), 0);
+        assert!(simple_map::length(&marketplaces) == 1, 1);
 
         marketplace::create_marketplace<BTC>(owner, @0xCAFE);
         let marketplaces = marketplace::available_marketplaces(signer::address_of(owner));
-        assert!(marketplaces.length() == 2, 1);
+        assert!(simple_map::length(&marketplaces) == 2, 1);
     }
 
     #[test(aptos_framework = @aptos_framework, owner = @0x100, agg = @0xAAA111)]
@@ -86,7 +88,11 @@ module panana::marketplace_test {
         coin::destroy_mint_cap(mint);
 
         aptos_account::transfer(user, marketplace_address, 1234);
-        marketplace::payout_marketplace(owner, object::address_to_object<marketplace::Marketplace<APT>>(marketplace_address), signer::address_of(user2));
+        marketplace::payout_marketplace(
+            owner,
+            object::address_to_object<marketplace::Marketplace<APT>>(marketplace_address),
+            signer::address_of(user2)
+        );
         assert!(coin::balance<AptosCoin>(signer::address_of(user2)) == 1234, 3);
         assert!(coin::balance<AptosCoin>(marketplace_address) == 0, 4);
     }
@@ -104,7 +110,11 @@ module panana::marketplace_test {
         coin::destroy_mint_cap(mint);
 
         aptos_account::transfer(user, marketplace_address, 1234);
-        marketplace::payout_marketplace(user, object::address_to_object<marketplace::Marketplace<APT>>(marketplace_address), signer::address_of(user));
+        marketplace::payout_marketplace(
+            user,
+            object::address_to_object<marketplace::Marketplace<APT>>(marketplace_address),
+            signer::address_of(user)
+        );
     }
 
     #[test(owner = @0x100, market = @0xCAFE, market2 = @0xBAAF)]
@@ -114,9 +124,9 @@ module panana::marketplace_test {
         panana::marketplace::add_open_market<APT>(apt_marketplace_address, signer::address_of(market));
         panana::marketplace::add_open_market<APT>(apt_marketplace_address, signer::address_of(market2));
         let open_markets = marketplace::available_markets<APT>(apt_marketplace_address);
-        assert!(open_markets.length() == 2, 0);
-        let market_address = open_markets.borrow(0);
-        let market_address2 = open_markets.borrow(1);
+        assert!(vector::length(&open_markets) == 2, 0);
+        let market_address = vector::borrow(&open_markets, 0);
+        let market_address2 = vector::borrow(&open_markets, 1);
         assert!(*market_address == signer::address_of(market), 1);
         assert!(*market_address2 == signer::address_of(market2), 1);
     }
@@ -129,13 +139,13 @@ module panana::marketplace_test {
         panana::marketplace::add_open_market<APT>(apt_marketplace_address, signer::address_of(market2));
 
         let open_markets = marketplace::available_markets<APT>(apt_marketplace_address);
-        assert!(open_markets.length() == 2, 0);
+        assert!(vector::length(&open_markets) == 2, 0);
 
-        panana::marketplace::remove_open_market<APT>(apt_marketplace_address, signer::address_of(market));
+        panana::marketplace::remove_open_market<APT>(apt_marketplace_address, signer::address_of(market), 10);
         let open_markets_after_remove = marketplace::available_markets<APT>(apt_marketplace_address);
-        assert!(open_markets_after_remove.length() == 1, 1);
+        assert!(vector::length(&open_markets_after_remove) == 1, 1);
 
-        let market_address_after_close = open_markets_after_remove.borrow(0);
+        let market_address_after_close = vector::borrow(&open_markets_after_remove, 0);
         assert!(*market_address_after_close == signer::address_of(market2), 2);
     }
 
