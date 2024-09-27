@@ -17,10 +17,7 @@ export const initializeMarket = async (
   const upBetsSum = Number(market.up_bets_sum);
   const downBetsSum = Number(market.down_bets_sum);
   const fee = Number(market.fee.numerator) / Number(market.fee.denominator);
-  const priceUp = market.price_up.vec[0];
-  const priceDelta =
-    Number(market.price_delta.numerator) /
-    Number(market.price_delta.denominator);
+  const priceUp = market.price_up;
 
   const upBets = new Map<Address, number>(
     market.up_bets.data.map((bet) => [bet.key as Address, Number(bet.value)])
@@ -36,7 +33,7 @@ export const initializeMarket = async (
   const upVotesSum = Number(market.up_votes_sum);
   const downVotesSum = Number(market.down_votes_sum);
 
-  const name = `${priceDelta > 0 ? priceDelta : ""}% ${
+  const name = `${
     priceUp ? "Up" : "Down"
   } ${availableMarket.type}/USD by ${DateTime.fromSeconds(
     endTime
@@ -66,7 +63,6 @@ export const initializeMarket = async (
     downBetsSum,
     fee,
     priceUp,
-    priceDelta,
     upBets,
     downBets,
     userVotes,

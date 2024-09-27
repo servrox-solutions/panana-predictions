@@ -7,6 +7,7 @@ export interface StatisticsProps {
   placedBetsAmount: number;
   totalBettingAmount: number;
   totalInteractions: number;
+  createdMarketsNum: number;
   createdMarkets: { [key in MarketType]: number };
   totalVotes: {
     up: number;
@@ -22,6 +23,7 @@ export default function Statistics(props: StatisticsProps) {
     totalBettingAmount,
     totalVotes,
     totalInteractions,
+    createdMarketsNum
   } = props;
 
   return (
@@ -42,6 +44,12 @@ export default function Statistics(props: StatisticsProps) {
         <span className="text-sm text-gray-500">Placed Bets</span>
         <span className="text-lg font-semibold">
           {placedBetsAmount.toLocaleString()}
+        </span>
+      </Card>
+      <Card className="p-4 flex flex-col">
+        <span className="text-sm text-gray-500">Total created markets</span>
+        <span className="text-lg font-semibold">
+          {createdMarketsNum}
         </span>
       </Card>
       <Card className="p-4 flex flex-col">

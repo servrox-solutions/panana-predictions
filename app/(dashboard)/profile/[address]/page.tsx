@@ -10,6 +10,7 @@ import {
   getLatestNAccountTransactions,
   getTotalTransactionCount,
 } from "@/lib/get-account-transactions";
+import { NoditClient } from '@/lib/nodit/client';
 import { MarketType, marketTypes } from "@/lib/types/market";
 import { Address } from "@/lib/types/market";
 import { extractAsset } from "@/lib/utils";
@@ -17,8 +18,10 @@ import { extractAsset } from "@/lib/utils";
 export default async function Profile({
   params,
 }: {
-  params: { address: string };
+  params: { address: Address };
 }) {
+  const noditClient = new NoditClient(MODULE_ADDRESS_FROM_ABI, process.env.NODIT_API_KEY as Address);
+
   const balance = await getAccountBalance(params.address);
   const totalTransactions = await getTotalTransactionCount(params.address);
   const res = await getLatestNAccountTransactions(
@@ -42,7 +45,6 @@ export default async function Profile({
     (x) =>
       x.payload.function === `${MODULE_ADDRESS_FROM_ABI}::market::create_market`
   );
-  const placedBetsAmount = betTransactions.length;
   const bettedMarketplaces = new Set(
     betTransactions.map((x) => x.payload.arguments[0].inner)
   );
@@ -70,6 +72,9 @@ export default async function Profile({
     createdMarkets[asset]++;
   });
 
+  const createdMarketsNum = await noditClient.fetchCreatedMarketCount(params.address);
+  const placedBetsAmount = await noditClient.fetchPlacedBetCount(params.address);
+
   return (
     <div className="flex justify-center items-center h-full">
       <div className="max-w-[1200px] grid grid-cols-1 flex-1 items-start gap-4 p-4 sm:px-6 sm:py-0 md:gap-8 lg:grid-cols-2">
@@ -94,10 +99,12 @@ export default async function Profile({
             </div>
           </Card>
         </div>
+
         <Statistics
           createdMarkets={createdMarkets}
           totalInteractions={pananaTransactions.length}
           placedBetsAmount={placedBetsAmount}
+          createdMarketsNum={createdMarketsNum}
           totalBettingAmount={totalBettingAmount}
           totalVotes={totalVotes}
         />

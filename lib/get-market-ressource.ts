@@ -19,9 +19,7 @@ export interface MarketRessource {
     denominator: string;
     numerator: string;
   };
-  price_up: {
-    vec: boolean[];
-  };
+  price_up: boolean;
   start_price: string;
   start_time: string;
   up_bets: {

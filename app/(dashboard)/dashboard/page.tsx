@@ -66,7 +66,6 @@ export default async function Dashboard({
   const totalVolumeApt = allMarketplaces
     .map((marketplace) => +marketplace.all_time_volume)
     .reduce((prev, cur) => prev + cur, 0);
-  console.log(totalVolumeApt);
   const totalVolume = {
     apt: totalVolumeApt / 10 ** 8,
     usd: (totalVolumeApt / 10 ** 8) * price,

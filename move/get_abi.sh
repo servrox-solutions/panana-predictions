@@ -1,7 +1,7 @@
 #! /bin/bash
  
 NETWORK=testnet
-CONTRACT_ADDRESS=0x51fcc02f80b6a89186cafc13cb3fdb5f8e5a1aafc78209ee24ac20b172e0a11f
+CONTRACT_ADDRESS=`grep '^AUTOMATED_SET_MODULE_ADDRESS=' .env | cut -d '=' -f 2`
 
 MODULE_NAME=marketplace
 echo "export const ABI = $(curl https://fullnode.$NETWORK.aptoslabs.com/v1/accounts/$CONTRACT_ADDRESS/module/$MODULE_NAME | sed -n 's/.*"abi":\({.*}\).*}$/\1/p') as const" > ./lib/marketplace-abi.ts

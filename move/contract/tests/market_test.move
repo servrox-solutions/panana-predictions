@@ -301,6 +301,7 @@ module panana::market_test {
 
         let start_price = 100;
         let marketplace_address = init_marketplace<APT>(owner, apt_aggr, start_price);
+        let marketplace_object = object::address_to_object<marketplace::Marketplace<APT>>(marketplace_address);
 
         let min_bet = 2000;
         let start_time = market::earliest_market_opening_after_sec();
@@ -309,7 +310,7 @@ module panana::market_test {
         let fee_denominator = 100;
         market::create_market<APT>(
             owner,
-            object::address_to_object<marketplace::Marketplace<APT>>(marketplace_address),
+            marketplace_object,
             start_time,
             end_time,
             min_bet,
@@ -333,6 +334,17 @@ module panana::market_test {
 
         timestamp::fast_forward_seconds(market::earliest_market_opening_after_sec() - 1);
         market::place_bet(user, market_object, true, min_bet);
+        assert!(
+            event::was_event_emitted(
+                &market::test_place_bet_event<APT>(
+                    signer::address_of(user),
+                    min_bet,
+                    marketplace_object,
+                    market_object,
+                    market::earliest_market_opening_after_sec() - 1,
+                    true,
+                )
+            ), 5);
         assert!(market::up_bets<APT>(*created_market_address) == 1, 0);
         assert!(market::down_bets<APT>(*created_market_address) == 0, 1);
         assert!(
@@ -371,6 +383,7 @@ module panana::market_test {
             option::extract(&mut market::up_bet<APT>(*created_market_address, signer::address_of(user2))) == 60000,
             3
         );
+
     }
 
     #[expected_failure(abort_code = market::E_CANNOT_RESOLVE_MARKET)]

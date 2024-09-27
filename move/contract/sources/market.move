@@ -100,6 +100,17 @@ module panana::market {
         end_time_timestamp: u64,
     }
 
+    // Emit whenever a user places a new bet
+    #[event]
+    struct PlaceBet<phantom C> has drop, store {
+        account: address,
+        bet: u64,
+        marketplace: Object<Marketplace<C>>,
+        market: Object<Market<C>>,
+        betted_at_timestamp: u64,
+        up: bool,
+    }
+
     // Emit whenever a market is resolved
     #[event]
     struct ResolveMarket<phantom C> has drop, store {
@@ -356,6 +367,15 @@ module panana::market {
         } else {
             market_ref.down_bets_sum = market_ref.down_bets_sum + amount;
         };
+
+        event::emit(PlaceBet{
+            account: signer_address,
+            bet: amount,
+            marketplace: object::address_to_object<Marketplace<C>>(object::owner(market_obj)),
+            market: market_obj,
+            betted_at_timestamp: timestamp::now_seconds(),
+            up: bet_up,
+        });
     }
 
     public fun can_resolve_market<C>(market_ref: &Market<C>): bool {
@@ -631,5 +651,18 @@ module panana::market {
         dissolved: bool,
     ): ResolveMarket<C> {
         ResolveMarket<C> { creator, min_bet, marketplace, market, created_at_timestamp, start_time_timestamp, end_time_timestamp, start_price, end_price, market_cap, dissolved }
+    }
+
+    #[view]
+    #[test_only]
+    public fun test_place_bet_event<C>(
+        account: address,
+        bet: u64,
+        marketplace: Object<Marketplace<C>>,
+        market: Object<Market<C>>,
+        betted_at_timestamp: u64,
+        up: bool,
+    ): PlaceBet<C> {
+        PlaceBet<C> { account, bet, marketplace, market, betted_at_timestamp, up }
     }
 }
