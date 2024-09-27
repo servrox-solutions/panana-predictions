@@ -58,23 +58,14 @@ Panana Predictions consists of three fundamental parts:
 
 At the heart of Panana Predictions are the **Marketplace** and **Market Move Modules**.
 
-**Technical Details:**
 - The **Marketplace Module** manages all markets for a specific asset (i.e. APT or BTC)
 - The **Market Module** handles the interactions for placing bets, transferring assets, and distributing winnings based on market outcomes.
-- Contracts are written in **Move**, a blockchain-specific programming language optimized for the Aptos ecosystem.
 - All modules are designed in a way that allows an **easy extension** to add new Markets and asset types.
 - **Switchboard Oracles** ensure a trusted and decentralized resolution of markets.
 
 ### 2. Telegram App & Web Application (Next.js)
 
-To interact with the prediction markets, users access the platform via Telegram or the web. Built as a cutting-edge **Next.js** web application optimzed for mobile and desktop, the front-end provides a seamless and intuitive interface for users to:
-
-- **Create new markets:** Every user can create new markets. 
-- **Browse available markets:** See what prediction opportunities are currently open.
-- **Place predictions:** Easily select and place a prediction on asset price movements.
-- **Track market outcomes:** View the status of open and resolved markets.
-- **Track personal success:** View personal statistics, such as how many markets a user has participated in.
-- **Live Data:** All markets are showing live data from the Aptos blockchain.
+To interact with the prediction markets, users access the platform via Telegram or the web. Built as a cutting-edge **Next.js** web application **optimzed for Telegram and the web**, the front-end provides a seamless and intuitive interface. All interactions and data fetching occur directly with the Aptos blockchain.
 
 
 ### 3. Server for Auto-Resolving Markets
@@ -85,7 +76,7 @@ The third component is a **server** that is responsible for automatically resolv
 
 Once a market reaches its resolution time, the server:
 
-- **Triggers market resolution:** The server calls the Market module to retrieve the final price data on-chain via a Switchboard Oracle and distribute the rewards.
+- **Triggers market resolution:** The server calls the Market module to retrieve the final price data on-chain via a Switchboard Oracle and distributes the rewards.
 - **Ensures eventual resolution:** By implementing a retry-mechanism in case the initial resolution failed, an eventual resolution is guaranteed.
 
 ### Architecture Diagram
@@ -165,8 +156,8 @@ Our team's combined expertise makes us well-suited to build and sustain a predic
 
 ---
 
-Thank you for using the Aptos Prediction Market! If you have any questions, feel free to open an issue or contribute to improving the platform.
+Thank you for using the Panana Predictions! If you have any questions, feel free to open an issue or contribute to improving the platform.
 
 <div align="center" style="background-color: #ffcd0a;">
-  <img src="./public/brain.png" alt="Sublime's custom image" style="margin-bottom: -7px" />
+  <img src="./public/peeltos_approved.png" alt="Mr. Peeltos Approved" style="margin-bottom: -7px" />
 </div>
