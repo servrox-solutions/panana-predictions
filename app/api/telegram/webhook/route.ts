@@ -70,14 +70,14 @@ bot.api.setChatMenuButton({
   menu_button: {
     type: "web_app",
     text: "Open App 🍌",
-    web_app: { url: "https://panana-predictions.xyz/" },
+    web_app: { url: "https://app.panana-predictions.xyz/" },
   },
 });
 
 bot.api.setMyDescription(descriptionMessage);
 
 const welcomeMenu = new Menu("welcome-menu")
-  .webApp("Open App 🍌", "https://panana-predictions.xyz/")
+  .webApp("Open App 🍌", "https://app.panana-predictions.xyz/")
   .row()
   .text("FAQ", (ctx) => ctx.reply(faqMessage, { parse_mode: "Markdown" }))
   .url("Website", "https://panana-predictions.xyz/")
@@ -87,7 +87,7 @@ bot.use(welcomeMenu);
 
 bot.command("start", async (ctx) => {
   await ctx.replyWithPhoto(
-    "https://panana-predictions.xyz/pp-preview-purple.jpg",
+    "https://app.panana-predictions.xyz/pp-preview-purple.jpg",
     {
       caption: "Mr. Peeltos greets you 😎🤙🏼 Welcome to Panana Predictions 🍌",
     }

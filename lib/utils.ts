@@ -57,3 +57,7 @@ export function extractAsset(input: string): MarketType {
   }
   return parts.pop() as MarketType;
 }
+
+export function formatAptPrice(price: number): string {
+  return (price / 10 ** 9).toFixed(3);
+}

@@ -10,14 +10,22 @@ export const initializeMarket = async (
   const market = await getMarketRessource(availableMarket);
 
   const creator = market.creator as Address;
-  const startPrice = Number(market.start_price);
+  const createdAt = Number(market.created_at_timestamp);
+  const startPrice = Number(market.start_price.vec[0]);
   const startTime = Number(market.start_time);
   const endTime = Number(market.end_time);
   const minBet = Number(market.min_bet);
   const upBetsSum = Number(market.up_bets_sum);
   const downBetsSum = Number(market.down_bets_sum);
   const fee = Number(market.fee.numerator) / Number(market.fee.denominator);
-  const priceUp = market.price_up;
+  const resolvedAt = market.resolved_at.vec[0]
+    ? Number(market.resolved_at.vec[0])
+    : null;
+  const endPrice = market.end_price.vec[0]
+    ? Number(market.end_price.vec[0])
+    : null;
+  // const priceUp = market.price_up; // TODO: fix
+  const priceUp = true;
 
   const upBets = new Map<Address, number>(
     market.up_bets.data.map((bet) => [bet.key as Address, Number(bet.value)])
@@ -33,11 +41,9 @@ export const initializeMarket = async (
   const upVotesSum = Number(market.up_votes_sum);
   const downVotesSum = Number(market.down_votes_sum);
 
-  const name = `${
-    priceUp ? "Up" : "Down"
-  } ${availableMarket.type}/USD by ${DateTime.fromSeconds(
-    endTime
-  ).toLocaleString()}`;
+  const name = `${priceUp ? "Up" : "Down"} ${
+    availableMarket.type
+  }/USD by ${DateTime.fromSeconds(endTime).toLocaleString()}`;
 
   const tradingPair = {
     one: availableMarket.type,
@@ -55,6 +61,7 @@ export const initializeMarket = async (
     address: availableMarket.address,
     tradingPair,
     creator,
+    createdAt,
     startPrice,
     startTime,
     endTime,
@@ -70,6 +77,8 @@ export const initializeMarket = async (
     downVotesSum,
     upWinFactor,
     downWinFactor,
+    resolvedAt,
+    endPrice,
   };
 
   return newMarketData;

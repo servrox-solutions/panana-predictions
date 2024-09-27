@@ -28,9 +28,9 @@ import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { calculateUserWin, cn } from "@/lib/utils";
 import { MarketCardTimeline } from "./market-card-timeline";
-import { DateTime } from "luxon";
 import Link from "next/link";
 import { SimpleContainerDropdown } from "./simple-container-dropdown";
+import { MarketTitle } from "./market-title";
 
 export interface MarketCardSimpleUiProps {
   tradingPair: { one: MarketType; two: string };
@@ -70,7 +70,7 @@ export const MarketCardSimpleUi: React.FC<MarketCardSimpleUiProps> = ({
   const [bet, setBet] = useState<"up" | "down" | null>(null);
   const [amount, setAmount] = useState<number>(minBet / 10 ** 8);
   const getSocialMessage = (marketId: string) =>
-    `📈 Think you can predict the next move in crypto?\nJoin our latest market and put your forecast to the test!\n\nhttps://panana-predictions.xyz/markets/${marketId}\n\nOnly on 🍌Panana Predictions!`;
+    `📈 Think you can predict the next move in crypto?\nJoin our latest market and put your forecast to the test!\n\nhttps://app.panana-predictions.xyz/markets/${marketId}\n\nOnly on 🍌Panana Predictions!`;
 
   return (
     <div className="flex flex-col max-w-full w-96 backdrop-grayscale-[.5] bg-gray-800 bg-opacity-30 backdrop-blur-lg rounded-3xl p-3 shadow-lg border border-white border-opacity-20">
@@ -79,17 +79,11 @@ export const MarketCardSimpleUi: React.FC<MarketCardSimpleUiProps> = ({
         <div className="flex-1">
           <div className="text-left">
             <Link href={`/markets/${address}`} className="hover:underline">
-              <h2 className="text-lg font-semibold">
-                Will
-                <span className="text-lg text-secondary bg-primary  p-1 rounded mx-1">
-                  {tradingPair.one}/{tradingPair.two}
-                </span>
-                go up or down within{" "}
-                {DateTime.fromSeconds(resolveTime)
-                  .diff(DateTime.fromSeconds(betCloseTime))
-                  .toFormat("hh:mm:ss")}{" "}
-                hours?
-              </h2>
+              <MarketTitle
+                tradingPair={tradingPair}
+                resolveTime={resolveTime}
+                betCloseTime={betCloseTime}
+              />
             </Link>
           </div>
         </div>

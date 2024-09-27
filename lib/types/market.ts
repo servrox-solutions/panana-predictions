@@ -5,9 +5,12 @@ export interface MarketData {
   address: Address;
   tradingPair: { one: MarketType; two: string };
   creator: Address;
+  createdAt: number;
   startPrice: number;
   startTime: number;
+  resolvedAt: number | null;
   endTime: number;
+  endPrice: number | null;
   minBet: number;
   upBetsSum: number;
   downBetsSum: number;

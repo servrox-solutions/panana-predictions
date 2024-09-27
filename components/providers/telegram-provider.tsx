@@ -6,7 +6,6 @@ import {
   bindMiniAppCSSVars,
   bindThemeParamsCSSVars,
   bindViewportCSSVars,
-  retrieveLaunchParams,
   useLaunchParams,
   useMiniApp,
   useThemeParams,

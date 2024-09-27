@@ -3,24 +3,23 @@ import { AvailableMarket } from "./get-available-markets";
 import { getLogger } from "./logger";
 
 export interface MarketRessource {
+  created_at_timestamp: string;
   creator: string;
   down_bets: {
     data: { key: string; value: string }[];
   };
   down_bets_sum: string;
   down_votes_sum: string;
+  end_price: { vec: [string] };
   end_time: string;
   fee: {
     denominator: string;
     numerator: string;
   };
   min_bet: string;
-  price_delta: {
-    denominator: string;
-    numerator: string;
-  };
-  price_up: boolean;
-  start_price: string;
+  // price_up: boolean; // TODO: fix
+  resolved_at: { vec: [string] };
+  start_price: { vec: [string] };
   start_time: string;
   up_bets: {
     data: { key: string; value: string }[];
@@ -50,5 +49,5 @@ export const getMarketRessource = async (
       throw error;
     });
 
-  return market;
+  return market as unknown as MarketRessource;
 };
