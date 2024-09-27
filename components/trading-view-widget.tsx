@@ -11,7 +11,7 @@ function AdvancedChart({ marketType }: { marketType: MarketType }) {
 
   useEffect(() => {
     if (
-      resolvedTheme === "system" ||
+      !(resolvedTheme === "dark" || resolvedTheme === "light") ||
       !container.current ||
       scriptAppendedRef.current
     )
