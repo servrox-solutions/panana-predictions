@@ -1,13 +1,13 @@
 import { ThumbsDown, ThumbsUp } from "lucide-react";
 import { Card } from "./ui/card";
 import { Web3AmountCard } from "./web3-amount-card";
-import { marketTypes } from "@/lib/get-available-markets";
+import { MarketType } from "@/lib/types/market";
 
 export interface StatisticsProps {
   placedBetsAmount: number;
   totalBettingAmount: number;
   totalInteractions: number;
-  createdMarkets: { [key in (typeof marketTypes)[number]]: number };
+  createdMarkets: { [key in MarketType]: number };
   totalVotes: {
     up: number;
     down: number;
@@ -16,9 +16,13 @@ export interface StatisticsProps {
 
 // components/Statistics.js
 export default function Statistics(props: StatisticsProps) {
-  const { createdMarkets, placedBetsAmount, totalBettingAmount, totalVotes, totalInteractions } =
-    props;
-
+  const {
+    createdMarkets,
+    placedBetsAmount,
+    totalBettingAmount,
+    totalVotes,
+    totalInteractions,
+  } = props;
 
   return (
     <div className="grid grid-cols-2 gap-4 text-white">
@@ -30,11 +34,15 @@ export default function Statistics(props: StatisticsProps) {
 
       <Card className="p-4 flex flex-col">
         <span className="text-sm text-gray-500">Interactions with Markets</span>
-        <span className="text-lg font-semibold">{totalInteractions.toLocaleString()}</span>
+        <span className="text-lg font-semibold">
+          {totalInteractions.toLocaleString()}
+        </span>
       </Card>
       <Card className="p-4 flex flex-col">
         <span className="text-sm text-gray-500">Placed Bets</span>
-        <span className="text-lg font-semibold">{placedBetsAmount.toLocaleString()}</span>
+        <span className="text-lg font-semibold">
+          {placedBetsAmount.toLocaleString()}
+        </span>
       </Card>
       <Card className="p-4 flex flex-col">
         <span className="text-sm text-gray-500">Volume Placed</span>
@@ -46,10 +54,12 @@ export default function Statistics(props: StatisticsProps) {
         <span className="text-sm text-gray-500">Total Votes</span>
         <span className="text-lg font-semibold flex gap-4">
           <div className="flex gap-2 items-center">
-            <span>{totalVotes.up.toLocaleString()}</span> <ThumbsUp className="w-4 h-4" />
+            <span>{totalVotes.up.toLocaleString()}</span>{" "}
+            <ThumbsUp className="w-4 h-4" />
           </div>
           <div className="flex gap-2 items-center">
-            <span>{totalVotes.down.toLocaleString()}</span> <ThumbsDown className="h-4 w-4" />
+            <span>{totalVotes.down.toLocaleString()}</span>{" "}
+            <ThumbsDown className="h-4 w-4" />
           </div>
         </span>
       </Card>

@@ -1,11 +1,9 @@
-import { marketTypes } from "../get-available-markets";
-
 export type Address = `0x${string}`;
 
 export interface MarketData {
   name: string;
   address: Address;
-  tradingPair: { one: (typeof marketTypes)[number]; two: string };
+  tradingPair: { one: MarketType; two: string };
   creator: Address;
   startPrice: number;
   startTime: number;
@@ -24,6 +22,10 @@ export interface MarketData {
   upWinFactor: number;
   downWinFactor: number;
 }
+
+export const marketTypes = [`BTC`, `APT`, `SOL`, `USDC`, `ETH`] as const;
+
+export type MarketType = (typeof marketTypes)[number];
 
 export interface MarketOld {
   key: string;

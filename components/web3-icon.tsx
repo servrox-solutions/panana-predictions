@@ -10,10 +10,10 @@ import {
   TokenUSDC,
 } from "@web3icons/react";
 import { cn } from "@/lib/utils";
-import { marketTypes } from "@/lib/get-available-markets";
+import { MarketType } from "@/lib/types/market";
 
 export interface Web3IconProps extends React.HTMLAttributes<HTMLDivElement> {
-  asset: (typeof marketTypes)[number];
+  asset: MarketType;
 }
 
 export function Web3Icon(props: Web3IconProps) {

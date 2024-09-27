@@ -5,7 +5,7 @@ import { MODULE_ADDRESS_FROM_ABI } from "@/lib/aptos";
 import { getAvailableMarketplaces } from "@/lib/get-available-marketplaces";
 import { getMarketplaceRessource } from "@/lib/get-marketplace-ressource";
 import { DashboardContent } from "@/components/dashboard-content";
-import { marketTypes } from "@/lib/get-available-markets";
+import { MarketType } from "@/lib/types/market";
 
 export interface MarketResolvedEventData {
   market: {
@@ -32,7 +32,7 @@ export default async function Dashboard({
   const symbols = marketplaces.map((marketplace) => {
     const parts = marketplace.typeArgument.split("::");
     return parts[parts.length - 1];
-  }, {}) as (typeof marketTypes)[number][];
+  }, {}) as MarketType[];
 
   // TODO: fetch data parallel
   const createdEvents = await Promise.all(
@@ -122,7 +122,7 @@ export default async function Dashboard({
       [symbols[idx]]: cur.available_markets.length,
     }),
     {}
-  ) as { [key in (typeof marketTypes)[number]]: number };
+  ) as { [key in MarketType]: number };
 
   return (
     <>

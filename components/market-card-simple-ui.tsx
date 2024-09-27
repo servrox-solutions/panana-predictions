@@ -1,6 +1,6 @@
 "use client";
 
-import { marketTypes } from "@/lib/get-available-markets";
+import { MarketType } from "@/lib/types/market";
 import {
   ChevronsDown,
   ChevronsUp,
@@ -33,7 +33,7 @@ import Link from "next/link";
 import { SimpleContainerDropdown } from "./simple-container-dropdown";
 
 export interface MarketCardSimpleUiProps {
-  tradingPair: { one: (typeof marketTypes)[number]; two: string };
+  tradingPair: { one: MarketType; two: string };
   minBet: number;
   betCloseTime: number;
   resolveTime: number;

@@ -1,5 +1,5 @@
 import { surfClientMarketplace } from "./aptos";
-import { marketTypes } from "./get-available-markets";
+import { MarketType } from "./types/market";
 import { getLogger } from "./logger";
 import { Address } from "./types/market";
 
@@ -11,7 +11,7 @@ export interface MarketplaceRessource {
 
 export interface MarketplaceRessourceIdentifier {
   address: Address;
-  type: `${string}::${string}::${(typeof marketTypes)[number]}`;
+  type: `${string}::${string}::${MarketType}`;
 }
 
 export const getMarketplaceRessource = async (

@@ -14,13 +14,13 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useState, useEffect } from "react";
 import { Web3Icon } from "./web3-icon";
 import { useFilterStore } from "@/lib/atoms/useFilterStore";
-import { marketTypes } from "@/lib/get-available-markets";
+import { MarketType } from "@/lib/types/market";
 
 interface FilterDropdownProps {
   name: string;
-  items: (typeof marketTypes)[number][];
+  items: MarketType[];
   preSelected?: string | string[];
-  onFilterChange?: (filter: (typeof marketTypes)[number][]) => void;
+  onFilterChange?: (filter: MarketType[]) => void;
 }
 
 export const FilterDropdown: React.FC<FilterDropdownProps> = ({
@@ -66,7 +66,7 @@ export const FilterDropdown: React.FC<FilterDropdownProps> = ({
 
     setFilter(updatedFilters);
 
-    onFilterChange?.(updatedFilters as (typeof marketTypes)[number][]);
+    onFilterChange?.(updatedFilters as MarketType[]);
   };
 
   return (

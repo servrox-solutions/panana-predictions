@@ -25,10 +25,10 @@ import { DateTime } from "luxon";
 import { getExplorerObjectLink } from "@/lib/aptos";
 import { Web3Icon } from "./web3-icon";
 import { useIsMounted } from "@/lib/hooks/useIsMounted";
-import { marketTypes } from "@/lib/get-available-markets";
+import { MarketType } from "@/lib/types/market";
 
 export interface ResolvedMarket {
-  assetSymbol: (typeof marketTypes)[number];
+  assetSymbol: MarketType;
   endTimeTimestamp: number;
   startTimeTimestamp: number;
   marketAddress: string;
@@ -45,7 +45,7 @@ export interface ResolvedMarket {
 
 export interface ResolvedMarketsTable {
   latestResolvedMarkets: ResolvedMarket[];
-  filter: (typeof marketTypes)[number][];
+  filter: MarketType[];
 }
 
 export function ResolvedMarketsTable({
@@ -79,11 +79,17 @@ export function ResolvedMarketsTable({
         </TableRow>
       </TableHeader>
       <TableBody>
-        <TableRow className={`table-row hover:bg-initial hover:sm:bg-gray-500 hover:sm:bg-opacity-50 ${latestResolvedMarkets.filter(latestResolvedMarket => filter.length === 0 ? true : filter.includes(latestResolvedMarket.assetSymbol)).length === 0
-          ? ""
-          : "hidden"
+        <TableRow
+          className={`table-row hover:bg-initial hover:sm:bg-gray-500 hover:sm:bg-opacity-50 ${
+            latestResolvedMarkets.filter((latestResolvedMarket) =>
+              filter.length === 0
+                ? true
+                : filter.includes(latestResolvedMarket.assetSymbol)
+            ).length === 0
+              ? ""
+              : "hidden"
           }`}
-          key='empty table'
+          key="empty table"
         >
           <TableCell className="table-cell text-center" colSpan={8}>
             <span className="p-4">No Values</span>
@@ -91,19 +97,19 @@ export function ResolvedMarketsTable({
         </TableRow>
         {latestResolvedMarkets.map((latestResolvedMarket, idx) => (
           <TableRow
-            className={`hover:bg-initial hover:sm:bg-gray-500 hover:sm:bg-opacity-50 ${filter.length === 0 ||
+            className={`hover:bg-initial hover:sm:bg-gray-500 hover:sm:bg-opacity-50 ${
+              filter.length === 0 ||
               filter.includes(latestResolvedMarket.assetSymbol)
-              ? ""
-              : "hidden"
-              }`}
+                ? ""
+                : "hidden"
+            }`}
             key={latestResolvedMarket.marketAddress}
           >
             <TableCell className="hidden sm:table-cell">
               <div
-                className={`h-full ${idx !== 3 && idx !== 5
-                  ? `text-positive-1`
-                  : "text-negative-1"
-                  }`}
+                className={`h-full ${
+                  idx !== 3 && idx !== 5 ? `text-positive-1` : "text-negative-1"
+                }`}
               >
                 <div className="text-md text-muted-foreground flex justify-center align-center gap-2">
                   <Web3Icon
@@ -128,15 +134,16 @@ export function ResolvedMarketsTable({
             </TableCell>
             <TableCell className="hidden sm:table-cell">
               <div
-                className={`flex items-center w-full font-semibold ${latestResolvedMarket.startPrice <
+                className={`flex items-center w-full font-semibold ${
+                  latestResolvedMarket.startPrice <
                   latestResolvedMarket.endPrice
-                  ? `text-positive-1`
-                  : "text-negative-1"
-                  } relative`}
+                    ? `text-positive-1`
+                    : "text-negative-1"
+                } relative`}
               >
                 {(latestResolvedMarket.startPrice / 10 ** 9).toFixed(3)} ${" "}
                 {latestResolvedMarket.startPrice ===
-                  latestResolvedMarket.endPrice ? (
+                latestResolvedMarket.endPrice ? (
                   <ChevronsLeftRight />
                 ) : latestResolvedMarket.startPrice <
                   latestResolvedMarket.endPrice ? (
@@ -247,7 +254,9 @@ export function ResolvedMarketsTable({
                       Final Price Pool
                     </span>
                     <div className="flex flex-col w-full">
-                      <span>{latestResolvedMarket.marketCap.usd.toFixed(2)}</span>
+                      <span>
+                        {latestResolvedMarket.marketCap.usd.toFixed(2)}
+                      </span>
                       <span className="text-muted-foreground">
                         ({latestResolvedMarket.marketCap.asset.toFixed(2)} APT)
                       </span>
@@ -256,7 +265,7 @@ export function ResolvedMarketsTable({
                 </div>
                 <div className="flex items-center">
                   {latestResolvedMarket.startPrice ===
-                    latestResolvedMarket.endPrice ? (
+                  latestResolvedMarket.endPrice ? (
                     <ChevronsLeftRight className="w-4 h-4 mr-4" />
                   ) : latestResolvedMarket.startPrice <
                     latestResolvedMarket.endPrice ? (
@@ -270,11 +279,12 @@ export function ResolvedMarketsTable({
                     </span>
                     <div className="flex">
                       <div
-                        className={`flex flex-col items-center w-full font-semibold relative ${latestResolvedMarket.startPrice <
+                        className={`flex flex-col items-center w-full font-semibold relative ${
+                          latestResolvedMarket.startPrice <
                           latestResolvedMarket.endPrice
-                          ? "text-positive-1"
-                          : "text-negative-1"
-                          }`}
+                            ? "text-positive-1"
+                            : "text-negative-1"
+                        }`}
                       >
                         <div>
                           {(latestResolvedMarket.startPrice / 10 ** 9).toFixed(
