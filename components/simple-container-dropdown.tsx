@@ -7,7 +7,6 @@ import {
 import { Share2 } from "lucide-react";
 import { Button } from "./ui/button";
 
-
 interface SocialShareDropdownProps {
   containers: React.ReactNode[];
 }
@@ -15,14 +14,13 @@ interface SocialShareDropdownProps {
 export const SimpleContainerDropdown: React.FC<SocialShareDropdownProps> = ({
   containers,
 }) => {
-
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button
           variant="ghost"
-          size="sm"
-          className="h-8 gap-1 text-sm hover:bg-initial"
+          size="icon"
+          className="hover:text-primary hover:bg-primary/20"
           disabled={containers.length === 0}
         >
           <Share2 className="h-4 w-4" />
