@@ -1,13 +1,11 @@
 import { surfClientMarketplace } from "@/lib/aptos";
 import { getLogger } from "./logger";
 import { AvailableMarketplace } from "./get-available-marketplaces";
-import { Address } from "./types/market";
-
-export const marketTypes = [`BTC`, `APT`, `SOL`, `USDC`, `ETH`] as const;
+import { Address, MarketType } from "./types/market";
 
 export interface AvailableMarket {
   address: Address;
-  type: (typeof marketTypes)[number];
+  type: MarketType;
 }
 
 export const getAvailableMarkets = async (
@@ -28,9 +26,7 @@ export const getAvailableMarkets = async (
         marketAddresses.flat().forEach((marketAddress) => {
           availableMarkets.push({
             address: marketAddress,
-            type: marketplace.typeArgument
-              .split("::")
-              .pop() as (typeof marketTypes)[number],
+            type: marketplace.typeArgument.split("::").pop() as MarketType,
           });
         });
       })

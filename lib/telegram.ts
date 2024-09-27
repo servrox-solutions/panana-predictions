@@ -1,8 +1,13 @@
-import { retrieveLaunchParams } from '@telegram-apps/sdk-react';
+import { retrieveLaunchParams } from "@telegram-apps/sdk-react";
 
-
-
-export const isTelegramApp = () => {
+export const isTelegramApp = (): boolean => {
+  let isMocked = false;
+  try {
     const launchParams = retrieveLaunchParams();
-    return launchParams.platform !== "mock";
+    isMocked = launchParams.platform === "mock";
+  } catch (error) {
+    isMocked = true;
+  }
+
+  return !isMocked;
 };

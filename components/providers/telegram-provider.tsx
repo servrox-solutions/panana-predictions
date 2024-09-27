@@ -1,6 +1,7 @@
 "use client";
 
 import { useTelegramMock } from "@/lib/hooks/useTelegramMock";
+import { isTelegramApp } from "@/lib/telegram";
 import {
   bindMiniAppCSSVars,
   bindThemeParamsCSSVars,
@@ -60,17 +61,7 @@ export function TelegramProvider({ children, ...props }: PropsWithChildren) {
   }, [themeParams]);
 
   useEffect(() => {
-    if (!initDataRaw) return;
-
-    let isMocked = false;
-    try {
-      const launchParams = retrieveLaunchParams();
-      isMocked = launchParams.platform === "mock";
-    } catch (error) {
-      isMocked = true;
-    }
-
-    if (isMocked) return;
+    if (!initDataRaw || !isTelegramApp()) return;
 
     const authCheck = async () => {
       try {

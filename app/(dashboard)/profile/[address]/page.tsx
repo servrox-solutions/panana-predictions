@@ -1,19 +1,18 @@
-import LoadingSpinner from '@/components/loadingspinner';
+import LoadingSpinner from "@/components/loadingspinner";
 import { ModeToggle } from "@/components/mode-toggle";
 import ProfileCard from "@/components/profile-card";
 import Statistics from "@/components/profile-statistics";
 import { Card } from "@/components/ui/card";
 import { WalletReconnect } from "@/components/wallet-reconnect";
-import { MODULE_ADDRESS_FROM_ABI, isValidAddress } from "@/lib/aptos";
+import { MODULE_ADDRESS_FROM_ABI } from "@/lib/aptos";
 import { getAccountBalance } from "@/lib/get-account-balance";
 import {
   getLatestNAccountTransactions,
   getTotalTransactionCount,
 } from "@/lib/get-account-transactions";
-import { marketTypes } from "@/lib/get-available-markets";
+import { MarketType, marketTypes } from "@/lib/types/market";
 import { Address } from "@/lib/types/market";
 import { extractAsset } from "@/lib/utils";
-import { useWallet } from '@aptos-labs/wallet-adapter-react';
 
 export default async function Profile({
   params,
@@ -64,7 +63,7 @@ export default async function Profile({
   const createdMarkets = marketTypes.reduce(
     (prev, cur) => ({ ...prev, [cur]: 0 }),
     {}
-  ) as { [key in (typeof marketTypes)[number]]: number };
+  ) as { [key in MarketType]: number };
 
   createMarketTransactions.forEach((t) => {
     const asset = extractAsset(t.payload.type_arguments[0]);

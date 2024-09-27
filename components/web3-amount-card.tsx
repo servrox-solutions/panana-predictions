@@ -9,11 +9,11 @@ import {
 } from "@/components/ui/card";
 
 import { Web3Icon } from "./web3-icon";
-import { marketTypes } from "@/lib/get-available-markets";
+import { MarketType } from "@/lib/types/market";
 
 export interface Web3AmountCardProps {
   title: string;
-  assetCounts: { [key in (typeof marketTypes)[number]]: number };
+  assetCounts: { [key in MarketType]: number };
   className?: string;
 }
 
@@ -33,10 +33,7 @@ export function Web3AmountCard({
               .map(([asset, amount]) => (
                 <div key={asset} className="flex items-center gap-1">
                   {amount}{" "}
-                  <Web3Icon
-                    className="w-8 h-8"
-                    asset={asset as (typeof marketTypes)[number]}
-                  />
+                  <Web3Icon className="w-8 h-8" asset={asset as MarketType} />
                 </div>
               ))}
           </div>

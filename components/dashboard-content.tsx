@@ -15,7 +15,7 @@ import { CreatedMarket, CreatedMarketsTable } from "./created-markets-table";
 import { useState } from "react";
 import { FilterDropdown } from "./filter-dropdown";
 import { DateTime } from "luxon";
-import { marketTypes } from "@/lib/get-available-markets";
+import { MarketType } from "@/lib/types/market";
 import { Web3AmountCard } from "./web3-amount-card";
 import { useIsMounted } from "@/lib/hooks/useIsMounted";
 
@@ -26,7 +26,7 @@ export interface DashboardContentProps {
     usd: number;
     apt: number;
   };
-  openMarkets: { [key in (typeof marketTypes)[number]]: number };
+  openMarkets: { [key in MarketType]: number };
   searchParams: { [key: string]: string | string[] | undefined };
 }
 
@@ -44,20 +44,18 @@ export function DashboardContent({
       value === undefined
         ? []
         : Array.isArray(value)
-          ? value.map((v) => [key, v])
-          : [[key, value]]
+        ? value.map((v) => [key, v])
+        : [[key, value]]
     )
   );
   const pathname = usePathname();
   const router = useRouter();
 
-  const [filter, setFilter] = useState<(typeof marketTypes)[number][]>(
-    (urlSearchParams
-      .get("dashboard")
-      ?.split(",") as (typeof marketTypes)[number][]) ?? []
+  const [filter, setFilter] = useState<MarketType[]>(
+    (urlSearchParams.get("dashboard")?.split(",") as MarketType[]) ?? []
   );
 
-  const filterNetworks: (typeof marketTypes)[number][] = Array.from(
+  const filterNetworks: MarketType[] = Array.from(
     new Set([
       ...latestCreatedMarkets.map((x) => x.assetSymbol),
       ...latestResolvedMarkets.map((x) => x.assetSymbol),
