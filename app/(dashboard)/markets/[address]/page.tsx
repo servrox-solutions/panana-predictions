@@ -41,8 +41,9 @@ export default async function Market({
 
       <Card className="h-full my-4">
         <MarketCardTimeline
+          createTime={marketData.createdAt}
           betCloseTime={marketData.startTime}
-          resolveTime={marketData.endTime}
+          endTime={marketData.endTime}
         />
       </Card>
 

@@ -10,8 +10,8 @@ import { useFilterStore } from "@/lib/atoms/useFilterStore";
 import { useMarketData } from "@/lib/hooks/useMarketData";
 import { useMarketDataStore } from "@/lib/atoms/useMarketDataStore";
 import { cn } from "@/lib/utils";
-import { useWallet } from '@aptos-labs/wallet-adapter-react';
-import { toast } from 'react-toastify';
+import { useWallet } from "@aptos-labs/wallet-adapter-react";
+import { toast } from "react-toastify";
 
 interface MarketCardProps {
   availableMarket: AvailableMarket;
@@ -28,12 +28,12 @@ export const MarketCard: React.FC<MarketCardProps> = ({
     availableMarket,
     3000,
     initialMarketData ??
-    marketDataStore?.find(
-      (market) => market.address === availableMarket.address
-    ) ??
-    filteredMarketData.find(
-      (market) => market.address === availableMarket.address
-    )
+      marketDataStore?.find(
+        (market) => market.address === availableMarket.address
+      ) ??
+      filteredMarketData.find(
+        (market) => market.address === availableMarket.address
+      )
   );
   const { account } = useWallet();
   const { placeBet } = usePlaceBet();
@@ -42,7 +42,7 @@ export const MarketCard: React.FC<MarketCardProps> = ({
 
   const onPlaceBet = async (betUp: boolean, amount: number) => {
     if (!account?.address) {
-      toast.info('Please connect your wallet first.');
+      toast.info("Please connect your wallet first.");
       return;
     }
     if (marketData) {
@@ -52,7 +52,7 @@ export const MarketCard: React.FC<MarketCardProps> = ({
 
   const onVote = async (isVoteUp: boolean) => {
     if (!account?.address) {
-      toast.info('Please connect your wallet first.');
+      toast.info("Please connect your wallet first.");
       return;
     }
     if (marketData) {
@@ -76,6 +76,7 @@ export const MarketCard: React.FC<MarketCardProps> = ({
   return (
     <div className={cn("max-w-full", !shouldShow && "hidden")}>
       <MarketCardSimpleUi
+        createTime={marketData?.createdAt ?? 1337}
         address={marketData?.address ?? "1337"}
         minBet={marketData?.minBet ?? 1337}
         betCloseTime={marketData?.startTime ?? 1336}

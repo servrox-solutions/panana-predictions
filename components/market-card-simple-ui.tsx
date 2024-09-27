@@ -37,6 +37,7 @@ export interface MarketCardSimpleUiProps {
   minBet: number;
   betCloseTime: number;
   resolveTime: number;
+  createTime: number;
   upVotesSum: number;
   downVotesSum: number;
   upWinFactor: number;
@@ -55,6 +56,7 @@ export const MarketCardSimpleUi: React.FC<MarketCardSimpleUiProps> = ({
   minBet,
   betCloseTime,
   resolveTime,
+  createTime,
   upVotesSum,
   downVotesSum,
   upWinFactor,
@@ -104,8 +106,9 @@ export const MarketCardSimpleUi: React.FC<MarketCardSimpleUiProps> = ({
       {/* Timeline Section */}
       {!bet && (
         <MarketCardTimeline
+          createTime={createTime}
           betCloseTime={betCloseTime}
-          resolveTime={resolveTime}
+          endTime={resolveTime}
         />
       )}
 
