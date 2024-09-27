@@ -11,23 +11,23 @@ Panana Predictions is a **decentralized prediction market** platform built on th
 
 - [Introduction](#introduction)
 - [Key Features](#key-features)
+- [Project Information](#project-information)
+- [Tech Stack](#tech-stack)
 - [Architecture Overview](#architecture-overview)
 - [Installation and Setup](#installation-and-setup)
-- [Usage](#usage)
+- [Vision and Roadmap](#vision-and-roadmap)
+- [Team](#team)
 ## Introduction
 
-Panana Predictions is a decentralized platform that enables users to create their own markets and bet on the future prices of various assets. By offering a simple and engaging way for users to participate in prediction markets directly through Telegram, we aim to make decentralized finance accessible to everyone.
+Panana Predictions is a decentralized platform that enables users to **create their own markets** and **predict the future prices** of various assets. By offering a simple and engaging way for users to participate in prediction markets directly through **Telegram**, we aim to make decentralized finance **accessible to everyone**.
 
 ## Key Features
 
-- **Decentralized Prediction Markets**: Participate in markets predicting future asset prices.
-- **Marketplace and Market Move Modules**: Built for decentralized security, ensuring transparent and secure transactions.
-- **State-of-the-Art Next.js Web App**: Provides an intuitive and seamless user interface.
 - **Telegram Bot Integration**: Interact with Panana Predictions directly within Telegram for ease of use.
-- **Automation**: A backend server responsible for creating and auto-resolving markets.
-- **Reliable Price Feeds with Switchboard Oracles**: Ensures accurate and up-to-date asset price data.
-- **User-Friendly Design**: Crafted by our expert UX designer for intuitive engagement.
-- **Secure Smart Contracts**: Built on the Aptos blockchain for robust security.
+- **Decentralized Prediction Markets**: Users can create their own markets and predict future asset prices.
+- **Statistics and Historical Data**: A personalized performance dashboard allows users to track their past predictions and analyze historical data.
+- **Automation**: A backend server responsible to ensure scheduled market creation and auto-resolving markets.
+- **Trustless Pricefeed**: Used for fetching reliable asset price data on-chain via Switchboard oracles.
 
 ## Project Information
 
@@ -70,14 +70,11 @@ To interact with the prediction markets, users access the platform via Telegram 
 
 ### 3. Server for Auto-Resolving Markets
 
-The third component is a **server** that is responsible for automatically resolving prediction markets when they close. The server polls for new markets and is responsible for their resolution. Once a market is created, the server:
+The third component is a server that is responsible for **automatically resolving prediction markets** when they close. The server polls for new markets and is responsible for their resolution. This includes:
 
-- **Schedules the resolution**: The server schedules a new job to resolve the market at a specific time.
-
-Once a market reaches its resolution time, the server:
-
-- **Triggers market resolution:** The server calls the Market module to retrieve the final price data on-chain via a Switchboard Oracle and distributes the rewards.
-- **Ensures eventual resolution:** By implementing a retry-mechanism in case the initial resolution failed, an eventual resolution is guaranteed.
+- **Resolution Scheduling**: The server schedules a new job to resolve the market at a specific time.
+- **Market Resolution**: The server calls the Market module, which retrieves the final price data on-chain via a Switchboard Oracle and distributes the rewards.
+- **Ensure Eventual Resolution:** By implementing a retry-mechanism in case the initial resolution failed, an eventual resolution is guaranteed.
 
 ### Architecture Diagram
 The following diagram shows the interaction between all above mentioned components.
@@ -114,25 +111,10 @@ To set up the project locally, follow these steps:
    pnpm run dev
    ```
 
-6. Run the Next.js web application:
-   ```bash
-   npm run dev
-   ```
-
-7. Launch the server (requires bun):
+6. Launch the server (requires bun):
    ```bash
    cd ./server && pnpm install && cd - && pnpm run server
    ```
-
-## Usage
-
-Once the platform is running:
-
-1. Open the web app by navigating to `http://localhost:3000`.
-2. Browse the available markets or create a new one.
-3. Place your predictions on the future prices of various assets.
-4. Track your predictions and see how the markets evolve in real-time.
-5. Wait for the server to auto-resolve the markets and receive your rewards!
 
 ## Vision and Roadmap
 
