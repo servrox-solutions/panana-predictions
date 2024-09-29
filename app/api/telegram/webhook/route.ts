@@ -35,30 +35,28 @@ Here’s how you can get more involved:
 `;
 
 const faqMessage = `
-*Frequently Asked Questions*
+*What is Panana Predictions?* 🤔
+Panana Predictions is a decentralized crypto asset price prediction market where users can bet on whether a supported crypto asset's price will go up 📈 or down 📉 within a specified time frame. If your prediction is correct, you win a proportional share of the opposing bets. 🎉
 
-1. **What is this bot?**
-   This bot is designed to assist users by providing useful information and automating common tasks.
+*How do the prediction markets work?* 🛠️
+When a market opens, users can place bets on whether the price of a chosen asset (e.g., SOL, ETH, APT, USDC, or BTC) will go up 📈 or down 📉 by the end of the specified time period. Once the market starts, no new bets can be placed, and the market will automatically resolve after the predefined time has passed. ⏰ The winning side receives the funds from the losing side, distributed proportionally based on the amount bet. 💸
 
-2. **How do I use this bot?**
-   You can interact with the bot by typing commands or selecting options from the menus.
+*Can I withdraw my assets after placing a bet?* 🚫
+No, once you place a bet, you cannot withdraw your assets until the market resolves. Your funds remain locked 🔒 in the market until the outcome is determined, and winners are paid out. 🏆
 
-3. **What features does this bot offer?**
-   - Quick access to FAQs
-   - Interactive menus
-   - Automated responses to common queries
-   - Integration with external services
+*What are the fees involved in Panana Predictions?* 💰
+A 2% fee is applied to all winning bets. This fee is automatically deducted from the winnings when the market resolves. 💸
 
-4. **Can I customize the bot’s behavior?**
-   Yes, the bot's behavior can be customized to suit your specific needs. Please contact the admin for more details.
+*Can I bet on both sides of a prediction market?* ⚖️
+Yes, you can place bets on both outcomes (price going up 📈 or down 📉) in the same market if you choose. However, you cannot withdraw or alter these bets once placed. 🚫
 
-5. **Who can I contact for support?**
-   For any assistance, you can contact our support team by clicking the button below or emailing us at: [support@bot.com](mailto:support@bot.com).
+*How are markets resolved, and can users resolve them?* 🤖
+Markets are automatically resolved by our platform once the predetermined time has passed. ⏲️ In rare cases, users also have the option to manually resolve the market once the market period has ended, although this should not typically be necessary. ✅
 
-6. **Where can I learn more about the bot’s capabilities?**
-   You can visit our website at [www.botwebsite.com](https://www.botwebsite.com) or refer to the documentation for detailed instructions.
+*Can anyone create a market, and what assets are supported?* 🌐
+Yes, anyone can create a market on Panana Predictions. The supported assets for creating markets and placing bets are SOL, ETH, APT, USDC, and BTC. Once a market is created, other users can participate and bet on the outcome. 🪙
 
-_If you have further questions, feel free to ask!_
+_If you have further questions, feel free to ask!_ 💬
 `;
 
 bot.api.setMyCommands([
