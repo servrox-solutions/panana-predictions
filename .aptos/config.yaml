@@ -1,0 +1,9 @@
+---
+profiles:
+  panana-testnet:
+    network: Testnet
+    private_key: "0xf00889f54ca1afc06fa8466e64f4bebbbf4eacdda3584aa1452b9e07fa360913"
+    public_key: "0xa3d784f509e5bdd1bcd9d61fb3e09fc5c088578f0fd3294927938bf2ad2bb51c"
+    account: 59e9982aaa5194058e51c8be75519ec54c518ea3651b3a4a87c39b9bd88ba314
+    rest_url: "https://fullnode.testnet.aptoslabs.com"
+    faucet_url: "https://faucet.testnet.aptoslabs.com"
