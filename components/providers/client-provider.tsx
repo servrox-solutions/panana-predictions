@@ -20,7 +20,7 @@ export function ClientProvider({ children, ...props }: PropsWithChildren) {
     <Fragment {...props}>
       <ThemeProvider
         attribute="class"
-        defaultTheme="system"
+        defaultTheme="dark"
         enableSystem
         disableTransitionOnChange
       >
