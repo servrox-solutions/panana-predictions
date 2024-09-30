@@ -5,7 +5,10 @@ import { nextBasicAuthMiddleware } from "nextjs-basic-auth-middleware";
 export function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname;
 
-  if (path !== "/api/telegram/webhook") {
+  if (
+    process.env.BASIC_AUTH_ENABLED === "true" &&
+    path !== "/api/telegram/webhook"
+  ) {
     const response = nextBasicAuthMiddleware(undefined, request);
     if (response.status === 401) return response;
   }
