@@ -1,4 +1,4 @@
-import LoadingSpinner from "@/components/loadingspinner";
+
 import { ModeToggle } from "@/components/mode-toggle";
 import ProfileCard from "@/components/profile-card";
 import Statistics from "@/components/profile-statistics";
@@ -7,13 +7,11 @@ import { WalletReconnect } from "@/components/wallet-reconnect";
 import { MODULE_ADDRESS_FROM_ABI } from "@/lib/aptos";
 import { getAccountBalance } from "@/lib/get-account-balance";
 import {
-  getLatestNAccountTransactions,
   getTotalTransactionCount,
 } from "@/lib/get-account-transactions";
 import { NoditClient } from '@/lib/nodit/client';
 import { MarketType, marketTypes } from "@/lib/types/market";
 import { Address } from "@/lib/types/market";
-import { extractAsset } from "@/lib/utils";
 
 export default async function Profile({
   params,
@@ -22,58 +20,32 @@ export default async function Profile({
 }) {
   const noditClient = new NoditClient(MODULE_ADDRESS_FROM_ABI, process.env.NODIT_API_KEY as Address);
 
-  const balance = await getAccountBalance(params.address);
-  const totalTransactions = await getTotalTransactionCount(params.address);
-  const res = await getLatestNAccountTransactions(
-    params.address,
-    500,
-    totalTransactions
-  );
+  const [balance, totalTransactions, statisticsPageData] = await Promise.all([
+    getAccountBalance(params.address),
+    getTotalTransactionCount(params.address),
+    noditClient.fetchProfileStatisticsData(params.address)
+  ]);
 
-  const pananaTransactions = res.filter(
-    (x) => x.success && x.payload.function.startsWith(MODULE_ADDRESS_FROM_ABI)
-  );
+  const totalInteractions = statisticsPageData.data.market_interactions.aggregate.count;
 
-  const betTransactions = pananaTransactions.filter(
-    (x) =>
-      x.payload.function === `${MODULE_ADDRESS_FROM_ABI}::market::place_bet`
-  );
-  const voteTransactions = pananaTransactions.filter(
-    (x) => x.payload.function === `${MODULE_ADDRESS_FROM_ABI}::market::vote`
-  );
-  const createMarketTransactions = pananaTransactions.filter(
-    (x) =>
-      x.payload.function === `${MODULE_ADDRESS_FROM_ABI}::market::create_market`
-  );
-  const bettedMarketplaces = new Set(
-    betTransactions.map((x) => x.payload.arguments[0].inner)
-  );
+  const placedBetsSum = statisticsPageData.data.placed_bets.aggregate.sum.amount;
+  const totalVotes = statisticsPageData.data.total_votes.aggregate.count;
 
-  const totalBettingAmount = betTransactions.reduce(
-    (prev, cur) => prev + (+cur.payload.arguments[2] as unknown as number),
-    0
-  );
-  const totalVotes = {
-    up: voteTransactions.filter(
-      (x) => x.payload.arguments[1] as unknown as boolean
-    ).length,
-    down: voteTransactions.filter(
-      (x) => !(x.payload.arguments[1] as unknown as boolean)
-    ).length,
+  const bettedMarketDetails: { [key in MarketType]: number } = {
+    BTC: statisticsPageData.data.btc_placed.length,
+    APT: statisticsPageData.data.apt_placed.length,
+    SOL: statisticsPageData.data.sol_placed.length,
+    USDC: statisticsPageData.data.usdc_placed.length,
+    ETH: statisticsPageData.data.eth_placed.length,
   };
 
-  const createdMarkets = marketTypes.reduce(
-    (prev, cur) => ({ ...prev, [cur]: 0 }),
-    {}
-  ) as { [key in MarketType]: number };
-
-  createMarketTransactions.forEach((t) => {
-    const asset = extractAsset(t.payload.type_arguments[0]);
-    createdMarkets[asset]++;
-  });
-
-  const createdMarketsNum = await noditClient.fetchCreatedMarketCount(params.address);
-  const placedBetsAmount = await noditClient.fetchPlacedBetCount(params.address);
+  const createdMarketDetails: { [key in MarketType]: number } = {
+    BTC: statisticsPageData.data.btc.length,
+    APT: statisticsPageData.data.apt.length,
+    SOL: statisticsPageData.data.sol.length,
+    USDC: statisticsPageData.data.usdc.length,
+    ETH: statisticsPageData.data.eth.length,
+  };
 
   return (
     <div className="flex justify-center items-center h-full">
@@ -101,11 +73,10 @@ export default async function Profile({
         </div>
 
         <Statistics
-          createdMarkets={createdMarkets}
-          totalInteractions={pananaTransactions.length}
-          placedBetsAmount={placedBetsAmount}
-          createdMarketsNum={createdMarketsNum}
-          totalBettingAmount={totalBettingAmount}
+          createdMarkets={createdMarketDetails}
+          bettedMarkets={bettedMarketDetails}
+          totalInteractions={totalInteractions}
+          placedBetsSum={placedBetsSum}
           totalVotes={totalVotes}
         />
       </div>
