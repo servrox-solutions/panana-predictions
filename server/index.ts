@@ -92,9 +92,9 @@ interface AvailableMarketplace {
   value: string;
 }
 
-function scheduleCreateMarket(marketplace: AvailableMarketplace) {
-    const rule = new RecurrenceRule();
-    rule.minute = [40, 10];
+function scheduleCreateMarket(marketplace: AvailableMarketplace, min: number) {
+  const rule = new RecurrenceRule();
+    rule.minute = [min];
     scheduleJob(rule, async ( )=> {
         try {
             const startTime = Math.ceil(DateTime.now().plus({minute: 30}).set({second: 0}).toSeconds());
@@ -134,7 +134,7 @@ marketplaceSurfClient.view.available_marketplaces({
       throw new Error("no marketplaces available");
     }
     availableMarketplaces.forEach(async (marketplace, idx) => {
-        scheduleCreateMarket(marketplace);
+        scheduleCreateMarket(marketplace, Math.floor((60 / availableMarketplaces.length) * idx));
         handleMarketUpdates(marketplace);
     });
 });
