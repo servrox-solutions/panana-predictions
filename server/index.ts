@@ -94,20 +94,20 @@ interface AvailableMarketplace {
 
 function scheduleCreateMarket(marketplace: AvailableMarketplace) {
     const rule = new RecurrenceRule();
-    rule.minute = [0];
+    rule.minute = [40, 10];
     scheduleJob(rule, async ( )=> {
         try {
-            const startTime = Math.ceil(DateTime.now().plus({minute: 30}).toSeconds());
-            const endTime = Math.ceil(DateTime.fromSeconds(startTime).plus({minute: 45}).toSeconds());
+            const startTime = Math.ceil(DateTime.now().plus({minute: 30}).set({second: 0}).toSeconds());
+            const endTime = Math.ceil(DateTime.fromSeconds(startTime).plus({minute: 30}).toSeconds());
             await marketSurfClient.entry.create_market({
                 typeArguments: [marketplace.value],
                 functionArguments: [
                     marketplace.key,
                     startTime,
                     endTime,
-                    100,
+                    1000000,
                     2,
-                    10,
+                    100,
                 ],
                 account
             });
@@ -134,9 +134,7 @@ marketplaceSurfClient.view.available_marketplaces({
       throw new Error("no marketplaces available");
     }
     availableMarketplaces.forEach(async (marketplace, idx) => {
-        if (idx == 0) { // TODO: remove this check; only for testing to only create one market for one marektplace
-            scheduleCreateMarket(marketplace);
-        }
+        scheduleCreateMarket(marketplace);
         handleMarketUpdates(marketplace);
     });
 });
