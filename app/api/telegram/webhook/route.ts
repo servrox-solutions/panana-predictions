@@ -2,7 +2,7 @@ export const dynamic = "force-dynamic";
 
 export const fetchCache = "force-no-store";
 
-import { Bot, webhookCallback } from "grammy";
+import { Bot, CommandContext, Context, webhookCallback } from "grammy";
 import { Menu } from "@grammyjs/menu";
 
 const token = process.env.TELEGRAM_BOT_TOKEN;
@@ -83,6 +83,29 @@ const welcomeMenu = new Menu("welcome-menu")
 
 bot.use(welcomeMenu);
 
+const sendMessage = (ctx: CommandContext<Context>) => {
+  const chatId =
+    ctx.message?.chat.id ??
+    ctx.update.message?.chat.id ??
+    ctx.update.message?.from.id;
+  if (!chatId) return;
+
+  const info = ctx.update.message?.from ?? ctx.update.message?.chat;
+  if (!info) return;
+
+  const msg =
+    "/start by " +
+    `@${info.username ?? "unknown"}` +
+    "\n" +
+    `first name: ${info.first_name ?? "unknown"}` +
+    "\n" +
+    `last name: ${info.last_name ?? "unknown"}` +
+    "\n" +
+    `language: ${ctx.update.message?.from.language_code ?? "unknown"}`;
+
+  bot.api.sendMessage(chatId, msg);
+};
+
 bot.command("start", async (ctx) => {
   await ctx.replyWithPhoto(
     "https://app.panana-predictions.xyz/pp-preview-purple.jpg",
@@ -90,10 +113,13 @@ bot.command("start", async (ctx) => {
       caption: "Mr. Peeltos greets you 😎🤙🏼 Welcome to Panana Predictions 🍌",
     }
   );
+
   await ctx.reply(welcomeMessage, {
     parse_mode: "Markdown",
     reply_markup: welcomeMenu,
   });
+
+  sendMessage(ctx);
 });
 
 bot.command("help", async (ctx) => {
