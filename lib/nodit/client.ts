@@ -1,6 +1,6 @@
 import { Address } from '../types/market';
-import { NoditOperationDocs } from './operation-docs';
-import { CountResponse } from './response';
+import { ProfilePageStatsQuery } from './operation-docs';
+import { StatisticsPageResponse } from './response';
 
 export class NoditClient {
 
@@ -10,25 +10,15 @@ export class NoditClient {
     ) {}
 
     
-    public async fetchCreatedMarketCount(sender: Address): Promise<number> {
-        const result = await this.fetchGraphQL(
-            NoditOperationDocs['create-market-count'](sender, this._moduleId),
-            "CreatedMarketCount",
+    public async fetchProfileStatisticsData(sender: Address): Promise<StatisticsPageResponse> {
+        return this.fetchGraphQL<StatisticsPageResponse>(
+            ProfilePageStatsQuery(sender, this._moduleId),
+            "StatisticsPage",
             {}
-        ) as CountResponse;
-        return result?.data?.account_transactions_aggregate?.aggregate?.count ?? 0;
-    }
+        );
+    }   
 
-    public async fetchPlacedBetCount(sender: Address) {
-        const result = await this.fetchGraphQL(
-            NoditOperationDocs['place-bet-count'](sender, this._moduleId),
-            "PlacedBetCount",
-            {}
-        ) as CountResponse;
-        return result?.data?.account_transactions_aggregate?.aggregate?.count ?? 0;
-    }
-
-    private async fetchGraphQL(query: string, operationName: string, variables: {[key: string]: any }) {
+    private async fetchGraphQL<T>(query: string, operationName: string, variables: {[key: string]: any }) {
         const result = await fetch(
             `https://aptos-testnet.nodit.io/${this._apiKey}/v1/graphql`,
             {
@@ -39,6 +29,6 @@ export class NoditClient {
                 body: JSON.stringify({ query })
             }
         );
-        return result.json();
+        return result.json() as T;
     }
 }
