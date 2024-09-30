@@ -63,7 +63,7 @@ export function WalletSelector() {
   }, [account?.address]);
 
   return connected ? (
-    <DropdownMenu>
+    <DropdownMenu modal={false}>
       <DropdownMenuTrigger asChild>
         <Button>
           {account?.ansName || truncateAddress(account?.address) || "Unknown"}

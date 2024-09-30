@@ -70,7 +70,7 @@ export const FilterDropdown: React.FC<FilterDropdownProps> = ({
   };
 
   return (
-    <DropdownMenu>
+    <DropdownMenu modal={false}>
       <DropdownMenuTrigger asChild>
         <Button
           variant="outline"

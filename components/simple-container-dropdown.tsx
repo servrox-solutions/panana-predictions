@@ -15,7 +15,7 @@ export const SimpleContainerDropdown: React.FC<SocialShareDropdownProps> = ({
   containers,
 }) => {
   return (
-    <DropdownMenu>
+    <DropdownMenu modal={false}>
       <DropdownMenuTrigger asChild>
         <Button
           variant="ghost"
