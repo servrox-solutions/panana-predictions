@@ -145,7 +145,7 @@ export const MarketInfo: React.FC<MarketInfoProps> = ({
                 disabled={
                   !isMounted ||
                   !marketData ||
-                  marketData.endTime > Math.floor(Date.now() / 1000)
+                  marketData.endTime > Math.floor(Date.now() / 1000) // this works cause marketData gets updated every 3 seconds
                 }
                 loading={resolveMarketLoading}
                 onClick={onResolveMarket}
