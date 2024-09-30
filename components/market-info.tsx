@@ -8,6 +8,9 @@ import { useIsMounted } from "@/lib/hooks/useIsMounted";
 import { getExplorerObjectLink } from "@/lib/aptos";
 import Link from "next/link";
 import { formatAptPrice } from "@/lib/utils";
+import { useResolveMarket } from "@/lib/hooks/useResolveMarket";
+import { LoadingButton } from "./ui/loading-button";
+import { useState } from "react";
 
 interface MarketInfoProps {
   availableMarket: AvailableMarket;
@@ -22,6 +25,17 @@ export const MarketInfo: React.FC<MarketInfoProps> = ({
 }) => {
   const isMounted = useIsMounted();
   const { marketData } = useMarket(availableMarket, 3000, initialMarketData);
+
+  const { resolveMarket } = useResolveMarket();
+  const [resolveMarketLoading, setResolveMarketLoading] = useState(false);
+
+  const onResolveMarket = async () => {
+    if (!marketData) return;
+
+    setResolveMarketLoading(true);
+    await resolveMarket(marketData.address);
+    setResolveMarketLoading(false);
+  };
 
   return (
     <div className="grid grid-cols-4 grid-rows-8 gap-4 text-xs sm:text-base">
@@ -125,6 +139,20 @@ export const MarketInfo: React.FC<MarketInfoProps> = ({
                   : "Down"
               }
             />
+
+            <div className="col-span-2">
+              <LoadingButton
+                disabled={
+                  !isMounted ||
+                  !marketData ||
+                  marketData.endTime > Math.floor(Date.now() / 1000)
+                }
+                loading={resolveMarketLoading}
+                onClick={onResolveMarket}
+              >
+                <span>Resolve Market</span>
+              </LoadingButton>
+            </div>
           </div>
         </Card>
       </div>

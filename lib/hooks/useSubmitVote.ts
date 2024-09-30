@@ -1,10 +1,10 @@
 import { createEntryPayload } from "@thalalabs/surf";
-import { aptos, MARKET_ABI } from "@/lib/aptos";
+import { MARKET_ABI } from "@/lib/aptos";
 import { MarketData } from "@/lib/types/market";
 import { useWallet } from "@aptos-labs/wallet-adapter-react";
 
 export const useSubmitVote = () => {
-  const { account, signAndSubmitTransaction } = useWallet(); // extract wallet data inside the hook
+  const { account, signAndSubmitTransaction } = useWallet();
 
   const submitVote = async (
     marketData: MarketData,
@@ -21,21 +21,19 @@ export const useSubmitVote = () => {
         functionArguments: [marketData.address, isVoteUp],
       });
 
-      const transactionResponse = await signAndSubmitTransaction({
+      await signAndSubmitTransaction({
         sender: account.address,
         data: payload,
       });
 
-      console.log("🍧 vote transactionResponse", transactionResponse);
+      // const transactionResponse = await signAndSubmitTransaction({
+      //   sender: account.address,
+      //   data: payload,
+      // });
 
-      const committedTransactionResponse = await aptos.waitForTransaction({
-        transactionHash: transactionResponse.hash,
-      });
-
-      console.log(
-        "🍧 vote committedTransactionResponse",
-        committedTransactionResponse
-      );
+      // const committedTransactionResponse = await aptos.waitForTransaction({
+      //   transactionHash: transactionResponse.hash,
+      // });
     } catch (error: any) {
       console.error("Transaction failed:", error);
     }

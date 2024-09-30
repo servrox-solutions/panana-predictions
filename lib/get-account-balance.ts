@@ -1,6 +1,5 @@
 import { aptos } from "./aptos";
 
-
 export const getAccountBalance = async (
   objectAddress: string
 ): Promise<number> => {
