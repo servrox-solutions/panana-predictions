@@ -1,10 +1,10 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { nextBasicAuthMiddleware } from "nextjs-basic-auth-middleware";
+// import { nextBasicAuthMiddleware } from "nextjs-basic-auth-middleware";
 
 export function middleware(request: NextRequest) {
-  const response = nextBasicAuthMiddleware(undefined, request);
-  if (response.status === 401) return response;
+  // const response = nextBasicAuthMiddleware(undefined, request);
+  // if (response.status === 401) return response;
 
   const headers = new Headers(request.headers);
   headers.set("x-current-path", request.nextUrl.pathname);
