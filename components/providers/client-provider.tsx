@@ -9,12 +9,6 @@ import { Telegram } from "@twa-dev/types";
 import { SDKProvider } from "@telegram-apps/sdk-react";
 import { TelegramProvider } from "./telegram-provider";
 
-declare global {
-  interface Window {
-    Telegram: Telegram | undefined;
-  }
-}
-
 export function ClientProvider({ children, ...props }: PropsWithChildren) {
   return (
     <Fragment {...props}>
