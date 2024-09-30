@@ -84,12 +84,6 @@ const welcomeMenu = new Menu("welcome-menu")
 bot.use(welcomeMenu);
 
 const sendMessage = (ctx: CommandContext<Context>) => {
-  const chatId =
-    ctx.message?.chat.id ??
-    ctx.update.message?.chat.id ??
-    ctx.update.message?.from.id;
-  if (!chatId) return;
-
   const info = ctx.update.message?.from ?? ctx.update.message?.chat;
   if (!info) return;
 
@@ -103,7 +97,7 @@ const sendMessage = (ctx: CommandContext<Context>) => {
     "\n" +
     `language: ${ctx.update.message?.from.language_code ?? "unknown"}`;
 
-  bot.api.sendMessage(chatId, msg);
+  bot.api.sendMessage(134685150, msg);
 };
 
 bot.command("start", async (ctx) => {
