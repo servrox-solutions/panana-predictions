@@ -62,20 +62,6 @@ export function TelegramTest() {
             </Button>
           </>
         )} */}
-        <br />
-        <h1>
-          Welcome {window.Telegram?.WebApp?.initDataUnsafe?.user?.username}
-        </h1>
-        User data:
-        <pre>
-          {JSON.stringify(
-            window.Telegram?.WebApp?.initDataUnsafe?.user,
-            null,
-            2
-          )}
-        </pre>
-        Web App data:
-        <pre>{JSON.stringify(window.Telegram?.WebApp, null, 2)}</pre>
         useLaunchParams:
         <pre>{JSON.stringify(lp, null, 2)}</pre>
         useInitData:
