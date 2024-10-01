@@ -51,8 +51,8 @@ export function CreatedMarketsTable({
     filter.length === 0
       ? latestCreatedMarkets.length
       : latestCreatedMarkets.filter((latestCreatedMarket) =>
-          filter.includes(latestCreatedMarket.assetSymbol)
-        ).length;
+        filter.includes(latestCreatedMarket.assetSymbol)
+      ).length;
 
   return (
     <Table>
@@ -76,33 +76,34 @@ export function CreatedMarketsTable({
           </TableHead> */}
         </TableRow>
       </TableHeader>
+
       <TableBody>
-        <TableRow
-          className={`table-row hover:sm:bg-gray-500 hover:sm:bg-opacity-50 ${
-            latestCreatedMarkets.filter((latestCreatedMarket) =>
+        <div>
+          <TableRow
+            className={`table-row hover:sm:bg-gray-500 hover:sm:bg-opacity-50 ${latestCreatedMarkets.filter((latestCreatedMarket) =>
               filter.length === 0
                 ? true
                 : filter.includes(latestCreatedMarket.assetSymbol)
             ).length === 0
               ? ""
               : "hidden"
-          }`}
-          key="empty table"
-        >
-          <TableCell className="table-cell text-center" colSpan={8}>
-            <span className="p-4">No Values</span>
-          </TableCell>
-        </TableRow>
+              }`}
+            key="empty table"
+          >
+            <TableCell className="table-cell text-center" colSpan={8}>
+              <span className="p-4">No Values</span>
+            </TableCell>
+          </TableRow>
+        </div>
         {latestCreatedMarkets.map((latestCreatedMarket, idx) => (
-          <TableRow
-            className={`hover:bg-initial hover:sm:bg-gray-500 hover:sm:bg-opacity-50 ${
-              filter.length === 0 ||
-              filter.includes(latestCreatedMarket.assetSymbol)
-                ? ""
-                : "hidden"
+          <Link className={`hover:bg-initial hover:sm:bg-gray-500 hover:sm:bg-opacity-50 table-row ${filter.length === 0 ||
+            filter.includes(latestCreatedMarket.assetSymbol)
+            ? ""
+            : "hidden"
             }`}
             key={latestCreatedMarket.marketAddress}
-          >
+            href={`/markets/${latestCreatedMarket.marketAddress}`}>
+
             <TableCell className="hidden sm:table-cell">
               <div className={`h-full`}>
                 <div className="text-md text-muted-foreground flex justify-center align-center gap-2">
@@ -294,7 +295,7 @@ export function CreatedMarketsTable({
                 </div>
               </div>
             </TableCell>
-          </TableRow>
+          </Link>
         ))}
       </TableBody>
     </Table>

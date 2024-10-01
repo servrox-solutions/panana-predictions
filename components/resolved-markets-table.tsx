@@ -80,15 +80,14 @@ export function ResolvedMarketsTable({
       </TableHeader>
       <TableBody>
         <TableRow
-          className={`table-row hover:bg-initial hover:sm:bg-gray-500 hover:sm:bg-opacity-50 ${
-            latestResolvedMarkets.filter((latestResolvedMarket) =>
-              filter.length === 0
-                ? true
-                : filter.includes(latestResolvedMarket.assetSymbol)
-            ).length === 0
+          className={`table-row hover:bg-initial hover:sm:bg-gray-500 hover:sm:bg-opacity-50 ${latestResolvedMarkets.filter((latestResolvedMarket) =>
+            filter.length === 0
+              ? true
+              : filter.includes(latestResolvedMarket.assetSymbol)
+          ).length === 0
               ? ""
               : "hidden"
-          }`}
+            }`}
           key="empty table"
         >
           <TableCell className="table-cell text-center" colSpan={8}>
@@ -96,20 +95,17 @@ export function ResolvedMarketsTable({
           </TableCell>
         </TableRow>
         {latestResolvedMarkets.map((latestResolvedMarket, idx) => (
-          <TableRow
-            className={`hover:bg-initial hover:sm:bg-gray-500 hover:sm:bg-opacity-50 ${
-              filter.length === 0 ||
+          <Link className={`hover:bg-initial hover:sm:bg-gray-500 table-row hover:sm:bg-opacity-50 ${filter.length === 0 ||
               filter.includes(latestResolvedMarket.assetSymbol)
-                ? ""
-                : "hidden"
+              ? ""
+              : "hidden"
             }`}
             key={latestResolvedMarket.marketAddress}
-          >
+            href={`/markets/${latestResolvedMarket.marketAddress}`}>
             <TableCell className="hidden sm:table-cell">
               <div
-                className={`h-full ${
-                  idx !== 3 && idx !== 5 ? `text-positive-1` : "text-negative-1"
-                }`}
+                className={`h-full ${idx !== 3 && idx !== 5 ? `text-positive-1` : "text-negative-1"
+                  }`}
               >
                 <div className="text-md text-muted-foreground flex justify-center align-center gap-2">
                   <Web3Icon
@@ -134,16 +130,15 @@ export function ResolvedMarketsTable({
             </TableCell>
             <TableCell className="hidden sm:table-cell">
               <div
-                className={`flex items-center w-full font-semibold ${
-                  latestResolvedMarket.startPrice <
-                  latestResolvedMarket.endPrice
+                className={`flex items-center w-full font-semibold ${latestResolvedMarket.startPrice <
+                    latestResolvedMarket.endPrice
                     ? `text-positive-1`
                     : "text-negative-1"
-                } relative`}
+                  } relative`}
               >
                 {(latestResolvedMarket.startPrice / 10 ** 9).toFixed(3)} ${" "}
                 {latestResolvedMarket.startPrice ===
-                latestResolvedMarket.endPrice ? (
+                  latestResolvedMarket.endPrice ? (
                   <ChevronsLeftRight />
                 ) : latestResolvedMarket.startPrice <
                   latestResolvedMarket.endPrice ? (
@@ -265,7 +260,7 @@ export function ResolvedMarketsTable({
                 </div>
                 <div className="flex items-center">
                   {latestResolvedMarket.startPrice ===
-                  latestResolvedMarket.endPrice ? (
+                    latestResolvedMarket.endPrice ? (
                     <ChevronsLeftRight className="w-4 h-4 mr-4" />
                   ) : latestResolvedMarket.startPrice <
                     latestResolvedMarket.endPrice ? (
@@ -279,12 +274,11 @@ export function ResolvedMarketsTable({
                     </span>
                     <div className="flex">
                       <div
-                        className={`flex flex-col items-center w-full font-semibold relative ${
-                          latestResolvedMarket.startPrice <
-                          latestResolvedMarket.endPrice
+                        className={`flex flex-col items-center w-full font-semibold relative ${latestResolvedMarket.startPrice <
+                            latestResolvedMarket.endPrice
                             ? "text-positive-1"
                             : "text-negative-1"
-                        }`}
+                          }`}
                       >
                         <div>
                           {(latestResolvedMarket.startPrice / 10 ** 9).toFixed(
@@ -339,7 +333,7 @@ export function ResolvedMarketsTable({
                 </div>
               </div>
             </TableCell>
-          </TableRow>
+          </Link>
         ))}
       </TableBody>
     </Table>
