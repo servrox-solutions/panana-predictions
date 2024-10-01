@@ -37,7 +37,7 @@ export const MarketTitle = ({
   return (
     <Tag className={cn("text-lg font-semibold", className)}>
       Will
-      <span className="text-secondary bg-primary p-1 rounded mx-1">
+      <span className="dark:text-secondary bg-primary p-1 rounded mx-1">
         {tradingPair.one}/{tradingPair.two}
       </span>
       go up or down within {toHuman(diff)}?

@@ -16,6 +16,7 @@ function AdvancedChart({ marketType }: { marketType: MarketType }) {
       scriptAppendedRef.current
     )
       return;
+    console.log(resolvedTheme)
 
     scriptAppendedRef.current = true;
 

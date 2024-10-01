@@ -16,18 +16,18 @@ export interface ProfileCardProps {
 export default function ProfileCard(props: ProfileCardProps) {
   const { address, balance, totalTransactions, className } = props;
   return (
-    <Card className={cn("p-6", className)}>
+    <Card className={cn("p-6 text-muted dark:text-white", className)}>
       <CardHeader className="flex items-center">
-        <h3 className="text-sm text-white">
+        <h3 className="text-sm">
           <TelegramUsername />
         </h3>
         <Avatar address={address} />
-        <h3 className="text-lg font-semibold text-white">
+        <h3 className="text-lg font-semibold">
           <Link href={getExplorerAccountLink(address)} className="underline" target="_blank">{addEllipsis(address)}</Link>
         </h3>
       </CardHeader>
       <CardContent className="mt-4">
-        <div className="flex justify-between text-white">
+        <div className="flex justify-between">
           <div className="flex flex-col">
             <span className="text-gray-500">Balance</span>
             <span>{balance.toFixed(5).toLocaleString()} APT</span>

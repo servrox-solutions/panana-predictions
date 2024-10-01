@@ -11,7 +11,7 @@ export function MarketsSearch() {
       <Input
         type="search"
         placeholder="Search markets..."
-        className="h-8 w-[150px] lg:w-[250px] backdrop-grayscale-[.5] bg-gray-800 bg-opacity-30 backdrop-blur-lg text-white"
+        className="h-8 w-[150px] lg:w-[250px] backdrop-grayscale-[.5] bg-gray-200 dark:bg-transparent bg-opacity-30 backdrop-blur-lg"
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
       />

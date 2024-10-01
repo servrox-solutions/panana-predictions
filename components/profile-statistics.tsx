@@ -22,7 +22,7 @@ export default function Statistics(props: StatisticsProps) {
   } = props;
 
   return (
-    <div className="grid grid-cols-2 gap-4 text-white">
+    <div className="grid grid-cols-2 gap-4 text-muted dark:text-white">
       <Web3AmountCard
         className="col-span-2"
         title="Betted Markets"
