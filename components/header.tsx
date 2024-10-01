@@ -1,7 +1,7 @@
 import { ModeToggle } from "./mode-toggle";
 import { WalletSelector } from "./wallet-selector";
-import EmojiCanvas from "./emoji-canvas";
 import { Logo } from "./sidenav/logo";
+import { FundWalletButton } from './fund-wallet-button';
 
 export function Header() {
   return (
@@ -46,6 +46,7 @@ export function Header() {
       </div>
 
       <ModeToggle className="hidden sm:flex" />
+      <FundWalletButton />
       {/* <WalletReconnect className="hidden sm:flex" /> */}
       <WalletSelector />
       {/* <DropdownMenu>
