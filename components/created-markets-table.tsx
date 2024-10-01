@@ -24,6 +24,7 @@ import { getExplorerObjectLink } from "@/lib/aptos";
 import { Web3Icon } from "./web3-icon";
 import { useIsMounted } from "@/lib/hooks/useIsMounted";
 import { MarketType } from "@/lib/types/market";
+import { cn } from "@/lib/utils";
 
 export interface CreatedMarket {
   assetSymbol: MarketType;
@@ -46,13 +47,6 @@ export function CreatedMarketsTable({
   filter = [],
 }: CreatedMarketsTableProps) {
   const isMounted = useIsMounted();
-
-  const filteredRowsLength =
-    filter.length === 0
-      ? latestCreatedMarkets.length
-      : latestCreatedMarkets.filter((latestCreatedMarket) =>
-        filter.includes(latestCreatedMarket.assetSymbol)
-      ).length;
 
   return (
     <Table>
@@ -80,14 +74,16 @@ export function CreatedMarketsTable({
       <TableBody>
         <div>
           <TableRow
-            className={`table-row hover:sm:bg-gray-500 hover:sm:bg-opacity-50 ${latestCreatedMarkets.filter((latestCreatedMarket) =>
-              filter.length === 0
-                ? true
-                : filter.includes(latestCreatedMarket.assetSymbol)
-            ).length === 0
-              ? ""
-              : "hidden"
-              }`}
+            className={cn(
+              "table-row hover:sm:bg-gray-500 hover:sm:bg-opacity-50",
+              latestCreatedMarkets.filter((latestCreatedMarket) =>
+                filter.length === 0
+                  ? true
+                  : filter.includes(latestCreatedMarket.assetSymbol)
+              ).length === 0
+                ? ""
+                : "hidden"
+            )}
             key="empty table"
           >
             <TableCell className="table-cell text-center" colSpan={8}>
@@ -95,17 +91,20 @@ export function CreatedMarketsTable({
             </TableCell>
           </TableRow>
         </div>
-        {latestCreatedMarkets.map((latestCreatedMarket, idx) => (
-          <Link className={`hover:bg-initial hover:sm:bg-gray-500 hover:sm:bg-opacity-50 table-row ${filter.length === 0 ||
-            filter.includes(latestCreatedMarket.assetSymbol)
-            ? ""
-            : "hidden"
-            }`}
+        {latestCreatedMarkets.map((latestCreatedMarket) => (
+          <Link
+            className={cn(
+              "hover:bg-initial hover:sm:bg-gray-500 hover:sm:bg-opacity-50 table-row",
+              filter.length === 0 ||
+                filter.includes(latestCreatedMarket.assetSymbol)
+                ? ""
+                : "hidden"
+            )}
             key={latestCreatedMarket.marketAddress}
-            href={`/markets/${latestCreatedMarket.marketAddress}`}>
-
+            href={`/markets/${latestCreatedMarket.marketAddress}`}
+          >
             <TableCell className="hidden sm:table-cell">
-              <div className={`h-full`}>
+              <div className="h-full">
                 <div className="text-md text-muted-foreground flex justify-center align-center gap-2">
                   <Web3Icon
                     className="scale-[2]"
@@ -247,7 +246,7 @@ export function CreatedMarketsTable({
                       Created At
                     </span>
                     <span>
-                      <div className={`flex items-center w-full relative`}>
+                      <div className="flex items-center w-full relative">
                         {isMounted &&
                           DateTime.fromSeconds(
                             latestCreatedMarket.createdAtTimestamp

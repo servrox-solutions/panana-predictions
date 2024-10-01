@@ -23,7 +23,7 @@ export const MarketCard: React.FC<MarketCardProps> = ({
   initialMarketData,
 }) => {
   const { marketData: marketDataStore } = useMarketDataStore();
-  const { filteredMarketData } = useMarketData();
+  const { filteredMarketData, isVisible } = useMarketData();
   const { marketData } = useMarket(
     availableMarket,
     3000,
@@ -60,21 +60,13 @@ export const MarketCard: React.FC<MarketCardProps> = ({
     }
   };
 
-  const isInFilter =
-    !marketData?.tradingPair.one ||
-    !filter ||
-    filter.length === 0 ||
-    filter.includes(marketData.tradingPair.one);
-
-  const isInSearch =
-    !filteredMarketData ||
-    filteredMarketData.length === 0 ||
-    filteredMarketData.some((market) => market.address === marketData?.address);
-
-  const shouldShow = isInFilter && isInSearch;
-
   return (
-    <div className={cn("max-w-full", !shouldShow && "hidden")}>
+    <div
+      className={cn(
+        "max-w-full",
+        (!marketData || !isVisible(marketData)) && "hidden"
+      )}
+    >
       <MarketCardSimpleUi
         createTime={marketData?.createdAt ?? 1337}
         address={marketData?.address ?? "1337"}

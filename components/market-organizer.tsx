@@ -26,6 +26,7 @@ export async function MarketOrganizer({ markets }: MarketOrganizerProps) {
             initialMarketData={market}
           />
         ))}
+
       {markets.length === 0 && (
         <div className="text-center text-muted-foreground w-full">
           No markets found. Go create one!

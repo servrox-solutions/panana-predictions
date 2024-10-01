@@ -2,10 +2,16 @@ import { useMemo, useCallback } from "react";
 import { useFuzzySearchList } from "@nozbe/microfuzz/react";
 import { MarketData } from "@/lib/types/market";
 import { useMarketDataStore } from "../atoms/useMarketDataStore";
+import { useFilterStore } from "../atoms/useFilterStore";
 
 export function useMarketData() {
-  const { marketData, setMarketData, searchTerm, setSearchTerm } =
-    useMarketDataStore();
+  const {
+    marketData,
+    setMarketData,
+    searchTerm,
+    setSearchTerm,
+    displayMarketData,
+  } = useMarketDataStore();
 
   // Helper function to convert Map objects to a searchable string
   const mapToString = useCallback((map?: Map<any, any>): string => {
@@ -76,7 +82,31 @@ export function useMarketData() {
     [setMarketData]
   );
 
+  const { filter } = useFilterStore("markets");
+
+  const isVisible = (marketData: MarketData) => {
+    const isInMarketTypeDropdownFilter =
+      !filter ||
+      filter.length === 0 ||
+      filter.includes(marketData.tradingPair.one);
+
+    const isInSearch =
+      !filteredMarketData ||
+      filteredMarketData.length === 0 ||
+      filteredMarketData.some(
+        (market) => market.address === marketData?.address
+      );
+
+    const isInDisplayMarketData =
+      displayMarketData === "open"
+        ? marketData.startTime > Date.now() / 1000
+        : marketData.startTime <= Date.now() / 1000;
+
+    return isInMarketTypeDropdownFilter && isInSearch && isInDisplayMarketData;
+  };
+
   return {
+    isVisible,
     marketData,
     filteredMarketData,
     addMarketData,
