@@ -25,28 +25,30 @@ export default async function Markets({
 
   return (
     <div className="p-3 flex flex-col gap-4">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between flex-wrap-reverse gap-2">
         <SwitchMarketView />
 
-        <div className="flex space-x-2">
+        <div className="flex justify-between sm:justify-end sm: space-x-2 grow">
           <MarketsSearch />
 
-          <FilterDropdown
-            name="markets"
-            items={uniqueAvailableMarkets}
-            preSelected={searchParams?.markets}
-          />
+          <div className="flex space-x-2">
+            <FilterDropdown
+              name="markets"
+              items={uniqueAvailableMarkets}
+              preSelected={searchParams?.markets}
+            />
 
-          <SortDropdown />
+            <SortDropdown />
 
-          <MarketCreateModal
-            marketplaces={marketplaces}
-            onMarketCreated={async () => {
-              "use server";
-              console.log("revalidating");
-              revalidatePath("/markets", "page");
-            }}
-          />
+            <MarketCreateModal
+              marketplaces={marketplaces}
+              onMarketCreated={async () => {
+                "use server";
+                console.log("revalidating");
+                revalidatePath("/markets", "page");
+              }}
+            />
+          </div>
         </div>
       </div>
       <MarketOrganizer markets={availableMarkets} />
