@@ -22,6 +22,7 @@ import { MODULE_ADDRESS_FROM_ABI } from "@/lib/aptos";
 import { Input } from "./ui/input";
 import { AvailableMarketplace } from "@/lib/get-available-marketplaces";
 import { toast } from "react-toastify";
+import { useCallback, useMemo } from "react";
 
 export interface MarketCreateModalProps {
   marketplaces: AvailableMarketplace[];
@@ -76,66 +77,38 @@ export function MarketCreateModal({
     },
   });
 
-  const durations = [
-    Duration.fromObject({
-      minute: 15,
-    }),
-    Duration.fromObject({
-      minute: 30,
-    }),
-    Duration.fromObject({
-      minute: 45,
-    }),
-    Duration.fromObject({
-      hour: 1,
-    }),
-    Duration.fromObject({
-      hour: 2,
-    }),
-    Duration.fromObject({
-      hour: 4,
-    }),
-    Duration.fromObject({
-      hour: 6,
-    }),
-    Duration.fromObject({
-      hour: 12,
-    }),
-    Duration.fromObject({
-      day: 1,
-    }),
-    Duration.fromObject({
-      day: 3,
-    }),
-    Duration.fromObject({
-      day: 7,
-    }),
-    Duration.fromObject({
-      day: 14,
-    }),
-    Duration.fromObject({
-      month: 1,
-    }),
-    Duration.fromObject({
-      month: 3,
-    }),
-    Duration.fromObject({
-      month: 6,
-    }),
-    Duration.fromObject({
-      year: 1,
-    }),
-  ];
+  const durations = useMemo(
+    () => [
+      Duration.fromObject({ minute: 15 }),
+      Duration.fromObject({ minute: 30 }),
+      Duration.fromObject({ minute: 45 }),
+      Duration.fromObject({ hour: 1 }),
+      Duration.fromObject({ hour: 2 }),
+      Duration.fromObject({ hour: 4 }),
+      Duration.fromObject({ hour: 6 }),
+      Duration.fromObject({ hour: 12 }),
+      Duration.fromObject({ day: 1 }),
+      Duration.fromObject({ day: 3 }),
+      Duration.fromObject({ day: 7 }),
+      Duration.fromObject({ day: 14 }),
+      Duration.fromObject({ month: 1 }),
+      Duration.fromObject({ month: 3 }),
+      Duration.fromObject({ month: 6 }),
+      Duration.fromObject({ year: 1 }),
+    ],
+    []
+  );
 
-  const assets = marketplaces.map((marketplace) => ({
-    label:
-      marketplace.typeArgument.split("::")[
-        marketplace.typeArgument.split("::").length - 1
-      ],
-    value: marketplace.typeArgument,
-  }));
+  const assets = useMemo(
+    () =>
+      marketplaces.map((marketplace) => ({
+        label: marketplace.typeArgument.split("::").pop()!,
+        value: marketplace.typeArgument,
+      })),
+    [marketplaces]
+  );
 
-  function formatDuration(duration: Duration) {
+  const formatDuration = useCallback((duration: Duration) => {
     // Switch case to format based on the unit
     switch (Object.keys(duration.toObject())[0]) {
       case "minutes":
@@ -151,9 +124,9 @@ export function MarketCreateModal({
       default:
         return "Invalid duration unit";
     }
-  }
+  }, []);
 
-  const scrollIntoView = () => {
+  const scrollIntoView = useCallback(() => {
     // need to postpone the scroll to next render since the element is not found until the popover was rendered.
     setTimeout(() => {
       const el = document.getElementById(
@@ -163,9 +136,9 @@ export function MarketCreateModal({
       el?.scrollIntoView({ block: "center" });
       el2?.scrollIntoView({ block: "center" });
     }, 0);
-  };
+  }, []);
 
-  async function onSubmit(data: z.infer<typeof FormSchema>) {
+  const onSubmit = async (data: z.infer<typeof FormSchema>) => {
     if (!account) {
       // TODO: handle user not logged in
       return;
@@ -186,28 +159,58 @@ export function MarketCreateModal({
     onMarketCreated?.();
 
     window.location.reload(); // TODO: fix this
-  }
+  };
 
-  // function getEndDate(date?: Date, durationSeconds?: number): DateTime | null {
-  //     if (!date || !durationSeconds) {
-  //         return null;
-  //     }
+  const handleAssetChange = useCallback(
+    (assetValue: string) => {
+      form.setValue("asset", assetValue);
+    },
+    [form]
+  );
 
-  //     return DateTime.fromJSDate(date).plus({ seconds: durationSeconds });
-  // }
+  const handleDurationChange = useCallback(
+    (durationValue: number) => {
+      form.setValue("durationSeconds", durationValue);
+      form.trigger("durationSeconds");
+    },
+    [form]
+  );
+
+  const handleDateChange = useCallback(
+    (date?: DateTime) => {
+      if (form.getValues().startTime === date?.toJSDate()) {
+        return;
+      }
+      date && form.setValue("startTime", date.toJSDate());
+      console.log("start Time trigger");
+      form.trigger("startTime");
+    },
+    [form]
+  );
+
+  const handleModalTriggerClick = useCallback(
+    (open: () => void) => {
+      if (!account?.address) {
+        toast.info("Please connect your wallet first.");
+        return;
+      }
+      open();
+    },
+    [account]
+  );
+
+  // Memoizing the initialDate calculation
+  const initialDate = useMemo(() => {
+    const startTime = form.getValues("startTime");
+    return startTime ? DateTime.fromJSDate(startTime) : undefined;
+  }, [form.getValues("startTime")]);
 
   return (
     <>
       <Modal>
         <ModalTrigger
           className="h-8 flex justify-center"
-          onClick={(evt, open) => {
-            if (!account?.address) {
-              toast.info("Please connect your wallet first.");
-              return;
-            }
-            open();
-          }}
+          onClick={(evt, open) => handleModalTriggerClick(open)}
         >
           <div
             onClick={() => scrollIntoView()}
@@ -249,9 +252,7 @@ export function MarketCreateModal({
                                   ? "bg-primary text-secondary"
                                   : ""
                               }`}
-                              onClick={() => {
-                                form.setValue("asset", asset.value);
-                              }}
+                              onClick={() => handleAssetChange(asset.value)}
                             >
                               {asset.label}/USD
                             </Button>
@@ -272,23 +273,9 @@ export function MarketCreateModal({
                     <FormItem className="flex flex-col">
                       <FormLabel>Start</FormLabel>
                       <DatePicker
-                        initialDate={
-                          form.getValues("startTime") &&
-                          DateTime.fromJSDate(form.getValues("startTime")!)
-                        }
-                        onDateChange={(date) => {
-                          if (form.getValues().startTime === date?.toJSDate()) {
-                            return;
-                          }
-                          date && form.setValue("startTime", date.toJSDate());
-                          console.log("start Time trigger");
-                          form.trigger("startTime");
-                        }}
+                        initialDate={initialDate} // Use memoized initialDate
+                        onDateChange={handleDateChange}
                       />
-                      {/* <FormDescription>
-                                                This is the starting date of the market. After this
-                                                date, no new bets can be placed.
-                                            </FormDescription> */}
                       <FormMessage />
                     </FormItem>
                   )}
@@ -312,13 +299,9 @@ export function MarketCreateModal({
                                   ? "bg-primary text-secondary hover:bg-primary hover:text-secondary"
                                   : ""
                               }`}
-                              onClick={() => {
-                                form.setValue(
-                                  "durationSeconds",
-                                  i.as("seconds")
-                                );
-                                form.trigger("durationSeconds");
-                              }}
+                              onClick={() =>
+                                handleDurationChange(i.as("seconds"))
+                              }
                             >
                               {formatDuration(i)}
                             </Button>
@@ -412,69 +395,4 @@ export function MarketCreateModal({
       </Modal>
     </>
   );
-}
-
-{
-  /* <FormField
-      control={form.control}
-      name="asset"
-      render={({ field }) => (
-          <FormItem className="flex flex-col">
-              <FormLabel>Asset</FormLabel>
-              <Popover>
-                  <PopoverTrigger asChild>
-                      <FormControl>
-                          <Button
-                              variant="outline"
-                              role="combobox"
-                              className={cn(
-                                  "w-[200px] justify-between",
-                                  !field.value && "text-muted-foreground"
-                              )}
-                          >
-                              {field.value
-                                  ? assets.find(
-                                      (asset) => asset.value === field.value
-                                  )?.label
-                                  : "Select asset"}
-                              <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                          </Button>
-                      </FormControl>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-[200px] p-0">
-                      <Command>
-                          <CommandList>
-                              <CommandEmpty>No language found.</CommandEmpty>
-                              <CommandGroup>
-                                  {assets.map((asset) => (
-                                      <CommandItem
-                                          value={asset.label}
-                                          key={asset.value}
-                                          onSelect={() => {
-                                              form.setValue("asset", asset.value)
-                                          }}
-                                      >
-                                          <Check
-                                              className={cn(
-                                                  "mr-2 h-4 w-4",
-                                                  asset.value === field.value
-                                                      ? "opacity-100"
-                                                      : "opacity-0"
-                                              )}
-                                          />
-                                          {asset.label}
-                                      </CommandItem>
-                                  ))}
-                              </CommandGroup>
-                          </CommandList>
-                      </Command>
-                  </PopoverContent>
-              </Popover>
-              <FormDescription>
-                  This is the language that will be used in the dashboard.
-              </FormDescription>
-              <FormMessage />
-          </FormItem>
-      )}
-  /> */
 }

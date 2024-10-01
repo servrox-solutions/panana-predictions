@@ -3,7 +3,7 @@
 import { useMarket } from "@/lib/hooks/useMarket";
 import { AvailableMarket } from "@/lib/get-available-markets";
 import { MarketCardSimpleUi } from "./market-card-simple-ui";
-import { MarketData } from "@/lib/types/market";
+import { MarketData, MarketType } from "@/lib/types/market";
 import { usePlaceBet } from "@/lib/hooks/usePlaceBet";
 import { useSubmitVote } from "@/lib/hooks/useSubmitVote";
 import { useMarketData } from "@/lib/hooks/useMarketData";
@@ -11,6 +11,7 @@ import { useMarketDataStore } from "@/lib/atoms/useMarketDataStore";
 import { cn } from "@/lib/utils";
 import { useWallet } from "@aptos-labs/wallet-adapter-react";
 import { toast } from "react-toastify";
+import { useMemo, useCallback } from "react";
 
 interface MarketCardProps {
   availableMarket: AvailableMarket;
@@ -38,34 +39,45 @@ export const MarketCard: React.FC<MarketCardProps> = ({
   const { placeBet } = usePlaceBet();
   const { submitVote } = useSubmitVote();
 
-  const onPlaceBet = async (betUp: boolean, amount: number) => {
-    if (!account?.address) {
-      toast.info("Please connect your wallet first.");
-      return;
-    }
-    if (marketData) {
-      await placeBet(marketData, betUp, amount);
-    }
-  };
+  const onPlaceBet = useCallback(
+    async (betUp: boolean, amount: number) => {
+      if (!account?.address) {
+        toast.info("Please connect your wallet first.");
+        return;
+      }
+      if (marketData) {
+        await placeBet(marketData, betUp, amount);
+      }
+    },
+    [account?.address, marketData, placeBet]
+  );
 
-  const onVote = async (isVoteUp: boolean) => {
-    if (!account?.address) {
-      toast.info("Please connect your wallet first.");
-      return;
-    }
-    if (marketData) {
-      await submitVote(marketData, isVoteUp);
-    }
-  };
+  const onVote = useCallback(
+    async (isVoteUp: boolean) => {
+      if (!account?.address) {
+        toast.info("Please connect your wallet first.");
+        return;
+      }
+      if (marketData) {
+        await submitVote(marketData, isVoteUp);
+      }
+    },
+    [account?.address, marketData, submitVote]
+  );
+
+  const tradingPair = useMemo(
+    () => ({
+      one: marketData?.tradingPair?.one ?? "APT",
+      two: marketData?.tradingPair?.two ?? "USD",
+    }),
+    [marketData?.tradingPair]
+  );
 
   return (
     <div
       className={cn(
         "max-w-full",
         (!marketData || !isVisible(marketData)) && "hidden"
-        // marketData
-        //   ? `order-${getPosition(marketData)}`
-        //   : `order-${index}`
       )}
       style={{ order: marketData ? getPosition(marketData) : 0 }}
     >
@@ -75,7 +87,8 @@ export const MarketCard: React.FC<MarketCardProps> = ({
         minBet={marketData?.minBet ?? 1337}
         betCloseTime={marketData?.startTime ?? 1336}
         resolveTime={marketData?.endTime ?? 1337}
-        tradingPair={marketData?.tradingPair ?? { one: "APT", two: "USD" }}
+        tradingPairOne={tradingPair.one}
+        tradingPairTwo={tradingPair.two}
         upVotesSum={marketData?.upVotesSum ?? 1337}
         downVotesSum={marketData?.downVotesSum ?? 1337}
         upWinFactor={marketData?.upWinFactor ?? 1337}

@@ -6,6 +6,10 @@ import { Tabs, TabsList, TabsTrigger } from "./ui/tabs";
 export function SwitchMarketView() {
   const { displayMarketData, setDisplayMarketData } = useMarketDataStore();
 
+  // Define handlers outside of the render to avoid inline functions
+  const handleOpenMarketsClick = () => setDisplayMarketData("open");
+  const handleClosedMarketsClick = () => setDisplayMarketData("closed");
+
   return (
     <Tabs
       defaultValue={
@@ -15,13 +19,13 @@ export function SwitchMarketView() {
       <TabsList>
         <TabsTrigger
           value="openMarkets"
-          onClick={() => setDisplayMarketData("open")}
+          onClick={handleOpenMarketsClick} // Use predefined handler
         >
           Open Markets
         </TabsTrigger>
         <TabsTrigger
           value="closedMarkets"
-          onClick={() => setDisplayMarketData("closed")}
+          onClick={handleClosedMarketsClick} // Use predefined handler
         >
           Running Markets
         </TabsTrigger>

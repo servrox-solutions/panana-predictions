@@ -13,6 +13,9 @@ interface MarketCardTimelineProps {
   endTime: number;
 }
 
+// Wrap Banana component with React.memo to prevent unnecessary re-renders
+const MemoizedBanana = React.memo(Banana);
+
 export const MarketCardTimeline: React.FC<MarketCardTimelineProps> = ({
   createTime,
   betCloseTime,
@@ -110,7 +113,7 @@ export const MarketCardTimeline: React.FC<MarketCardTimelineProps> = ({
             size="icon"
             className="bg-primary text-primary-foreground h-8 w-8 -mr-1"
           >
-            <Banana className="h-4 w-4" />
+            <MemoizedBanana className="h-4 w-4" />
           </Button>
         </div>
 

@@ -32,5 +32,6 @@
   ],
   "files.autoSave": "onFocusChange",
   "git.inputValidationSubjectLength": 100,
-  "typescript.enablePromptUseWorkspaceTsdk": true
+  "typescript.enablePromptUseWorkspaceTsdk": true,
+  "millionLint.xrayMode": false
 }

@@ -23,7 +23,7 @@ import {
   WhatsappIcon,
   WhatsappShareButton,
 } from "react-share";
-import React, { useState } from "react";
+import React, { useState, useMemo, useCallback } from "react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { calculateUserWin, cn } from "@/lib/utils";
@@ -31,10 +31,11 @@ import { MarketCardTimeline } from "./market-card-timeline";
 import Link from "next/link";
 import { SimpleContainerDropdown } from "./simple-container-dropdown";
 import { MarketTitle } from "./market-title";
-import { Card } from './ui/card';
+import { Card } from "./ui/card";
 
 export interface MarketCardSimpleUiProps {
-  tradingPair: { one: MarketType; two: string };
+  tradingPairOne: MarketType; // Destructured property
+  tradingPairTwo: string; // Destructured property
   minBet: number;
   betCloseTime: number;
   resolveTime: number;
@@ -53,7 +54,8 @@ export interface MarketCardSimpleUiProps {
 }
 
 export const MarketCardSimpleUi: React.FC<MarketCardSimpleUiProps> = ({
-  tradingPair,
+  tradingPairOne,
+  tradingPairTwo,
   minBet,
   betCloseTime,
   resolveTime,
@@ -75,6 +77,72 @@ export const MarketCardSimpleUi: React.FC<MarketCardSimpleUiProps> = ({
   const getSocialMessage = (marketId: string) =>
     `📈 Think you can predict the next move in crypto?\nJoin our latest market and put your forecast to the test!\n\nhttps://app.panana-predictions.xyz/markets/${marketId}\n\nOnly on 🍌Panana Predictions!`;
 
+  // Memoize the MarketCardTimeline component to prevent unnecessary re-renders
+  const MemoizedMarketCardTimeline = useMemo(
+    () => (
+      <MarketCardTimeline
+        createTime={createTime}
+        betCloseTime={betCloseTime}
+        endTime={resolveTime}
+      />
+    ),
+    [createTime, betCloseTime, resolveTime]
+  );
+
+  // Memoize the onClick handlers to prevent unnecessary re-renders
+  const handleBetUp = useCallback(() => setBet("up"), []);
+  const handleBetDown = useCallback(() => setBet("down"), []);
+  const handleVoteUp = useCallback(() => onVote(true), [onVote]);
+  const handleVoteDown = useCallback(() => onVote(false), [onVote]);
+
+  // Memoize the containers array for SimpleContainerDropdown
+  const containers = useMemo(
+    () => (
+      <div className="grid grid-cols-3 gap-2">
+        <TwitterShareButton className="w-8 h-8" url={getSocialMessage(address)}>
+          <TwitterIcon className="w-8 h-8 rounded-full" />
+        </TwitterShareButton>
+        <TelegramShareButton
+          className="w-8 h-8"
+          url={getSocialMessage(address)}
+        >
+          <TelegramIcon className="w-8 h-8 rounded-full" />
+        </TelegramShareButton>
+        <FacebookShareButton
+          className="w-8 h-8"
+          url={getSocialMessage(address)}
+        >
+          <FacebookIcon className="w-8 h-8 rounded-full" />
+        </FacebookShareButton>
+        <WhatsappShareButton
+          className="w-8 h-8"
+          url={getSocialMessage(address)}
+        >
+          <WhatsappIcon className="w-8 h-8 rounded-full" />
+        </WhatsappShareButton>
+        <EmailShareButton className="w-8 h-8" url={getSocialMessage(address)}>
+          <EmailIcon className="w-8 h-8 rounded-full" />
+        </EmailShareButton>
+        <HatenaShareButton className="w-8 h-8" url={getSocialMessage(address)}>
+          <HatenaIcon className="w-8 h-8 rounded-full" />
+        </HatenaShareButton>
+      </div>
+    ),
+    [address, getSocialMessage]
+  );
+
+  // Memoize the MarketTitle component to prevent unnecessary re-renders
+  const MemoizedMarketTitle = useMemo(
+    () => (
+      <MarketTitle
+        tradingPair={{ one: tradingPairOne, two: tradingPairTwo }} // Updated to use destructured props
+        resolveTime={resolveTime}
+        betCloseTime={betCloseTime}
+      />
+    ),
+    [tradingPairOne, tradingPairTwo, resolveTime, betCloseTime]
+  );
+
   return (
     <Card>
       {/* Header */}
@@ -82,11 +150,7 @@ export const MarketCardSimpleUi: React.FC<MarketCardSimpleUiProps> = ({
         <div className="flex-1">
           <div className="text-left">
             <Link href={`/markets/${address}`} className="hover:underline">
-              <MarketTitle
-                tradingPair={tradingPair}
-                resolveTime={resolveTime}
-                betCloseTime={betCloseTime}
-              />
+              {MemoizedMarketTitle}
             </Link>
           </div>
         </div>
@@ -105,13 +169,7 @@ export const MarketCardSimpleUi: React.FC<MarketCardSimpleUiProps> = ({
       </div>
 
       {/* Timeline Section */}
-      {!bet && (
-        <MarketCardTimeline
-          createTime={createTime}
-          betCloseTime={betCloseTime}
-          endTime={resolveTime}
-        />
-      )}
+      {!bet && MemoizedMarketCardTimeline}
 
       {/* Stats Section */}
       {bet && (
@@ -122,8 +180,9 @@ export const MarketCardSimpleUi: React.FC<MarketCardSimpleUiProps> = ({
           </div>
 
           <div className="text-center">
-            <p className="font-bold text-base">{`${downBetsCount + upBetsCount
-              } Bets`}</p>
+            <p className="font-bold text-base">{`${
+              downBetsCount + upBetsCount
+            } Bets`}</p>
             <p className="text-sm">{downBetsSum + upBetsSum} APT</p>
           </div>
 
@@ -140,7 +199,7 @@ export const MarketCardSimpleUi: React.FC<MarketCardSimpleUiProps> = ({
           <div className="flex-1">
             <Button
               className="group w-full font-semibold bg-gradient-to-r from-positive-1 to-positive-2 transition-all hover:to-green-500 text-white relative"
-              onClick={() => setBet("up")}
+              onClick={handleBetUp}
             >
               <span className="z-10">Bet Up</span>
               <ChevronsUp className="ml-2 h-4 w-4" />
@@ -162,7 +221,7 @@ export const MarketCardSimpleUi: React.FC<MarketCardSimpleUiProps> = ({
           <div className="flex-1">
             <Button
               className={`group w-full font-semibold bg-gradient-to-r from-negative-1 to-negative-2 transition-all hover:to-red-500 text-white relative`}
-              onClick={() => setBet("down")}
+              onClick={handleBetDown}
             >
               <span className="z-10">Bet Down</span>
               <ChevronsDown className="ml-2 h-4 w-4" />
@@ -233,7 +292,7 @@ export const MarketCardSimpleUi: React.FC<MarketCardSimpleUiProps> = ({
               variant="ghost"
               size="icon"
               className="group hover:text-red-500 hover:bg-red-500/20"
-              onClick={() => onVote(false)}
+              onClick={handleVoteDown}
             >
               <ThumbsDown className="h-4 w-4" />
               <span className="text-xs dark:text-neutral-400 group-hover:text-red-500 pl-1">
@@ -244,7 +303,7 @@ export const MarketCardSimpleUi: React.FC<MarketCardSimpleUiProps> = ({
               variant="ghost"
               size="icon"
               className="group hover:text-green-500 hover:bg-green-500/20"
-              onClick={() => onVote(true)}
+              onClick={handleVoteUp}
             >
               <ThumbsUp className="h-4 w-4" />
               <span className="text-xs dark:text-neutral-400 group-hover:text-green-500 pl-1">
@@ -252,48 +311,7 @@ export const MarketCardSimpleUi: React.FC<MarketCardSimpleUiProps> = ({
               </span>
             </Button>
 
-            <SimpleContainerDropdown
-              containers={[
-                <div className="grid grid-cols-3 gap-2">
-                  <TwitterShareButton
-                    className="w-8 h-8"
-                    url={getSocialMessage(address)}
-                  >
-                    <TwitterIcon className="w-8 h-8 rounded-full" />
-                  </TwitterShareButton>
-                  <TelegramShareButton
-                    className="w-8 h-8"
-                    url={getSocialMessage(address)}
-                  >
-                    <TelegramIcon className="w-8 h-8 rounded-full" />
-                  </TelegramShareButton>
-                  <FacebookShareButton
-                    className="w-8 h-8"
-                    url={getSocialMessage(address)}
-                  >
-                    <FacebookIcon className="w-8 h-8 rounded-full" />
-                  </FacebookShareButton>
-                  <WhatsappShareButton
-                    className="w-8 h-8"
-                    url={getSocialMessage(address)}
-                  >
-                    <WhatsappIcon className="w-8 h-8 rounded-full" />
-                  </WhatsappShareButton>
-                  <EmailShareButton
-                    className="w-8 h-8"
-                    url={getSocialMessage(address)}
-                  >
-                    <EmailIcon className="w-8 h-8 rounded-full" />
-                  </EmailShareButton>
-                  <HatenaShareButton
-                    className="w-8 h-8"
-                    url={getSocialMessage(address)}
-                  >
-                    <HatenaIcon className="w-8 h-8 rounded-full" />
-                  </HatenaShareButton>
-                </div>,
-              ]}
-            />
+            <SimpleContainerDropdown containers={[containers]} />
           </div>
         </div>
       )}

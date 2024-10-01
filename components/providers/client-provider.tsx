@@ -1,13 +1,18 @@
 "use client";
 
-import { Fragment, PropsWithChildren } from "react";
+import { Fragment, PropsWithChildren, memo, lazy, Suspense } from "react";
 import { ThemeProvider } from "next-themes";
 import { AutoConnectProvider } from "./auto-connect-provider";
 import { WalletProvider } from "./wallet-provider";
 
-import { Telegram } from "@twa-dev/types";
 import { SDKProvider } from "@telegram-apps/sdk-react";
-import { TelegramProvider } from "./telegram-provider";
+
+const TelegramProvider = lazy(() =>
+  import("./telegram-provider").then((module) => ({
+    default: module.TelegramProvider,
+  }))
+);
+const MemoizedTelegramProvider = memo(TelegramProvider);
 
 export function ClientProvider({ children, ...props }: PropsWithChildren) {
   return (
@@ -19,11 +24,14 @@ export function ClientProvider({ children, ...props }: PropsWithChildren) {
         disableTransitionOnChange
       >
         <SDKProvider acceptCustomStyles>
-          <TelegramProvider>
-            <AutoConnectProvider>
-              <WalletProvider>{children}</WalletProvider>
-            </AutoConnectProvider>
-          </TelegramProvider>
+          {/* Use Suspense to handle the lazy-loaded TelegramProvider */}
+          <Suspense fallback={<div>Loading...</div>}>
+            <MemoizedTelegramProvider>
+              <AutoConnectProvider>
+                <WalletProvider>{children}</WalletProvider>
+              </AutoConnectProvider>
+            </MemoizedTelegramProvider>
+          </Suspense>
         </SDKProvider>
       </ThemeProvider>
     </Fragment>
