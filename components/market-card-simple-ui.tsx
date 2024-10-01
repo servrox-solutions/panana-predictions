@@ -121,9 +121,8 @@ export const MarketCardSimpleUi: React.FC<MarketCardSimpleUiProps> = ({
           </div>
 
           <div className="text-center">
-            <p className="font-bold text-base">{`${
-              downBetsCount + upBetsCount
-            } Bets`}</p>
+            <p className="font-bold text-base">{`${downBetsCount + upBetsCount
+              } Bets`}</p>
             <p className="text-sm">{downBetsSum + upBetsSum} APT</p>
           </div>
 

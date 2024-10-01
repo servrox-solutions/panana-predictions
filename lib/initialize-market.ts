@@ -24,8 +24,6 @@ export const initializeMarket = async (
   const endPrice = market.end_price.vec[0]
     ? Number(market.end_price.vec[0])
     : null;
-  // const priceUp = market.price_up; // TODO: fix
-  const priceUp = true;
 
   const upBets = new Map<Address, number>(
     market.up_bets.data.map((bet) => [bet.key as Address, Number(bet.value)])
@@ -41,7 +39,7 @@ export const initializeMarket = async (
   const upVotesSum = Number(market.up_votes_sum);
   const downVotesSum = Number(market.down_votes_sum);
 
-  const name = `${priceUp ? "Up" : "Down"} ${
+  const name = `${
     availableMarket.type
   }/USD by ${DateTime.fromSeconds(endTime).toLocaleString()}`;
 
@@ -69,7 +67,6 @@ export const initializeMarket = async (
     upBetsSum,
     downBetsSum,
     fee,
-    priceUp,
     upBets,
     downBets,
     userVotes,

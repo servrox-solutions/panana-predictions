@@ -15,7 +15,6 @@ export interface MarketData {
   upBetsSum: number;
   downBetsSum: number;
   fee: number;
-  priceUp: boolean | null;
   upBets: Map<Address, number>;
   downBets: Map<Address, number>;
   userVotes: Map<Address, boolean>;

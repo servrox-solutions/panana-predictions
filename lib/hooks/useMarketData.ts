@@ -30,9 +30,6 @@ export function useMarketData() {
       item.upBetsSum?.toString() ?? "",
       item.downBetsSum?.toString() ?? "",
       item.fee?.toString() ?? "",
-      item.priceUp !== null && item.priceUp !== undefined
-        ? item.priceUp.toString()
-        : null,
       mapToString(item.upBets),
       mapToString(item.downBets),
       mapToString(item.userVotes),

@@ -8,9 +8,7 @@ import { useIsMounted } from "@/lib/hooks/useIsMounted";
 import { getExplorerObjectLink } from "@/lib/aptos";
 import Link from "next/link";
 import { formatAptPrice } from "@/lib/utils";
-import { useResolveMarket } from "@/lib/hooks/useResolveMarket";
-import { LoadingButton } from "./ui/loading-button";
-import { useState } from "react";
+import { DateTime } from 'luxon';
 
 interface MarketInfoProps {
   availableMarket: AvailableMarket;
@@ -26,16 +24,6 @@ export const MarketInfo: React.FC<MarketInfoProps> = ({
   const isMounted = useIsMounted();
   const { marketData } = useMarket(availableMarket, 3000, initialMarketData);
 
-  const { resolveMarket } = useResolveMarket();
-  const [resolveMarketLoading, setResolveMarketLoading] = useState(false);
-
-  const onResolveMarket = async () => {
-    if (!marketData) return;
-
-    setResolveMarketLoading(true);
-    await resolveMarket(marketData.address);
-    setResolveMarketLoading(false);
-  };
 
   return (
     <div className="grid grid-cols-4 grid-rows-8 gap-4 text-xs sm:text-base">
@@ -77,9 +65,9 @@ export const MarketInfo: React.FC<MarketInfoProps> = ({
             </div>
             <InfoItem
               label="Minimum Bet"
-              value={`$${marketData?.minBet.toFixed(2)}`}
+              value={`APT ${((marketData?.minBet ?? 0) / 10 ** 8).toFixed(2)}`}
             />
-            <InfoItem label="Fee" value={`${marketData?.fee}%`} />
+            <InfoItem label="Fee" value={`${(marketData?.fee ?? 0) * 100} %`} />
           </div>
         </Card>
       </div>
@@ -98,16 +86,16 @@ export const MarketInfo: React.FC<MarketInfoProps> = ({
             <InfoItem
               label="Start Time"
               value={
-                isMounted
-                  ? new Date(marketData?.startTime ?? 0).toLocaleString()
+                isMounted && marketData?.startTime
+                  ? DateTime.fromSeconds(marketData.startTime).toLocaleString(DateTime.DATETIME_MED)
                   : "n/a"
               }
             />
             <InfoItem
               label="End Time"
               value={
-                isMounted
-                  ? new Date(marketData?.endTime ?? 0).toLocaleString()
+                isMounted && marketData?.endTime
+                  ? DateTime.fromSeconds(marketData.endTime).toLocaleString(DateTime.DATETIME_MED)
                   : "n/a"
               }
             />
@@ -122,37 +110,18 @@ export const MarketInfo: React.FC<MarketInfoProps> = ({
           <div className="grid grid-cols-2 gap-4">
             <InfoItem
               label="Start Price"
-              value={`$ ${
-                marketData?.startPrice
-                  ? formatAptPrice(marketData?.startPrice)
-                  : "n/a"
-              }`}
+              value={`$ ${marketData?.startPrice
+                ? formatAptPrice(marketData?.startPrice)
+                : "n/a"
+                }`}
             />
-
             <InfoItem
-              label="Price Direction"
-              value={
-                marketData?.priceUp === null
-                  ? "n/a"
-                  : marketData?.priceUp
-                  ? "Up"
-                  : "Down"
-              }
+              label="End Price"
+              value={`$ ${marketData?.endPrice
+                ? formatAptPrice(marketData?.endPrice)
+                : "n/a"
+                }`}
             />
-
-            <div className="col-span-2">
-              <LoadingButton
-                disabled={
-                  !isMounted ||
-                  !marketData ||
-                  marketData.endTime > Math.floor(Date.now() / 1000) // this works cause marketData gets updated every 3 seconds
-                }
-                loading={resolveMarketLoading}
-                onClick={onResolveMarket}
-              >
-                <span>Resolve Market</span>
-              </LoadingButton>
-            </div>
           </div>
         </Card>
       </div>
@@ -162,19 +131,17 @@ export const MarketInfo: React.FC<MarketInfoProps> = ({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <InfoItem
               label="Up Bets Sum"
-              value={`$ ${
-                marketData?.upBetsSum
-                  ? formatAptPrice(marketData?.upBetsSum)
-                  : "n/a"
-              }`}
+              value={`$ ${marketData?.upBetsSum
+                ? formatAptPrice(marketData?.upBetsSum)
+                : "n/a"
+                }`}
             />
             <InfoItem
               label="Down Bets Sum"
-              value={`$ ${
-                marketData?.downBetsSum
-                  ? formatAptPrice(marketData?.downBetsSum)
-                  : "n/a"
-              }`}
+              value={`$ ${marketData?.downBetsSum
+                ? formatAptPrice(marketData?.downBetsSum)
+                : "n/a"
+                }`}
             />
           </div>
         </Card>
