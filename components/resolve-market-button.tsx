@@ -25,7 +25,7 @@ export const ResolveMarketButton = (props: ResolveMarketButtonProps) => {
   const isMounted = useIsMounted();
 
   useEffect(() => {
-    let interval: Timer;
+    let interval: ReturnType<typeof setInterval>;
     if (resolveMarketInSeconds > 0) {
       interval = setInterval(() => {
         setResolveMarketInSeconds(resolveMarketInSeconds - 1);
