@@ -21,7 +21,7 @@ import { useWallet } from "@aptos-labs/wallet-adapter-react";
 import { MODULE_ADDRESS_FROM_ABI } from "@/lib/aptos";
 import { Input } from "./ui/input";
 import { AvailableMarketplace } from "@/lib/get-available-marketplaces";
-import { toast } from 'react-toastify';
+import { toast } from "react-toastify";
 
 export interface MarketCreateModalProps {
   marketplaces: AvailableMarketplace[];
@@ -130,7 +130,7 @@ export function MarketCreateModal({
   const assets = marketplaces.map((marketplace) => ({
     label:
       marketplace.typeArgument.split("::")[
-      marketplace.typeArgument.split("::").length - 1
+        marketplace.typeArgument.split("::").length - 1
       ],
     value: marketplace.typeArgument,
   }));
@@ -199,13 +199,16 @@ export function MarketCreateModal({
   return (
     <>
       <Modal>
-        <ModalTrigger className="h-8 flex justify-center" onClick={(evt, open) => {
-          if (!account?.address) {
-            toast.info('Please connect your wallet first.');
-            return;
-          }
-          open();
-        }}>
+        <ModalTrigger
+          className="h-8 flex justify-center"
+          onClick={(evt, open) => {
+            if (!account?.address) {
+              toast.info("Please connect your wallet first.");
+              return;
+            }
+            open();
+          }}
+        >
           <div
             onClick={() => scrollIntoView()}
             className="flex items-center gap-1 text-font-primary dark:text-secondary"
@@ -241,10 +244,11 @@ export function MarketCreateModal({
                               variant="outline"
                               key={asset.value}
                               id={asset.value}
-                              className={`${field.value === asset.value
-                                ? "bg-primary text-secondary"
-                                : ""
-                                }`}
+                              className={`${
+                                field.value === asset.value
+                                  ? "bg-primary text-secondary"
+                                  : ""
+                              }`}
                               onClick={() => {
                                 form.setValue("asset", asset.value);
                               }}
@@ -303,10 +307,11 @@ export function MarketCreateModal({
                               variant="outline"
                               key={i.as("seconds")}
                               id={`${i.as("seconds")}`}
-                              className={`w-full ${field.value === i.as("seconds")
-                                ? "bg-primary text-secondary hover:bg-primary hover:text-secondary"
-                                : ""
-                                }`}
+                              className={`w-full ${
+                                field.value === i.as("seconds")
+                                  ? "bg-primary text-secondary hover:bg-primary hover:text-secondary"
+                                  : ""
+                              }`}
                               onClick={() => {
                                 form.setValue(
                                   "durationSeconds",
@@ -371,8 +376,8 @@ export function MarketCreateModal({
                       <span>
                         {form.getValues("startTime")
                           ? DateTime.fromJSDate(
-                            form.getValues("startTime")!
-                          ).toLocaleString(DateTime.DATETIME_SHORT)
+                              form.getValues("startTime")!
+                            ).toLocaleString(DateTime.DATETIME_SHORT)
                           : "tbd."}
                       </span>
                     </div>
@@ -385,12 +390,12 @@ export function MarketCreateModal({
                       </span>
                       <span>
                         {form.getValues("durationSeconds") &&
-                          form.getValues("startTime")
+                        form.getValues("startTime")
                           ? DateTime.fromJSDate(form.getValues("startTime"))
-                            .plus({
-                              second: form.getValues("durationSeconds"),
-                            })
-                            ?.toLocaleString(DateTime.DATETIME_SHORT)
+                              .plus({
+                                second: form.getValues("durationSeconds"),
+                              })
+                              ?.toLocaleString(DateTime.DATETIME_SHORT)
                           : "tbd."}
                       </span>
                     </div>

@@ -2,10 +2,17 @@ import { useMemo, useCallback } from "react";
 import { useFuzzySearchList } from "@nozbe/microfuzz/react";
 import { MarketData } from "@/lib/types/market";
 import { useMarketDataStore } from "../atoms/useMarketDataStore";
+import { useFilterStore } from "../atoms/useFilterStore";
 
 export function useMarketData() {
-  const { marketData, setMarketData, searchTerm, setSearchTerm } =
-    useMarketDataStore();
+  const {
+    marketData,
+    setMarketData,
+    searchTerm,
+    setSearchTerm,
+    displayMarketData,
+    orderBy,
+  } = useMarketDataStore();
 
   // Helper function to convert Map objects to a searchable string
   const mapToString = useCallback((map?: Map<any, any>): string => {
@@ -76,7 +83,58 @@ export function useMarketData() {
     [setMarketData]
   );
 
+  const { filter } = useFilterStore("markets");
+
+  const isVisible = (checkMarket: MarketData) => {
+    const isInMarketTypeDropdownFilter =
+      !filter ||
+      filter.length === 0 ||
+      filter.includes(checkMarket.tradingPair.one);
+
+    const isInSearch =
+      !filteredMarketData ||
+      filteredMarketData.length === 0 ||
+      filteredMarketData.some(
+        (market) => market.address === checkMarket?.address
+      );
+
+    const isInDisplayMarketData =
+      displayMarketData === "open"
+        ? checkMarket.startTime > Date.now() / 1000
+        : checkMarket.startTime <= Date.now() / 1000;
+
+    return isInMarketTypeDropdownFilter && isInSearch && isInDisplayMarketData;
+  };
+
+  const getPosition = (checkMarket: MarketData): string => {
+    let position = 0;
+
+    if (orderBy === "newest") {
+      position = marketData
+        .sort((prev, cur) => cur.createdAt - prev.createdAt)
+        .findIndex((market) => market.address === checkMarket.address);
+    } else if (orderBy === "oldest") {
+      position = marketData
+        .sort((prev, cur) => prev.createdAt - cur.createdAt)
+        .findIndex((market) => market.address === checkMarket.address);
+      // } else if (orderBy === "mostVolume") {
+    } else {
+      position = marketData
+        .sort(
+          (prev, cur) =>
+            cur.upBetsSum +
+            cur.downBetsSum -
+            (prev.upBetsSum + prev.downBetsSum)
+        )
+        .findIndex((market) => market.address === checkMarket.address);
+    }
+
+    return `${position + 1}`;
+  };
+
   return {
+    isVisible,
+    getPosition,
     marketData,
     filteredMarketData,
     addMarketData,
