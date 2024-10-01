@@ -211,7 +211,7 @@ export function MarketCreateModal({
         >
           <div
             onClick={() => scrollIntoView()}
-            className="flex items-center gap-1 text-secondary"
+            className="flex items-center gap-1 text-font-primary dark:text-secondary"
           >
             <Banana className="h-3.5 w-3.5" />
             <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">

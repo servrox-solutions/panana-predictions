@@ -61,7 +61,7 @@ export default async function Market({
                 availableMarket={availableMarket}
                 initialMarketData={marketData}
             >
-                <Card className="h-full bg-[#161a25] backdrop-grayscale-none bg-opacity-100 backdrop-blur-none">
+                <Card className="h-full bg-white dark:bg-[#161a25] backdrop-grayscale-none bg-opacity-100 backdrop-blur-none">
                     <TradingViewWidget marketType={marketType} />
                 </Card>
             </MarketInfo>

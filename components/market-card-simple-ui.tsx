@@ -31,6 +31,7 @@ import { MarketCardTimeline } from "./market-card-timeline";
 import Link from "next/link";
 import { SimpleContainerDropdown } from "./simple-container-dropdown";
 import { MarketTitle } from "./market-title";
+import { Card } from './ui/card';
 
 export interface MarketCardSimpleUiProps {
   tradingPair: { one: MarketType; two: string };
@@ -75,7 +76,7 @@ export const MarketCardSimpleUi: React.FC<MarketCardSimpleUiProps> = ({
     `📈 Think you can predict the next move in crypto?\nJoin our latest market and put your forecast to the test!\n\nhttps://app.panana-predictions.xyz/markets/${marketId}\n\nOnly on 🍌Panana Predictions!`;
 
   return (
-    <div className="flex flex-col max-w-full w-96 backdrop-grayscale-[.5] bg-gray-800 bg-opacity-30 backdrop-blur-lg rounded-3xl p-3 shadow-lg border border-white border-opacity-20">
+    <Card>
       {/* Header */}
       <div className="flex justify-between ">
         <div className="flex-1">
@@ -223,7 +224,7 @@ export const MarketCardSimpleUi: React.FC<MarketCardSimpleUiProps> = ({
         <div className="flex justify-between items-stretch pt-4">
           <div className="flex items-center">
             <Coins className="w-4 h-4" />
-            <span className="text-xs text-neutral-400 pl-1">
+            <span className="text-xs dark:text-neutral-400 pl-1">
               {(upBetsSum + downBetsSum) / 10 ** 8} APT
             </span>
           </div>
@@ -235,7 +236,7 @@ export const MarketCardSimpleUi: React.FC<MarketCardSimpleUiProps> = ({
               onClick={() => onVote(false)}
             >
               <ThumbsDown className="h-4 w-4" />
-              <span className="text-xs text-neutral-400 group-hover:text-red-500 pl-1">
+              <span className="text-xs dark:text-neutral-400 group-hover:text-red-500 pl-1">
                 {downVotesSum}
               </span>
             </Button>
@@ -246,7 +247,7 @@ export const MarketCardSimpleUi: React.FC<MarketCardSimpleUiProps> = ({
               onClick={() => onVote(true)}
             >
               <ThumbsUp className="h-4 w-4" />
-              <span className="text-xs text-neutral-400 group-hover:text-green-500 pl-1">
+              <span className="text-xs dark:text-neutral-400 group-hover:text-green-500 pl-1">
                 {upVotesSum}
               </span>
             </Button>
@@ -296,6 +297,6 @@ export const MarketCardSimpleUi: React.FC<MarketCardSimpleUiProps> = ({
           </div>
         </div>
       )}
-    </div>
+    </Card>
   );
 };

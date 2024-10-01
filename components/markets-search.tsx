@@ -13,7 +13,7 @@ export function MarketsSearch({ className }: { className?: string }) {
         type="search"
         placeholder="Search markets..."
         className={cn(
-          "h-8 w-[150px] lg:w-[250px] backdrop-grayscale-[.5] bg-gray-800 bg-opacity-30 backdrop-blur-lg text-white",
+          "h-8 w-[150px] lg:w-[250px] backdrop-grayscale-[.5] bg-gray-200 dark:bg-transparent bg-opacity-30 backdrop-blur-lg",
           className
         )}
         value={searchTerm}
