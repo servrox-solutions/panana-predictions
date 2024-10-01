@@ -97,8 +97,8 @@ function scheduleCreateMarket(marketplace: AvailableMarketplace, min: number) {
     rule.minute = [min];
     scheduleJob(rule, async ( )=> {
         try {
-            const startTime = Math.ceil(DateTime.now().plus({minute: 30}).set({second: 0}).toSeconds());
-            const endTime = Math.ceil(DateTime.fromSeconds(startTime).plus({minute: 30}).toSeconds());
+            const startTime = Math.floor(DateTime.now().plus({minute: 30}).set({second: 0, millisecond: 0}).toSeconds());
+            const endTime = Math.floor(DateTime.fromSeconds(startTime).plus({minute: 30}).toSeconds());
             await marketSurfClient.entry.create_market({
                 typeArguments: [marketplace.value],
                 functionArguments: [
