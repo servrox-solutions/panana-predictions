@@ -11,6 +11,7 @@ export function useMarketData() {
     searchTerm,
     setSearchTerm,
     displayMarketData,
+    orderBy,
   } = useMarketDataStore();
 
   // Helper function to convert Map objects to a searchable string
@@ -84,29 +85,56 @@ export function useMarketData() {
 
   const { filter } = useFilterStore("markets");
 
-  const isVisible = (marketData: MarketData) => {
+  const isVisible = (checkMarket: MarketData) => {
     const isInMarketTypeDropdownFilter =
       !filter ||
       filter.length === 0 ||
-      filter.includes(marketData.tradingPair.one);
+      filter.includes(checkMarket.tradingPair.one);
 
     const isInSearch =
       !filteredMarketData ||
       filteredMarketData.length === 0 ||
       filteredMarketData.some(
-        (market) => market.address === marketData?.address
+        (market) => market.address === checkMarket?.address
       );
 
     const isInDisplayMarketData =
       displayMarketData === "open"
-        ? marketData.startTime > Date.now() / 1000
-        : marketData.startTime <= Date.now() / 1000;
+        ? checkMarket.startTime > Date.now() / 1000
+        : checkMarket.startTime <= Date.now() / 1000;
 
     return isInMarketTypeDropdownFilter && isInSearch && isInDisplayMarketData;
   };
 
+  const getPosition = (checkMarket: MarketData): string => {
+    let position = 0;
+
+    if (orderBy === "newest") {
+      position = marketData
+        .sort((prev, cur) => cur.createdAt - prev.createdAt)
+        .findIndex((market) => market.address === checkMarket.address);
+    } else if (orderBy === "oldest") {
+      position = marketData
+        .sort((prev, cur) => prev.createdAt - cur.createdAt)
+        .findIndex((market) => market.address === checkMarket.address);
+      // } else if (orderBy === "mostVolume") {
+    } else {
+      position = marketData
+        .sort(
+          (prev, cur) =>
+            cur.upBetsSum +
+            cur.downBetsSum -
+            (prev.upBetsSum + prev.downBetsSum)
+        )
+        .findIndex((market) => market.address === checkMarket.address);
+    }
+
+    return `${position + 1}`;
+  };
+
   return {
     isVisible,
+    getPosition,
     marketData,
     filteredMarketData,
     addMarketData,

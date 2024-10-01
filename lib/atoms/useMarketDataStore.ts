@@ -1,9 +1,12 @@
 import { atom, useAtom } from "jotai";
 import { MarketData } from "@/lib/types/market";
 
+export const sortOptions = ["newest", "oldest", "mostVolume"] as const;
+
 export const marketDataAtom = atom<MarketData[]>([]);
 export const searchTermAtom = atom<string>("");
 export const displayMarketDataAtom = atom<"open" | "closed">("open");
+export const orderByAtom = atom<(typeof sortOptions)[number]>("newest");
 
 export function useMarketDataStore() {
   const [marketData, setMarketData] = useAtom(marketDataAtom);
@@ -11,6 +14,7 @@ export function useMarketDataStore() {
   const [displayMarketData, setDisplayMarketData] = useAtom(
     displayMarketDataAtom
   );
+  const [orderBy, setOrderBy] = useAtom(orderByAtom);
 
   return {
     marketData,
@@ -19,5 +23,7 @@ export function useMarketDataStore() {
     setSearchTerm,
     displayMarketData,
     setDisplayMarketData,
+    orderBy,
+    setOrderBy,
   };
 }

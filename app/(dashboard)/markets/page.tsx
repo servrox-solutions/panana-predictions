@@ -2,6 +2,7 @@ import { FilterDropdown } from "@/components/filter-dropdown";
 import { MarketCreateModal } from "@/components/market-create-modal";
 import { MarketOrganizer } from "@/components/market-organizer";
 import { MarketsSearch } from "@/components/markets-search";
+import { SortDropdown } from "@/components/sort-dropdown";
 import { SwitchMarketView } from "@/components/switch-market-view";
 import { getAvailableMarketplaces } from "@/lib/get-available-marketplaces";
 import { getAvailableMarkets } from "@/lib/get-available-markets";
@@ -35,6 +36,8 @@ export default async function Markets({
             items={uniqueAvailableMarkets}
             preSelected={searchParams?.markets}
           />
+
+          <SortDropdown />
 
           <MarketCreateModal
             marketplaces={marketplaces}

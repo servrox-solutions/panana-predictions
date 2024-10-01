@@ -6,7 +6,6 @@ import { MarketCardSimpleUi } from "./market-card-simple-ui";
 import { MarketData } from "@/lib/types/market";
 import { usePlaceBet } from "@/lib/hooks/usePlaceBet";
 import { useSubmitVote } from "@/lib/hooks/useSubmitVote";
-import { useFilterStore } from "@/lib/atoms/useFilterStore";
 import { useMarketData } from "@/lib/hooks/useMarketData";
 import { useMarketDataStore } from "@/lib/atoms/useMarketDataStore";
 import { cn } from "@/lib/utils";
@@ -23,7 +22,7 @@ export const MarketCard: React.FC<MarketCardProps> = ({
   initialMarketData,
 }) => {
   const { marketData: marketDataStore } = useMarketDataStore();
-  const { filteredMarketData, isVisible } = useMarketData();
+  const { filteredMarketData, isVisible, getPosition } = useMarketData();
   const { marketData } = useMarket(
     availableMarket,
     3000,
@@ -38,7 +37,6 @@ export const MarketCard: React.FC<MarketCardProps> = ({
   const { account } = useWallet();
   const { placeBet } = usePlaceBet();
   const { submitVote } = useSubmitVote();
-  const { filter } = useFilterStore("markets");
 
   const onPlaceBet = async (betUp: boolean, amount: number) => {
     if (!account?.address) {
@@ -65,7 +63,11 @@ export const MarketCard: React.FC<MarketCardProps> = ({
       className={cn(
         "max-w-full",
         (!marketData || !isVisible(marketData)) && "hidden"
+        // marketData
+        //   ? `order-${getPosition(marketData)}`
+        //   : `order-${index}`
       )}
+      style={{ order: marketData ? getPosition(marketData) : 0 }}
     >
       <MarketCardSimpleUi
         createTime={marketData?.createdAt ?? 1337}
