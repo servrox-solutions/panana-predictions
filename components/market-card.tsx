@@ -47,6 +47,7 @@ export const MarketCard: React.FC<MarketCardProps> = ({
       }
       if (marketData) {
         await placeBet(marketData, betUp, amount);
+        toast.success("Bet placed successfully.");
       }
     },
     [account?.address, marketData, placeBet]
@@ -55,11 +56,12 @@ export const MarketCard: React.FC<MarketCardProps> = ({
   const onVote = useCallback(
     async (isVoteUp: boolean) => {
       if (!account?.address) {
-        toast.info("Please connect your wallet first.");
+        toast.info("Please connect your wallet first.", { autoClose: 2000 });
         return;
       }
       if (marketData) {
         await submitVote(marketData, isVoteUp);
+        toast.success("Vote submitted successfully.", { autoClose: 2000 });
       }
     },
     [account?.address, marketData, submitVote]
