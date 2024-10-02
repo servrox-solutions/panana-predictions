@@ -152,7 +152,11 @@ export const MarketCardSimpleUi: React.FC<MarketCardSimpleUiProps> = ({
   );
 
   return (
-    <Card className={cn("w-96 h-48 max-w-full flex flex-col relative")}>
+    <Card
+      className={cn(
+        "w-96 h-48 max-w-full overflow-hidden flex flex-col relative"
+      )}
+    >
       {/* Background Web3Icon */}
       <div className="absolute inset-0 z-0 flex items-end justify-end opacity-10">
         <Web3Icon
