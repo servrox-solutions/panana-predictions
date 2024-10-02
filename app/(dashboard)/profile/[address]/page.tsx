@@ -1,16 +1,14 @@
-
 import { ModeToggle } from "@/components/mode-toggle";
+import { MoonPayBuyWidgetButton } from "@/components/moon-pay-buy-widget-button";
 import ProfileCard from "@/components/profile-card";
 import Statistics from "@/components/profile-statistics";
 import { Card } from "@/components/ui/card";
 import { WalletReconnect } from "@/components/wallet-reconnect";
 import { MODULE_ADDRESS_FROM_ABI } from "@/lib/aptos";
 import { getAccountBalance } from "@/lib/get-account-balance";
-import {
-  getTotalTransactionCount,
-} from "@/lib/get-account-transactions";
-import { NoditClient } from '@/lib/nodit/client';
-import { MarketType, marketTypes } from "@/lib/types/market";
+import { getTotalTransactionCount } from "@/lib/get-account-transactions";
+import { NoditClient } from "@/lib/nodit/client";
+import { MarketType } from "@/lib/types/market";
 import { Address } from "@/lib/types/market";
 
 export default async function Profile({
@@ -18,17 +16,22 @@ export default async function Profile({
 }: {
   params: { address: Address };
 }) {
-  const noditClient = new NoditClient(MODULE_ADDRESS_FROM_ABI, process.env.NODIT_API_KEY as Address);
+  const noditClient = new NoditClient(
+    MODULE_ADDRESS_FROM_ABI,
+    process.env.NODIT_API_KEY as Address
+  );
 
   const [balance, totalTransactions, statisticsPageData] = await Promise.all([
     getAccountBalance(params.address),
     getTotalTransactionCount(params.address),
-    noditClient.fetchProfileStatisticsData(params.address)
+    noditClient.fetchProfileStatisticsData(params.address),
   ]);
 
-  const totalInteractions = statisticsPageData.data.market_interactions.aggregate.count;
+  const totalInteractions =
+    statisticsPageData.data.market_interactions.aggregate.count;
 
-  const placedBetsSum = statisticsPageData.data.placed_bets.aggregate.sum.amount;
+  const placedBetsSum =
+    statisticsPageData.data.placed_bets.aggregate.sum.amount;
   const totalVotes = statisticsPageData.data.total_votes.aggregate.count;
 
   const bettedMarketDetails: { [key in MarketType]: number } = {
@@ -69,6 +72,7 @@ export default async function Profile({
                 Reconnect wallet on page reload
               </span>
             </div>
+            <MoonPayBuyWidgetButton className="mt-4" />
           </Card>
         </div>
 

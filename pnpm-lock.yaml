@@ -23,6 +23,12 @@ importers:
       '@million/lint':
         specifier: ^1.0.0
         version: 1.0.0
+      '@moonpay/moonpay-js':
+        specifier: ^0.6.1
+        version: 0.6.1
+      '@moonpay/moonpay-react':
+        specifier: ^1.8.1
+        version: 1.8.1(react@18.3.1)
       '@nozbe/microfuzz':
         specifier: ^1.0.0
         version: 1.0.0
@@ -707,6 +713,14 @@ packages:
 
   '@molt/types@0.2.0':
     resolution: {integrity: sha512-p6ChnEZDGjg9PYPec9BK6Yp5/DdSrYQvXTBAtgrnqX6N36cZy37ql1c8Tc5LclfIYBNG7EZp8NBcRTYJwyi84g==}
+
+  '@moonpay/moonpay-js@0.6.1':
+    resolution: {integrity: sha512-medkQ1jzEF8gD97WzqtVhGn30JC6QYc67dCGK8WgMY/NCw2CIlkBSM2LhBFTikOFk0cpGUMknl0EAlgaL9iOlw==}
+
+  '@moonpay/moonpay-react@1.8.1':
+    resolution: {integrity: sha512-2WPIemLdvh9xwwnuYsTi2oMVWFFgN7mO6OxzU+aZRY26Uc5Y0ziORuBeaMHCHFTDyy24CXvLmwrEeRiiA9yjZA==}
+    peerDependencies:
+      react: '>=16'
 
   '@msafe/aptos-wallet@6.1.1':
     resolution: {integrity: sha512-g/2TPRqyChciaw/S69EBr7CgzYJBT1LJulU0nMNnkehJc+ZX/fNN+5JXEuea+a0rXsk/flcbCSfvT2JtS0+/mQ==}
@@ -4696,6 +4710,12 @@ snapshots:
   '@molt/types@0.2.0':
     dependencies:
       ts-toolbelt: 9.6.0
+
+  '@moonpay/moonpay-js@0.6.1': {}
+
+  '@moonpay/moonpay-react@1.8.1(react@18.3.1)':
+    dependencies:
+      react: 18.3.1
 
   '@msafe/aptos-wallet@6.1.1':
     dependencies:
