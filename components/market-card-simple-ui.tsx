@@ -2,11 +2,14 @@
 
 import { MarketType } from "@/lib/types/market";
 import {
+  ChartLine,
   ChevronsDown,
   ChevronsUp,
   Coins,
   ThumbsDown,
   ThumbsUp,
+  TrendingDown,
+  TrendingUp,
   Undo2,
 } from "lucide-react";
 import {
@@ -25,13 +28,14 @@ import {
 } from "react-share";
 import React, { useState, useMemo, useCallback } from "react";
 import { Button } from "./ui/button";
-import { Input } from "./ui/input";
 import { calculateUserWin, cn } from "@/lib/utils";
 import { MarketCardTimeline } from "./market-card-timeline";
 import Link from "next/link";
 import { SimpleContainerDropdown } from "./simple-container-dropdown";
 import { MarketTitle } from "./market-title";
 import { Card } from "./ui/card";
+import DepositBet from "./deposit-bet";
+import { Web3Icon } from "./web3-icon";
 
 export interface MarketCardSimpleUiProps {
   tradingPairOne: MarketType; // Destructured property
@@ -49,6 +53,7 @@ export interface MarketCardSimpleUiProps {
   upBetsCount: number;
   downBetsCount: number;
   address: string;
+  startTime: number;
   onPlaceBet: (betUp: boolean, amount: number) => void;
   onVote: (isVoteUp: boolean) => void;
 }
@@ -69,6 +74,7 @@ export const MarketCardSimpleUi: React.FC<MarketCardSimpleUiProps> = ({
   upBetsCount,
   downBetsCount,
   address,
+  startTime,
   onPlaceBet,
   onVote,
 }) => {
@@ -84,6 +90,7 @@ export const MarketCardSimpleUi: React.FC<MarketCardSimpleUiProps> = ({
         createTime={createTime}
         betCloseTime={betCloseTime}
         endTime={resolveTime}
+        slim={startTime > Date.now() / 1000}
       />
     ),
     [createTime, betCloseTime, resolveTime]
@@ -138,116 +145,120 @@ export const MarketCardSimpleUi: React.FC<MarketCardSimpleUiProps> = ({
         tradingPair={{ one: tradingPairOne, two: tradingPairTwo }} // Updated to use destructured props
         resolveTime={resolveTime}
         betCloseTime={betCloseTime}
+        shortVersion
       />
     ),
     [tradingPairOne, tradingPairTwo, resolveTime, betCloseTime]
   );
 
   return (
-    <Card>
-      {/* Header */}
-      <div className="flex justify-between ">
-        <div className="flex-1">
-          <div className="text-left">
-            <Link href={`/markets/${address}`} className="hover:underline">
-              {MemoizedMarketTitle}
-            </Link>
-          </div>
-        </div>
-        {bet && (
-          <div className="flex-0 items-start">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-5 w-5"
-              onClick={() => setBet(null)}
-            >
-              <Undo2 className="h-4 w-4" />
-            </Button>
-          </div>
-        )}
+    <Card className={cn("w-96 h-48 max-w-full flex flex-col relative")}>
+      {/* Background Web3Icon */}
+      <div className="absolute inset-0 z-0 flex items-end justify-end opacity-10">
+        <Web3Icon
+          className="h-1/2 w-1/2 p-2"
+          asset={tradingPairOne as MarketType}
+        />
       </div>
 
-      {/* Timeline Section */}
-      {!bet && MemoizedMarketCardTimeline}
-
-      {/* Stats Section */}
-      {bet && (
-        <div className="flex justify-between items-center text-center text-opacity-80 h-20">
-          <div>
-            <p className="font-bold text-sm">{`${downBetsCount} Down`}</p>
-            <p className="text-xs">{downBetsSum} APT</p>
+      {/* Content */}
+      <div className="relative z-10 flex flex-col h-full">
+        {/* Header */}
+        <div className="flex justify-between items-center max-w-full">
+          <div className="flex flex-nowrap text-left">
+            {MemoizedMarketTitle}
           </div>
+          {!bet && (
+            <div className="flex-1 text-nowrap text-right">
+              <SimpleContainerDropdown containers={[containers]} />
+              <div className="inline-flex overflow-hidden">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="group hover:text-red-500 hover:bg-red-500/20"
+                  onClick={handleVoteDown}
+                >
+                  <ThumbsDown className="h-4 w-4" />
+                  <span className="text-xs dark:text-neutral-400 group-hover:text-red-500 pl-1">
+                    {downVotesSum}
+                  </span>
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="group hover:text-green-500 hover:bg-green-500/20"
+                  onClick={handleVoteUp}
+                >
+                  <ThumbsUp className="h-4 w-4" />
+                  <span className="text-xs dark:text-neutral-400 group-hover:text-green-500 pl-1">
+                    {upVotesSum}
+                  </span>
+                </Button>
+              </div>
+              <Button variant="ghost" size="icon" className="" asChild>
+                <Link href={`/markets/${address}`}>
+                  <ChartLine className="h-4 w-4" />
+                </Link>
+              </Button>
+            </div>
+          )}
 
-          <div className="text-center">
-            <p className="font-bold text-base">{`${
-              downBetsCount + upBetsCount
-            } Bets`}</p>
-            <p className="text-sm">{downBetsSum + upBetsSum} APT</p>
-          </div>
+          {bet && (
+            <div className="flex-1 text-right space-x-2">
+              <Button
+                variant="ghost"
+                size="icon"
+                className=""
+                onClick={() => setBet(null)}
+              >
+                <Undo2 className="h-4 w-4" />
+              </Button>
+            </div>
+          )}
+        </div>
 
-          <div>
-            <p className="font-bold text-sm">{`${upBetsCount} Up`}</p>
-            <p className="text-xs">{upBetsSum} APT</p>
+        <div className="flex flex-col grow justify-between">
+          {/* Timeline Section */}
+          {!bet && (
+            <div className="flex flex-col justify-center h-full">
+              {MemoizedMarketCardTimeline}
+            </div>
+          )}
+          <div className="flex flex-col justify-evenly grow">
+            {/* Stats Section */}
+            {(bet || startTime < Date.now() / 1000) && (
+              <div className="flex justify-between items-center text-center text-opacity-80">
+                <div className="flex items-center">
+                  <TrendingUp className="w-4 h-4" color="#00a291" />
+                  <span className="bg-gradient-to-r from-positive-1 to-positive-2 inline-block text-transparent bg-clip-text text-xs pl-1">
+                    {`${upBetsCount} Bets Up`}
+                  </span>
+                </div>
+                <div className="flex items-center">
+                  <TrendingDown className="w-4 h-4" color="#ef0b6e" />
+                  <span className="bg-gradient-to-r from-negative-1 to-negative-2 inline-block text-transparent bg-clip-text text-xs pl-1">
+                    {`${downBetsCount} Bets Down`}
+                  </span>
+                </div>
+                <div className="flex items-center">
+                  <Coins className="w-4 h-4" />
+                  <span className="text-xs dark:text-neutral-400 pl-1">
+                    {(upBetsSum + downBetsSum) / 10 ** 8} APT
+                  </span>
+                </div>
+              </div>
+            )}
+            {bet && (
+              <DepositBet
+                defaultValue={minBet / 10 ** 8}
+                onChangeAmount={setAmount}
+                currency="APT"
+              />
+            )}
           </div>
         </div>
-      )}
 
-      {/* Bet Buttons Section */}
-      {!bet && (
-        <div className="flex items-center justify-between">
-          <div className="flex-1">
-            <Button
-              className="group w-full font-semibold bg-gradient-to-r from-positive-1 to-positive-2 transition-all hover:to-green-500 text-white relative"
-              onClick={handleBetUp}
-            >
-              <span className="z-10">Bet Up</span>
-              <ChevronsUp className="ml-2 h-4 w-4" />
-              <span
-                className={cn(
-                  "absolute bottom-0 right-1 -mb-1 text-lg group-hover:text-4xl text-white/30",
-                  upWinFactor > downWinFactor ? "animate-pulse" : ""
-                )}
-              >
-                &times;{upWinFactor.toFixed(2)}
-              </span>
-            </Button>
-          </div>
-
-          <div className="flex-shrink flex flex-row flex-nowrap text-xs space-x-2 mx-2">
-            {/* button spaceing */}
-          </div>
-
-          <div className="flex-1">
-            <Button
-              className={`group w-full font-semibold bg-gradient-to-r from-negative-1 to-negative-2 transition-all hover:to-red-500 text-white relative`}
-              onClick={handleBetDown}
-            >
-              <span className="z-10">Bet Down</span>
-              <ChevronsDown className="ml-2 h-4 w-4" />
-              <span
-                className={cn(
-                  "absolute bottom-0 right-1 -mb-1 text-lg group-hover:text-4xl text-white/30",
-                  downWinFactor > upWinFactor ? "animate-pulse" : ""
-                )}
-              >
-                &times;{downWinFactor.toFixed(2)}
-              </span>
-            </Button>
-          </div>
-        </div>
-      )}
-
-      {bet && (
-        <div className="flex w-full max-w-sm items-center space-x-2">
-          <Input
-            type="number"
-            step="0.01"
-            placeholder="Amount"
-            defaultValue={minBet / 10 ** 8}
-            onChange={(ev) => setAmount(+ev.target.value)}
-            className="text-foreground bg-white/40 dark:bg-black/40"
-          />
+        {bet && (
           <Button
             type="submit"
             className={
@@ -275,46 +286,52 @@ export const MarketCardSimpleUi: React.FC<MarketCardSimpleUiProps> = ({
               ).toLocaleString()}
             </span>
           </Button>
-        </div>
-      )}
+        )}
+        {/* Bet Buttons Section */}
+        {!bet && startTime > Date.now() / 1000 && (
+          <div className="flex items-center justify-between">
+            <div className="flex-1">
+              <Button
+                className="group w-full font-semibold bg-gradient-to-r from-positive-1 to-positive-2 transition-all hover:to-green-500 text-white relative"
+                onClick={handleBetUp}
+              >
+                <span className="z-10">Bet Up</span>
+                <ChevronsUp className="ml-2 h-4 w-4" />
+                <span
+                  className={cn(
+                    "absolute bottom-0 right-1 -mb-1 text-lg group-hover:text-4xl text-white/30",
+                    upWinFactor > downWinFactor ? "animate-pulse" : ""
+                  )}
+                >
+                  &times;{upWinFactor.toFixed(2)}
+                </span>
+              </Button>
+            </div>
 
-      {/* Icons */}
-      {!bet && (
-        <div className="flex justify-between items-stretch pt-4">
-          <div className="flex items-center">
-            <Coins className="w-4 h-4" />
-            <span className="text-xs dark:text-neutral-400 pl-1">
-              {(upBetsSum + downBetsSum) / 10 ** 8} APT
-            </span>
-          </div>
-          <div className="flex justify-end space-x-2">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="group hover:text-red-500 hover:bg-red-500/20"
-              onClick={handleVoteDown}
-            >
-              <ThumbsDown className="h-4 w-4" />
-              <span className="text-xs dark:text-neutral-400 group-hover:text-red-500 pl-1">
-                {downVotesSum}
-              </span>
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="group hover:text-green-500 hover:bg-green-500/20"
-              onClick={handleVoteUp}
-            >
-              <ThumbsUp className="h-4 w-4" />
-              <span className="text-xs dark:text-neutral-400 group-hover:text-green-500 pl-1">
-                {upVotesSum}
-              </span>
-            </Button>
+            <div className="flex-shrink flex flex-row flex-nowrap text-xs space-x-2 mx-2">
+              {/* button spaceing */}
+            </div>
 
-            <SimpleContainerDropdown containers={[containers]} />
+            <div className="flex-1">
+              <Button
+                className={`group w-full font-semibold bg-gradient-to-r from-negative-1 to-negative-2 transition-all hover:to-red-500 text-white relative`}
+                onClick={handleBetDown}
+              >
+                <span className="z-10">Bet Down</span>
+                <ChevronsDown className="ml-2 h-4 w-4" />
+                <span
+                  className={cn(
+                    "absolute bottom-0 right-1 -mb-1 text-lg group-hover:text-4xl text-white/30",
+                    downWinFactor > upWinFactor ? "animate-pulse" : ""
+                  )}
+                >
+                  &times;{downWinFactor.toFixed(2)}
+                </span>
+              </Button>
+            </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </Card>
   );
 };

@@ -11,6 +11,7 @@ interface MarketCardTimelineProps {
   createTime: number;
   betCloseTime: number;
   endTime: number;
+  slim?: boolean;
 }
 
 // Wrap Banana component with React.memo to prevent unnecessary re-renders
@@ -20,6 +21,7 @@ export const MarketCardTimeline: React.FC<MarketCardTimelineProps> = ({
   createTime,
   betCloseTime,
   endTime,
+  slim = false,
 }) => {
   const [now, setNow] = useState(DateTime.local());
   const [progressPercentageFirstInterval, setProgressPercentageFirstInterval] =
@@ -95,7 +97,7 @@ export const MarketCardTimeline: React.FC<MarketCardTimelineProps> = ({
   }
 
   return (
-    <div className="flex flex-col justify-center py-2">
+    <div className="flex flex-col justify-center">
       <div className="flex flex-row justify-between items-center">
         <div className="w-1/3 text-xs text-muted-foreground text-start">
           Open
@@ -161,24 +163,25 @@ export const MarketCardTimeline: React.FC<MarketCardTimelineProps> = ({
           </Button>
         </div>
       </div>
-
-      <div className="flex flex-row justify-between items-center">
-        <div className="w-1/3 text-xs text-muted-foreground text-start">
-          <p className="max-w-24 text-wrap mr-auto">
-            {createDate.toFormat("yyyy-MM-dd HH:mm:ss")}
-          </p>
+      {!slim && (
+        <div className="flex flex-row justify-between items-center">
+          <div className="w-1/3 text-xs text-muted-foreground text-start">
+            <p className="max-w-24 text-wrap mr-auto">
+              {createDate.toFormat("yyyy-MM-dd HH:mm:ss")}
+            </p>
+          </div>
+          <div className="w-1/3 text-xs text-muted-foreground text-center">
+            <p className="max-w-24 text-wrap mx-auto">
+              {betCloseDate.toFormat("yyyy-MM-dd HH:mm:ss")}
+            </p>
+          </div>
+          <div className="w-1/3 text-xs text-muted-foreground text-end">
+            <p className="max-w-24 text-wrap ml-auto">
+              {endDate.toFormat("yyyy-MM-dd HH:mm:ss")}
+            </p>
+          </div>
         </div>
-        <div className="w-1/3 text-xs text-muted-foreground text-center">
-          <p className="max-w-24 text-wrap mx-auto">
-            {betCloseDate.toFormat("yyyy-MM-dd HH:mm:ss")}
-          </p>
-        </div>
-        <div className="w-1/3 text-xs text-muted-foreground text-end">
-          <p className="max-w-24 text-wrap ml-auto">
-            {endDate.toFormat("yyyy-MM-dd HH:mm:ss")}
-          </p>
-        </div>
-      </div>
+      )}
     </div>
   );
 };

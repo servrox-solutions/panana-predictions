@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils";
+import { TrendingUpDown } from "lucide-react";
 import { DateTime, Duration } from "luxon";
 
 export interface MarketTitleProps {
@@ -10,6 +11,7 @@ export interface MarketTitleProps {
   betCloseTime: number;
   as?: any;
   className?: string;
+  shortVersion?: boolean;
 }
 
 export const MarketTitle = ({
@@ -18,29 +20,58 @@ export const MarketTitle = ({
   betCloseTime,
   as: Tag = "h2",
   className,
+  shortVersion = false,
 }: MarketTitleProps) => {
-  const diff = DateTime.fromSeconds(resolveTime).diff(DateTime.fromSeconds(betCloseTime));
+  const diff = DateTime.fromSeconds(resolveTime).diff(
+    DateTime.fromSeconds(betCloseTime)
+  );
 
   // Got function from here: https://github.com/moment/luxon/issues/1134
   function toHuman(dur: Duration, smallestUnit = "seconds"): string {
-    const units = ["years", "months", "days", "hours", "minutes", "seconds", "milliseconds",];
+    const units = [
+      "years",
+      "months",
+      "days",
+      "hours",
+      "minutes",
+      "seconds",
+      "milliseconds",
+    ];
     const smallestIdx = units.indexOf(smallestUnit);
     const entries = Object.entries(
-      dur.shiftTo(...(units as any)).normalize().toObject()
+      dur
+        .shiftTo(...(units as any))
+        .normalize()
+        .toObject()
     ).filter(([_unit, amount], idx) => amount > 0 && idx <= smallestIdx);
     const dur2 = Duration.fromObject(
       entries.length === 0 ? { [smallestUnit]: 0 } : Object.fromEntries(entries)
     );
-    return dur2.reconfigure({ locale: 'en-GB' }).toHuman();
+    return dur2.reconfigure({ locale: "en-GB" }).toHuman();
   }
 
   return (
     <Tag className={cn("text-lg font-semibold", className)}>
-      Will
-      <span className="dark:text-secondary bg-primary p-1 rounded mx-1">
-        {tradingPair.one}/{tradingPair.two}
-      </span>
-      go up or down within {toHuman(diff)}?
+      {!shortVersion && (
+        <>
+          Will
+          <span className="dark:text-secondary bg-primary p-1 rounded mx-1">
+            {tradingPair.one}/{tradingPair.two}
+          </span>
+          go up or down within {toHuman(diff)}?
+        </>
+      )}
+      {shortVersion && (
+        <>
+          <span className="dark:text-secondary bg-primary p-1 rounded mx-1">
+            {tradingPair.one}/{tradingPair.two}
+          </span>
+          <TrendingUpDown className="pr-2 dark:text-neutral-400 hidden sm:inline" />
+          <span className="font-normal dark:text-neutral-400 text-sm hidden sm:inline">
+            {toHuman(diff)}
+          </span>
+        </>
+      )}
     </Tag>
   );
 };

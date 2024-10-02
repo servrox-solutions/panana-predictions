@@ -82,6 +82,7 @@ export const MarketCard: React.FC<MarketCardProps> = ({
       style={{ order: marketData ? getPosition(marketData) : 0 }}
     >
       <MarketCardSimpleUi
+        startTime={marketData?.startTime ?? 1337}
         createTime={marketData?.createdAt ?? 1337}
         address={marketData?.address ?? "1337"}
         minBet={marketData?.minBet ?? 1337}

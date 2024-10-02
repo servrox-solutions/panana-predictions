@@ -69,6 +69,17 @@ const config: Config = {
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
       },
+      keyframes: {
+        flip: {
+          "0%": { transform: "rotateY(0deg)" },
+          "25%": { transform: "rotateY(180deg)" },
+          "50%": { transform: "rotateY(360deg)" },
+          "100%": { transform: "rotateY(360deg)" },
+        },
+      },
+      animation: {
+        flip: "flip 10s ease-in-out infinite",
+      },
     },
   },
   plugins: [require("tailwindcss-animate")],
