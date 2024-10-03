@@ -2,7 +2,7 @@
   "name": "aptos-prediction-market",
   "version": "0.1.0",
   "private": true,
-  "packageManager": "pnpm@9.11.0",
+  "packageManager": "pnpm@9.12.0",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -40,6 +40,7 @@
     "@radix-ui/react-switch": "^1.1.0",
     "@radix-ui/react-tabs": "^1.1.0",
     "@radix-ui/react-tooltip": "^1.1.2",
+    "@supabase/ssr": "^0.5.1",
     "@tabler/icons-react": "^3.18.0",
     "@telegram-apps/init-data-node": "^1.0.4",
     "@telegram-apps/sdk-react": "^1.1.3",
