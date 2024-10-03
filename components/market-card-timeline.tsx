@@ -6,6 +6,7 @@ import { DateTime } from "luxon";
 import { Progress } from "./ui/progress";
 import { Banana, Lock, PartyPopper } from "lucide-react";
 import { Button } from "./ui/button";
+import { formatTime } from '@/lib/utils';
 
 interface MarketCardTimelineProps {
   createTime: number;
@@ -39,8 +40,8 @@ export const MarketCardTimeline: React.FC<MarketCardTimelineProps> = ({
   const createDate = DateTime.fromSeconds(createTime);
   const betCloseDate = DateTime.fromSeconds(betCloseTime);
   const endDate = DateTime.fromSeconds(endTime);
-  const firstInterval = betCloseDate.diff(createDate).as("milliseconds");
-  const secondIntervall = endDate.diff(betCloseDate).as("milliseconds");
+  const firstInterval = betCloseDate.diff(createDate).as("seconds");
+  const secondIntervall = endDate.diff(betCloseDate).as("seconds");
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -52,40 +53,40 @@ export const MarketCardTimeline: React.FC<MarketCardTimelineProps> = ({
 
   useEffect(() => {
     if (now < betCloseDate) {
-      const diffFirstInterval = betCloseDate.diff(now).as("milliseconds");
+      const diffFirstInterval = betCloseDate.diff(now).as("seconds");
 
       setProgressPercentageFirstInterval(
         100 -
-          Math.min(
-            Math.max(Math.round((diffFirstInterval / firstInterval) * 100), 0),
-            100
-          )
+        Math.min(
+          Math.max(Math.round((diffFirstInterval / firstInterval) * 100), 0),
+          100
+        )
       );
       setProgressPercentageSecondInterval(0);
 
       setRemainingTimeFirstInterval(
-        betCloseDate.diff(now).toFormat("hh:mm:ss")
+        formatTime(betCloseDate.diff(now).as('seconds'))
       );
       setRemainingTimeSecondInterval(
-        endDate.diff(betCloseDate).toFormat("hh:mm:ss")
+        formatTime(endDate.diff(betCloseDate).as('seconds'))
       );
     } else if (now > betCloseDate && now < endDate) {
-      const diffSecondInterval = endDate.diff(now).as("milliseconds");
+      const diffSecondInterval = endDate.diff(now).as("seconds");
 
       setProgressPercentageFirstInterval(100);
       setProgressPercentageSecondInterval(
         100 -
-          Math.min(
-            Math.max(
-              Math.round((diffSecondInterval / secondIntervall) * 100),
-              0
-            ),
-            100
-          )
+        Math.min(
+          Math.max(
+            Math.round((diffSecondInterval / secondIntervall) * 100),
+            0
+          ),
+          100
+        )
       );
 
       setRemainingTimeFirstInterval(null);
-      setRemainingTimeSecondInterval(endDate.diff(now).toFormat("hh:mm:ss"));
+      setRemainingTimeSecondInterval(formatTime(endDate.diff(now).as('seconds')));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [now]);
@@ -124,10 +125,10 @@ export const MarketCardTimeline: React.FC<MarketCardTimelineProps> = ({
             value={progressPercentageFirstInterval}
             className="w-full h-7 rounded-none opacity-50"
           />
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-xs text-foreground">
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-xs text-center text-foreground">
             {remainingTimeFirstInterval
               ? remainingTimeFirstInterval
-              : DateTime.fromMillis(firstInterval).toFormat("hh:mm:ss")}
+              : formatTime(firstInterval)}
           </div>
         </div>
 
@@ -146,10 +147,10 @@ export const MarketCardTimeline: React.FC<MarketCardTimelineProps> = ({
             value={progressPercentageSecondInterval}
             className="w-full h-7 rounded-none opacity-50"
           />
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-xs text-foreground">
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-xs text-center text-foreground">
             {remainingTimeSecondInterval
               ? remainingTimeSecondInterval
-              : DateTime.fromMillis(secondIntervall).toFormat("hh:mm:ss")}
+              : formatTime(secondIntervall)}
           </div>
         </div>
 
@@ -167,17 +168,17 @@ export const MarketCardTimeline: React.FC<MarketCardTimelineProps> = ({
         <div className="flex flex-row justify-between items-center">
           <div className="w-1/3 text-xs text-muted-foreground text-start">
             <p className="max-w-24 text-wrap mr-auto">
-              {createDate.toFormat("yyyy-MM-dd HH:mm:ss")}
+              {createDate.toLocaleString(DateTime.DATETIME_MED)}
             </p>
           </div>
           <div className="w-1/3 text-xs text-muted-foreground text-center">
             <p className="max-w-24 text-wrap mx-auto">
-              {betCloseDate.toFormat("yyyy-MM-dd HH:mm:ss")}
+              {betCloseDate.toLocaleString(DateTime.DATETIME_MED)}
             </p>
           </div>
           <div className="w-1/3 text-xs text-muted-foreground text-end">
             <p className="max-w-24 text-wrap ml-auto">
-              {endDate.toFormat("yyyy-MM-dd HH:mm:ss")}
+              {endDate.toLocaleString(DateTime.DATETIME_MED)}
             </p>
           </div>
         </div>

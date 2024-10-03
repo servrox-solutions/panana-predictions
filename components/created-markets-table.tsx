@@ -118,7 +118,7 @@ export function CreatedMarketsTable({
                 <Coins className="h-4 w-4 mr-2" />
                 <div className="flex flex-col">
                   <div className="flex gap-2">
-                    {latestCreatedMarket.minBet / 10 ** 8}
+                    {latestCreatedMarket.minBet / 10 ** 9}
                   </div>
                 </div>
               </div>
@@ -235,7 +235,7 @@ export function CreatedMarketsTable({
                       Min Bet
                     </span>
                     <div className="flex w-full">
-                      {latestCreatedMarket.minBet / 10 ** 8}
+                      {latestCreatedMarket.minBet / 10 ** 9}
                     </div>
                   </div>
                 </div>

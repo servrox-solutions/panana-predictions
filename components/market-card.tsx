@@ -28,12 +28,12 @@ export const MarketCard: React.FC<MarketCardProps> = ({
     availableMarket,
     3000,
     initialMarketData ??
-      marketDataStore?.find(
-        (market) => market.address === availableMarket.address
-      ) ??
-      filteredMarketData.find(
-        (market) => market.address === availableMarket.address
-      )
+    marketDataStore?.find(
+      (market) => market.address === availableMarket.address
+    ) ??
+    filteredMarketData.find(
+      (market) => market.address === availableMarket.address
+    )
   );
   const { account } = useWallet();
   const { placeBet } = usePlaceBet();
@@ -46,8 +46,8 @@ export const MarketCard: React.FC<MarketCardProps> = ({
         return;
       }
       if (marketData) {
-        await placeBet(marketData, betUp, amount);
-        toast.success("Bet placed successfully.");
+        const isSuccess = await placeBet(marketData, betUp, amount);
+        if (isSuccess) toast.success("Bet placed successfully.");
       }
     },
     [account?.address, marketData, placeBet]
@@ -60,8 +60,8 @@ export const MarketCard: React.FC<MarketCardProps> = ({
         return;
       }
       if (marketData) {
-        await submitVote(marketData, isVoteUp);
-        toast.success("Vote submitted successfully.", { autoClose: 2000 });
+        const isSuccess = await submitVote(marketData, isVoteUp);
+        if (isSuccess) toast.success("Vote submitted successfully.", { autoClose: 2000 });
       }
     },
     [account?.address, marketData, submitVote]

@@ -9,8 +9,8 @@ export const useSubmitVote = () => {
   const submitVote = async (
     marketData: MarketData,
     isVoteUp: boolean
-  ): Promise<void> => {
-    if (!account || !marketData) return;
+  ): Promise<boolean> => {
+    if (!account || !marketData) return false;
 
     try {
       const payload = createEntryPayload(MARKET_ABI, {
@@ -25,6 +25,7 @@ export const useSubmitVote = () => {
         sender: account.address,
         data: payload,
       });
+      return true;
 
       // const transactionResponse = await signAndSubmitTransaction({
       //   sender: account.address,
@@ -36,6 +37,7 @@ export const useSubmitVote = () => {
       // });
     } catch (error: any) {
       console.error("Transaction failed:", error);
+      return false;
     }
   };
 

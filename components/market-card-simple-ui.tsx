@@ -179,23 +179,23 @@ export const MarketCardSimpleUi: React.FC<MarketCardSimpleUiProps> = ({
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="group hover:text-red-500 hover:bg-red-500/20"
-                  onClick={handleVoteDown}
-                >
-                  <ThumbsDown className="h-4 w-4" />
-                  <span className="text-xs dark:text-neutral-400 group-hover:text-red-500 pl-1">
-                    {downVotesSum}
-                  </span>
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
                   className="group hover:text-green-500 hover:bg-green-500/20"
                   onClick={handleVoteUp}
                 >
                   <ThumbsUp className="h-4 w-4" />
                   <span className="text-xs dark:text-neutral-400 group-hover:text-green-500 pl-1">
                     {upVotesSum}
+                  </span>
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="group hover:text-red-500 hover:bg-red-500/20"
+                  onClick={handleVoteDown}
+                >
+                  <ThumbsDown className="h-4 w-4" />
+                  <span className="text-xs dark:text-neutral-400 group-hover:text-red-500 pl-1">
+                    {downVotesSum}
                   </span>
                 </Button>
               </div>
@@ -247,7 +247,7 @@ export const MarketCardSimpleUi: React.FC<MarketCardSimpleUiProps> = ({
                 <div className="flex items-center">
                   <Coins className="w-4 h-4" />
                   <span className="text-xs dark:text-neutral-400 pl-1">
-                    {(upBetsSum + downBetsSum) / 10 ** 8} APT
+                    {(upBetsSum + downBetsSum) / (10 ** 9)} APT
                   </span>
                 </div>
               </div>

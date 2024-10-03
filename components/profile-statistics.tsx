@@ -31,7 +31,7 @@ export default function Statistics(props: StatisticsProps) {
       <Card className="p-4 flex flex-col">
         <span className="text-sm text-gray-500">Volume Placed</span>
         <span className="text-lg font-semibold">
-          {(placedBetsSum / 10 ** 8).toFixed(5)} APT
+          {(placedBetsSum / 10 ** 9).toFixed(5)} APT
         </span>
       </Card>
       <Card className="p-4 flex flex-col">

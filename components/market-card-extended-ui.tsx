@@ -70,7 +70,7 @@ export const MarketCardExtendedUi: React.FC<MarketCardSimpleUiProps> = ({
   onVote,
 }) => {
   const [bet, setBet] = useState<"up" | "down" | null>(null);
-  const [amount, setAmount] = useState<number>(minBet / 10 ** 8);
+  const [amount, setAmount] = useState<number>(minBet / 10 ** 9);
   const getSocialMessage = (marketId: string) =>
     `📈 Think you can predict the next move in crypto?\nJoin our latest market and put your forecast to the test!\n\nhttps://app.panana-predictions.xyz/markets/${marketId}\n\nOnly on 🍌Panana Predictions!`;
 
@@ -92,7 +92,7 @@ export const MarketCardExtendedUi: React.FC<MarketCardSimpleUiProps> = ({
           type="number"
           step="0.01"
           placeholder="Amount"
-          defaultValue={minBet / 10 ** 8}
+          defaultValue={minBet / 10 ** 9}
           onChange={(ev) => setAmount(+ev.target.value)}
           className="text-foreground bg-white/40 dark:bg-black/40"
         />
@@ -171,7 +171,7 @@ export const MarketCardExtendedUi: React.FC<MarketCardSimpleUiProps> = ({
         <div className="flex items-center">
           <Coins className="w-4 h-4" />
           <span className="text-xs pl-1">
-            {(upBetsSum + downBetsSum) / 10 ** 8} APT
+            {(upBetsSum + downBetsSum) / 10 ** 9} APT
           </span>
         </div>
         <div className="flex justify-end space-x-2">

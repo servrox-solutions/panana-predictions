@@ -1,28 +1,36 @@
 import { createEntryPayload } from "@thalalabs/surf";
-import { MARKET_ABI, aptos } from "@/lib/aptos";
-import { MarketData } from "@/lib/types/market";
+import { MARKET_ABI } from "@/lib/aptos";
+import { Address, MarketType } from "@/lib/types/market";
 import { useWallet } from "@aptos-labs/wallet-adapter-react";
+import { getMarketType } from "../get-market-type";
+import { toast } from "react-toastify";
 
-export const usePlaceBet = () => {
+export const useStartMarket = () => {
   const { account, signAndSubmitTransaction } = useWallet();
 
-  const placeBet = async (
-    marketData: MarketData,
-    betUp: boolean,
-    amount: number
-  ): Promise<boolean> => {
-    if (!account || !marketData) return false;
+  const startMarket = async (
+    marketAddress: Address,
+    marketType?: MarketType
+  ): Promise<void> => {
+    if (!account?.address) {
+      toast.info("Please connect your wallet first.");
+      return;
+    }
+
+    if (!marketType) {
+      marketType = await getMarketType(marketAddress);
+    }
 
     try {
       const payload = createEntryPayload(MARKET_ABI, {
-        function: "place_bet",
+        function: "start_market",
         typeArguments: [
-          `${MARKET_ABI.address}::switchboard_asset::${marketData.tradingPair.one}`,
+          `${MARKET_ABI.address}::switchboard_asset::${marketType}`,
         ],
-        functionArguments: [marketData.address, betUp, amount.toString()],
+        functionArguments: [marketAddress],
       });
 
-      const transactionResponse = await signAndSubmitTransaction({
+      await signAndSubmitTransaction({
         sender: account.address,
         data: payload,
       });
@@ -35,12 +43,10 @@ export const usePlaceBet = () => {
       // const committedTransactionResponse = await aptos.waitForTransaction({
       //   transactionHash: transactionResponse.hash,
       // });
-      return true;
     } catch (error: any) {
       console.error("Transaction failed:", error);
-      return false;
     }
   };
 
-  return { placeBet };
+  return { startMarket };
 };

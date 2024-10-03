@@ -1,6 +1,7 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 import { MarketType } from "./types/market";
+import { Duration } from 'luxon';
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -60,4 +61,12 @@ export function extractAsset(input: string): MarketType {
 
 export function formatAptPrice(price: number): string {
   return (price / 10 ** 9).toFixed(3);
+}
+
+export const formatTime = (seconds: number): string => {
+  const duration = Duration.fromObject({ seconds });
+  const durationWithoutDays = Duration.fromObject({ seconds: seconds % (60 * 60 * 24) });
+
+  const durationHourString = durationWithoutDays.toFormat('hh:mm:ss');
+  return Math.floor(duration.as('days')) > 0 ? `${duration.toFormat('dd')} days ${durationHourString}` : durationHourString;
 }

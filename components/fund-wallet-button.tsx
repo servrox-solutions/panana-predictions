@@ -15,7 +15,7 @@ export const FundWalletButton = () => {
         }
         const toastId = toast.info('Funding wallet...');
         try {
-            await aptos.fundAccount({ accountAddress: wallet.account.address, amount: 10 ** 8 })
+            await aptos.fundAccount({ accountAddress: wallet.account.address, amount: 10 ** 9 })
             toast.dismiss(toastId);
             toast.success('Wallet funded with 1 APT.')
         } catch (err: unknown) {

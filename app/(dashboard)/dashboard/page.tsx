@@ -67,8 +67,8 @@ export default async function Dashboard({
     .map((marketplace) => +marketplace.all_time_volume)
     .reduce((prev, cur) => prev + cur, 0);
   const totalVolume = {
-    apt: totalVolumeApt / 10 ** 8,
-    usd: (totalVolumeApt / 10 ** 8) * price,
+    apt: totalVolumeApt / 10 ** 9,
+    usd: (totalVolumeApt / 10 ** 9) * price,
   };
 
   const resolvedMarkets = resolvedEvents
@@ -83,8 +83,8 @@ export default async function Dashboard({
         startPrice: x.start_price,
         endPrice: x.end_price,
         marketCap: {
-          asset: +x.market_cap / 10 ** 8,
-          usd: (+x.market_cap / 10 ** 8) * price,
+          asset: +x.market_cap / 10 ** 9,
+          usd: (+x.market_cap / 10 ** 9) * price,
         },
         dissolved: x.dissolved,
       }))

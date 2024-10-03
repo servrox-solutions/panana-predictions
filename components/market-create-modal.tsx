@@ -152,7 +152,7 @@ export function MarketCreateModal({
         .address,
       startTimeTimestampSeconds: Math.floor(startTime.toSeconds()),
       endTimeTimestampSeconds: Math.floor(endTime.toSeconds()),
-      minBet: data.minBet * 10 ** 8,
+      minBet: data.minBet * 10 ** 9,
     });
     console.log(res);
 
@@ -247,11 +247,10 @@ export function MarketCreateModal({
                               variant="outline"
                               key={asset.value}
                               id={asset.value}
-                              className={`${
-                                field.value === asset.value
+                              className={`${field.value === asset.value
                                   ? "bg-primary text-secondary"
                                   : ""
-                              }`}
+                                }`}
                               onClick={() => handleAssetChange(asset.value)}
                             >
                               {asset.label}/USD
@@ -294,11 +293,10 @@ export function MarketCreateModal({
                               variant="outline"
                               key={i.as("seconds")}
                               id={`${i.as("seconds")}`}
-                              className={`w-full ${
-                                field.value === i.as("seconds")
+                              className={`w-full ${field.value === i.as("seconds")
                                   ? "bg-primary text-secondary hover:bg-primary hover:text-secondary"
                                   : ""
-                              }`}
+                                }`}
                               onClick={() =>
                                 handleDurationChange(i.as("seconds"))
                               }
@@ -359,8 +357,8 @@ export function MarketCreateModal({
                       <span>
                         {form.getValues("startTime")
                           ? DateTime.fromJSDate(
-                              form.getValues("startTime")!
-                            ).toLocaleString(DateTime.DATETIME_SHORT)
+                            form.getValues("startTime")!
+                          ).toLocaleString(DateTime.DATETIME_SHORT)
                           : "tbd."}
                       </span>
                     </div>
@@ -373,12 +371,12 @@ export function MarketCreateModal({
                       </span>
                       <span>
                         {form.getValues("durationSeconds") &&
-                        form.getValues("startTime")
+                          form.getValues("startTime")
                           ? DateTime.fromJSDate(form.getValues("startTime"))
-                              .plus({
-                                second: form.getValues("durationSeconds"),
-                              })
-                              ?.toLocaleString(DateTime.DATETIME_SHORT)
+                            .plus({
+                              second: form.getValues("durationSeconds"),
+                            })
+                            ?.toLocaleString(DateTime.DATETIME_SHORT)
                           : "tbd."}
                       </span>
                     </div>

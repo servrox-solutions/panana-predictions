@@ -1,7 +1,7 @@
 import { atom, useAtom } from "jotai";
 import { MarketData } from "@/lib/types/market";
 
-export const sortOptions = ["newest", "oldest", "mostVolume"] as const;
+export const sortOptions = ["newest", "oldest", "mostVolume", "upvotes", "downvotes"] as const;
 
 export const marketDataAtom = atom<MarketData[]>([]);
 export const searchTermAtom = atom<string>("");

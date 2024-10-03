@@ -131,14 +131,14 @@ export const MarketInfo: React.FC<MarketInfoProps> = ({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <InfoItem
               label="Up Bets Sum"
-              value={`$ ${marketData?.upBetsSum
+              value={`APT ${marketData?.upBetsSum
                 ? formatAptPrice(marketData?.upBetsSum)
                 : "n/a"
                 }`}
             />
             <InfoItem
               label="Down Bets Sum"
-              value={`$ ${marketData?.downBetsSum
+              value={`APT ${marketData?.downBetsSum
                 ? formatAptPrice(marketData?.downBetsSum)
                 : "n/a"
                 }`}

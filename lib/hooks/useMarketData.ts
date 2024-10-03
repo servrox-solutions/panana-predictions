@@ -118,7 +118,16 @@ export function useMarketData() {
         .sort((prev, cur) => prev.createdAt - cur.createdAt)
         .findIndex((market) => market.address === checkMarket.address);
       // } else if (orderBy === "mostVolume") {
-    } else {
+    } else if (orderBy === "upvotes") {
+      position = marketData
+        .sort((prev, cur) => cur.upVotesSum - prev.upVotesSum)
+        .findIndex((market) => market.address === checkMarket.address);
+     } else if (orderBy === "downvotes") {
+      position = marketData
+        .sort((prev, cur) => cur.downVotesSum - prev.downVotesSum)
+        .findIndex((market) => market.address === checkMarket.address);
+    }
+    else {
       position = marketData
         .sort(
           (prev, cur) =>

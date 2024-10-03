@@ -20,9 +20,6 @@ importers:
       '@hookform/resolvers':
         specifier: ^3.9.0
         version: 3.9.0(react-hook-form@7.53.0(react@18.3.1))
-      '@million/lint':
-        specifier: ^1.0.0
-        version: 1.0.0
       '@moonpay/moonpay-js':
         specifier: ^0.6.1
         version: 0.6.1
@@ -174,6 +171,9 @@ importers:
         specifier: ^2.0.2
         version: 2.0.2(zod@3.23.8)
     devDependencies:
+      '@million/lint':
+        specifier: ^1.0.0
+        version: 1.0.0
       '@twa-dev/types':
         specifier: ^7.10.0
         version: 7.10.0
@@ -685,8 +685,8 @@ packages:
   '@microsoft/fetch-event-source@2.0.1':
     resolution: {integrity: sha512-W6CLUJ2eBMw3Rec70qrsEW0jOm/3twwJv21mrmj2yORiaVmVYGS4sSS5yUwvQc1ZlDLYGPnClVWmUUMagKNsfA==}
 
-  '@million/install@1.0.3':
-    resolution: {integrity: sha512-UGA5zQYLsCnQItmmh/yiaGcdS2TE3NeSqaFxWkQJSpB0ajsgWdzLU9+YR3imJ6HGXRqoOYNPr0WR83D7vwlnwg==}
+  '@million/install@1.0.6':
+    resolution: {integrity: sha512-o3Bp8eFJcO5cUqfewN/Ey0xzTbOQuw3fCaTCw4Wx24VNpEvvZ7z6KeQH67JopVO/9CF8I9xeSt0HsnhjFVAcmw==}
     hasBin: true
 
   '@million/lint@1.0.0':
@@ -4613,7 +4613,7 @@ snapshots:
 
   '@microsoft/fetch-event-source@2.0.1': {}
 
-  '@million/install@1.0.3':
+  '@million/install@1.0.6':
     dependencies:
       '@antfu/ni': 0.21.12
       '@axiomhq/js': 1.0.0-rc.3
@@ -4633,7 +4633,7 @@ snapshots:
       '@babel/core': 7.25.2
       '@babel/types': 7.25.2
       '@hono/node-server': 1.13.1(hono@4.6.3)
-      '@million/install': 1.0.3
+      '@million/install': 1.0.6
       '@rollup/pluginutils': 5.1.2
       '@rrweb/types': 2.0.0-alpha.16
       babel-plugin-syntax-hermes-parser: 0.21.1

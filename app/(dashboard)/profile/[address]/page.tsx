@@ -57,7 +57,7 @@ export default async function Profile({
           <ProfileCard
             className="col-span-1"
             address={params.address as Address}
-            balance={balance / 10 ** 8}
+            balance={balance / 10 ** 9}
             totalTransactions={totalTransactions}
           />
           <Card className="p-4 flex flex-col gap-2">

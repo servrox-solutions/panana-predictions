@@ -85,8 +85,8 @@ export function ResolvedMarketsTable({
               ? true
               : filter.includes(latestResolvedMarket.assetSymbol)
           ).length === 0
-              ? ""
-              : "hidden"
+            ? ""
+            : "hidden"
             }`}
           key="empty table"
         >
@@ -96,9 +96,9 @@ export function ResolvedMarketsTable({
         </TableRow>
         {latestResolvedMarkets.map((latestResolvedMarket, idx) => (
           <Link className={`hover:bg-initial hover:sm:bg-gray-500 table-row hover:sm:bg-opacity-50 ${filter.length === 0 ||
-              filter.includes(latestResolvedMarket.assetSymbol)
-              ? ""
-              : "hidden"
+            filter.includes(latestResolvedMarket.assetSymbol)
+            ? ""
+            : "hidden"
             }`}
             key={latestResolvedMarket.marketAddress}
             href={`/markets/${latestResolvedMarket.marketAddress}`}>
@@ -131,9 +131,9 @@ export function ResolvedMarketsTable({
             <TableCell className="hidden sm:table-cell">
               <div
                 className={`flex items-center w-full font-semibold ${latestResolvedMarket.startPrice <
-                    latestResolvedMarket.endPrice
-                    ? `text-positive-1`
-                    : "text-negative-1"
+                  latestResolvedMarket.endPrice
+                  ? `text-positive-1`
+                  : "text-negative-1"
                   } relative`}
               >
                 {(latestResolvedMarket.startPrice / 10 ** 9).toFixed(3)} ${" "}
@@ -275,9 +275,9 @@ export function ResolvedMarketsTable({
                     <div className="flex">
                       <div
                         className={`flex flex-col items-center w-full font-semibold relative ${latestResolvedMarket.startPrice <
-                            latestResolvedMarket.endPrice
-                            ? "text-positive-1"
-                            : "text-negative-1"
+                          latestResolvedMarket.endPrice
+                          ? "text-positive-1"
+                          : "text-negative-1"
                           }`}
                       >
                         <div>
