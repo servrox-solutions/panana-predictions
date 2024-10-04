@@ -6,6 +6,8 @@ import {
   type ClientResponse,
   Account,
   Ed25519PrivateKey,
+  type CommittedTransactionResponse,
+  type UserTransactionResponse,
 } from "@aptos-labs/ts-sdk";
 import axios, { type AxiosResponse } from "axios";
 import { ABI as MARKET_ABI } from "../lib/market-abi.ts";
@@ -216,12 +218,22 @@ function setupStartPriceTimer(
   const date = determineJobExecutionTime(start_time_timestamp_sec);
   scheduleExecutionWithRetry(
     jobName,
-    () =>
-      marketSurfClient.entry.start_market({
-        typeArguments: [type],
-        functionArguments: [marketAddress],
-        account,
-      }),
+    async () => {
+      try {
+        const res = await marketSurfClient.entry.start_market({
+          typeArguments: [type],
+          functionArguments: [marketAddress],
+          account,
+        });
+        return res;
+      } catch (err: any) {
+        if (err?.transaction?.vm_status?.includes('E_MARKET_RUNNING')) {
+          return { success: true }; // if the error is market running, the start price is already set
+        }
+        console.error(`error starting market`, JSON.stringify(err));
+        return { success: false };
+      }
+    },
     date
   );
 
@@ -229,8 +241,6 @@ function setupStartPriceTimer(
     `Scheduled job to set price for market ${marketAddress} at ${date.toString()} on ${type}`
   );
 }
-
-
 
 // Timer setup for market resolution
 function setupResolveMarketTimer(
@@ -244,12 +254,22 @@ function setupResolveMarketTimer(
   const date = determineJobExecutionTime(end_time_timestamp_sec);
   scheduleExecutionWithRetry(
     jobName,
-    () =>
-      marketSurfClient.entry.resolve_market({
-        typeArguments: [type],
-        functionArguments: [marketAddress],
-        account,
-      }),
+    async () => {
+        try {
+          const res = await marketSurfClient.entry.resolve_market({
+            typeArguments: [type],
+            functionArguments: [marketAddress],
+            account,
+          });
+          return res;
+      } catch (err: any) {
+        if (err?.transaction?.vm_status?.includes('E_MARKET_CLOSED')) {
+          return { success: true }; // if the error is market closed, the end price is already set
+        }
+        console.error(`error resolving market`, JSON.stringify(err));
+        return { success: false };
+      }
+    },
     date
   );
 
@@ -313,6 +333,6 @@ function retryExecution(
     DateTime.fromJSDate(fireDate).plus({ seconds: retryDelay }).toJSDate()
   );
 }
-
+      
 // Fetch marketplaces and schedule job
 fetchAndScheduleMarketplaces();
