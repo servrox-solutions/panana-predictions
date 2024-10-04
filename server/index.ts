@@ -95,27 +95,26 @@ interface AvailableMarketplace {
 function scheduleCreateMarket(marketplace: AvailableMarketplace, min: number) {
   const rule = new RecurrenceRule();
     rule.minute = [min];
-    scheduleJob(rule, async ( )=> {
-        try {
-            const startTime = Math.floor(DateTime.now().plus({minute: 30}).set({second: 0, millisecond: 0}).toSeconds());
-            const endTime = Math.floor(DateTime.fromSeconds(startTime).plus({minute: 30}).toSeconds());
-            await marketSurfClient.entry.create_market({
-                typeArguments: [marketplace.value],
-                functionArguments: [
-                    marketplace.key,
-                    startTime,
-                    endTime,
-                    1000000,
-                    2,
-                    100,
-                ],
-                account
-            });
-            // console.log(`Created market. Tx: ${res.hash}`);
-        } catch(err) {
-            console.error('error creating market: ', err);
-        }
-    });
+    scheduleExecutionWithRetry('CreateMarket', async ( )=> {
+        const startTime = Math.floor(DateTime.now().plus({minute: 30}).set({second: 0, millisecond: 0}).toSeconds());
+        const endTime = Math.floor(DateTime.fromSeconds(startTime).plus({minute: 30}).toSeconds());
+        const res = await marketSurfClient.entry.create_market({
+            typeArguments: [marketplace.value],
+            functionArguments: [
+                marketplace.key,
+                startTime,
+                endTime,
+                1000000,
+                2,
+                100,
+            ],
+            account
+        });
+      
+      console.log(`Created market ${marketplace.key}:${marketplace.value}. Tx: ${res.hash}`);
+      return res;
+    }, rule);
+  
     console.log(`create market scheduler scheduled for ${marketplace.key} (${marketplace.value})`);
 }
 
@@ -217,30 +216,31 @@ function setupResolveMarketTimer(marketAddress: `0x${string}`, end_time_timestam
     console.log(`scheduled job to resolve market ${marketAddress} at ${date.toString()} on ${type}`);
 }
 
-function scheduleExecutionWithRetry(jobName: string, promise: () => Promise<{success: boolean}>, start: DateTime, retryCount = 50) {
-    let numberRetries = 0;
-    const job = scheduleJob(jobName, start.toJSDate(), async (fireDate) => {
-        try {
-            const res = await promise();
-            if (!res.success) {
-                if (numberRetries == retryCount) {
-                    throw new Error('Maximum retries reached');
-                }
+function scheduleExecutionWithRetry(jobName: string, promise: () => Promise<{success: boolean}>, start: DateTime | RecurrenceRule, retryCount = 100) {
+  let numberRetries = 0;
+  const timeConfig = start instanceof DateTime ? start.toJSDate() : start;
+  const job = scheduleJob(jobName, timeConfig, async (fireDate) => {
+      try {
+          const res = await promise();
+          if (!res.success) {
+              if (numberRetries == retryCount) {
+                  throw new Error('Maximum retries reached');
+              }
 
-                console.error(`Failure executing ${jobName}. Retrying in ${(numberRetries + 1) * 2} seconds(s).`);
-                job.runOnDate(DateTime.fromJSDate(fireDate).plus({seconds: (numberRetries + 1) * 3}).toJSDate());
-                numberRetries++;
-                return;
-            }
-            console.error(`Successfully executed ${jobName}`);
-        } catch (err) {
-            if (numberRetries == retryCount) {
-                console.error(`Failure executing ${jobName}. Max retries reached.`, err);
-                return;
-            }
-            console.error(`Failure executing ${jobName}. Retrying in ${(numberRetries + 1) * 2} seconds(s).`, err);
-            job.runOnDate(DateTime.fromJSDate(fireDate).plus({seconds: (numberRetries + 1) * 3}).toJSDate());
-            numberRetries++;
-        }
-    });
+              console.error(`Failure executing ${jobName}. Retrying in ${(numberRetries + 1) ** 2} seconds(s).`);
+              job.runOnDate(DateTime.fromJSDate(fireDate).plus({seconds: (numberRetries + 1) ** 2}).toJSDate());
+              numberRetries++;
+              return;
+          }
+          console.error(`Successfully executed ${jobName}`);
+      } catch (err) {
+          if (numberRetries == retryCount) {
+              console.error(`Failure executing ${jobName}. Max retries reached.`, err);
+              return;
+          }
+          console.error(`Failure executing ${jobName}. Retrying in ${(numberRetries + 1) ** 2} seconds(s).`, err);
+          job.runOnDate(DateTime.fromJSDate(fireDate).plus({seconds: (numberRetries + 1) ** 2}).toJSDate());
+          numberRetries++;
+      }
+  });
 }
