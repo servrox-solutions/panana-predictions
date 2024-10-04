@@ -89,9 +89,12 @@ dependencies:
   '@thalalabs/surf':
     specifier: ^1.7.3
     version: 1.7.3(@aptos-labs/ts-sdk@1.28.0)(@aptos-labs/wallet-adapter-react@3.7.0)(react@18.3.1)
+  '@web3icons/core':
+    specifier: 3.6.1
+    version: 3.6.1(typescript@5.6.2)
   '@web3icons/react':
-    specifier: ^3.6.1
-    version: 3.6.2(react@18.3.1)(typescript@5.6.2)
+    specifier: 3.6.1
+    version: 3.6.1(react@18.3.1)(typescript@5.6.2)
   aptos:
     specifier: ^1.21.0
     version: 1.21.0
@@ -134,9 +137,6 @@ dependencies:
   nextjs-basic-auth-middleware:
     specifier: ^3.1.0
     version: 3.1.0(next@14.2.13)
-  react:
-    specifier: ^18.3.1
-    version: 18.3.1
   react-day-picker:
     specifier: 8.10.1
     version: 8.10.1(date-fns@4.1.0)(react@18.3.1)
@@ -3212,20 +3212,20 @@ packages:
       '@wallet-standard/base': 1.0.1
     dev: false
 
-  /@web3icons/core@3.6.2(typescript@5.6.2):
-    resolution: {integrity: sha512-M4XpoDyNt26h74HY7YIhec7bLol2oNBlV3ppdHQCvH9k9K8s8lxQJ8ZRhU3dlq75Z4OhMDjBFsoKn9COt6XXxQ==}
+  /@web3icons/core@3.6.1(typescript@5.6.2):
+    resolution: {integrity: sha512-9zAb1A0+O3AhSAqqCNLZymEYCRtqZkz5boYLqmBwGXWrN3W/NU2qYzpmIXV/jZDPyKRpArUTwr+/c/+zwNwjRw==}
     peerDependencies:
       typescript: ^5.0.0
     dependencies:
       typescript: 5.6.2
     dev: false
 
-  /@web3icons/react@3.6.2(react@18.3.1)(typescript@5.6.2):
-    resolution: {integrity: sha512-XcUUTrjZJoQsmHb/og/G53kr7koiCSnU13N3nOFETKhnCefhlm48/CyEBDuFMpdCE8lHsHbJOCMpNIw0GZYiZg==}
+  /@web3icons/react@3.6.1(react@18.3.1)(typescript@5.6.2):
+    resolution: {integrity: sha512-AmtR97C5owrCJqwxVHvP2mFI0zbZBK9lENQHGdzfXZSVCq7vNX6LjzhxnsI/MTa1Ckwu8hEsmXBhg5AmLGe4uw==}
     peerDependencies:
       react: ^18.2.0
     dependencies:
-      '@web3icons/core': 3.6.2(typescript@5.6.2)
+      '@web3icons/core': 3.6.1(typescript@5.6.2)
       react: 18.3.1
     transitivePeerDependencies:
       - typescript

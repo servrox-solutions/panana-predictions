@@ -2,12 +2,12 @@ import { NextRequest, NextResponse } from "next/server";
 import {
   validate,
   parse,
-  type InitDataParsed,
+  InitData,
 } from "@telegram-apps/init-data-node";
 
 async function authorizeRequest(
   req: NextRequest
-): Promise<InitDataParsed | undefined> {
+): Promise<InitData | undefined> {
   const authHeader = req.headers.get("authorization") || "";
   const [authType, authData = ""] = authHeader.split(" ");
 
