@@ -3,7 +3,7 @@
 import { useMarket } from "@/lib/hooks/useMarket";
 import { AvailableMarket } from "@/lib/get-available-markets";
 import { MarketCardSimpleUi } from "./market-card-simple-ui";
-import { MarketData, MarketType } from "@/lib/types/market";
+import { MarketData } from "@/lib/types/market";
 import { usePlaceBet } from "@/lib/hooks/usePlaceBet";
 import { useSubmitVote } from "@/lib/hooks/useSubmitVote";
 import { useMarketData } from "@/lib/hooks/useMarketData";
@@ -28,12 +28,12 @@ export const MarketCard: React.FC<MarketCardProps> = ({
     availableMarket,
     3000,
     initialMarketData ??
-    marketDataStore?.find(
-      (market) => market.address === availableMarket.address
-    ) ??
-    filteredMarketData.find(
-      (market) => market.address === availableMarket.address
-    )
+      marketDataStore?.find(
+        (market) => market.address === availableMarket.address
+      ) ??
+      filteredMarketData.find(
+        (market) => market.address === availableMarket.address
+      )
   );
   const { account } = useWallet();
   const { placeBet } = usePlaceBet();
@@ -61,7 +61,8 @@ export const MarketCard: React.FC<MarketCardProps> = ({
       }
       if (marketData) {
         const isSuccess = await submitVote(marketData, isVoteUp);
-        if (isSuccess) toast.success("Vote submitted successfully.", { autoClose: 2000 });
+        if (isSuccess)
+          toast.success("Vote submitted successfully.", { autoClose: 2000 });
       }
     },
     [account?.address, marketData, submitVote]

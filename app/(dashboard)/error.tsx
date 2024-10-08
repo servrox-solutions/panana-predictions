@@ -2,7 +2,7 @@
 
 import { Button } from '@/components/ui/button'
 import { useEffect } from 'react'
-import Image from 'next/Image';
+import Image from 'next/image';
 import { Card } from '@/components/ui/card';
 
 
