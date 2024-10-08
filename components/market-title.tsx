@@ -62,15 +62,17 @@ export const MarketTitle = ({
         </>
       )}
       {shortVersion && (
-        <>
-          <span className="dark:text-secondary bg-primary p-1 rounded mx-1">
+        <div className="flex">
+          <span className="dark:text-secondary bg-primary px-1 rounded mx-1">
             {tradingPair.one}/{tradingPair.two}
           </span>
-          <TrendingUpDown className="pr-2 dark:text-neutral-400 hidden sm:inline" />
-          <span className="font-normal dark:text-neutral-400 text-sm hidden sm:inline">
-            {toHuman(diff)}
-          </span>
-        </>
+          <div className="hidden sm:flex items-center">
+            <TrendingUpDown className="pr-2 dark:text-neutral-400" />
+            <span className="font-normal dark:text-neutral-400 text-sm truncate">
+              {toHuman(diff)}
+            </span>
+          </div>
+        </div>
       )}
     </Tag>
   );
