@@ -36,7 +36,10 @@ import { MarketTitle } from "./market-title";
 import { Card } from "./ui/card";
 import DepositBet from "./deposit-bet";
 import { Web3Icon } from "./web3-icon";
-
+import { storeTelegramNotification } from "@/lib/supabase/store-telegram-notification";
+import { useLaunchParams, useInitData } from "@telegram-apps/sdk-react";
+import { DateTime } from "luxon";
+import { MessageKind } from "@/lib/types/market";
 export interface MarketCardSimpleUiProps {
   tradingPairOne: MarketType; // Destructured property
   tradingPairTwo: string; // Destructured property
@@ -82,6 +85,24 @@ export const MarketCardSimpleUi: React.FC<MarketCardSimpleUiProps> = ({
   const [amount, setAmount] = useState<number>(minBet / 10 ** 8);
   const getSocialMessage = (marketId: string) =>
     `📈 Think you can predict the next move in crypto?\nJoin our latest market and put your forecast to the test!\n\nhttps://app.panana-predictions.xyz/markets/${marketId}\n\nOnly on 🍌Panana Predictions!`;
+  const launchParams = useLaunchParams(true);
+  const initData = useInitData(true);
+
+  const handleMidClick = async () => {
+    const telegramUserId =
+      launchParams?.platform !== "mock" ? initData?.user?.id : undefined;
+
+    if (!telegramUserId) return;
+
+    const result = await storeTelegramNotification(
+      address,
+      telegramUserId,
+      DateTime.fromSeconds(betCloseTime).minus({ minutes: 5 }).toString(),
+      MessageKind.FIVE_MINUTES_BEFORE_BET_CLOSE
+    );
+
+    console.log("result", result);
+  };
 
   // Memoize the MarketCardTimeline component to prevent unnecessary re-renders
   const MemoizedMarketCardTimeline = useMemo(
@@ -91,9 +112,10 @@ export const MarketCardSimpleUi: React.FC<MarketCardSimpleUiProps> = ({
         betCloseTime={betCloseTime}
         endTime={resolveTime}
         slim={startTime > Date.now() / 1000}
+        onMidClick={handleMidClick}
       />
     ),
-    [createTime, betCloseTime, resolveTime]
+    [createTime, betCloseTime, resolveTime, handleMidClick]
   );
 
   // Memoize the onClick handlers to prevent unnecessary re-renders

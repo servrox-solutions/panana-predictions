@@ -6,13 +6,14 @@ import { DateTime } from "luxon";
 import { Progress } from "./ui/progress";
 import { Banana, Lock, PartyPopper } from "lucide-react";
 import { Button } from "./ui/button";
-import { formatTime } from '@/lib/utils';
+import { formatTime } from "@/lib/utils";
 
 interface MarketCardTimelineProps {
   createTime: number;
   betCloseTime: number;
   endTime: number;
   slim?: boolean;
+  onMidClick?: () => void;
 }
 
 // Wrap Banana component with React.memo to prevent unnecessary re-renders
@@ -23,6 +24,7 @@ export const MarketCardTimeline: React.FC<MarketCardTimelineProps> = ({
   betCloseTime,
   endTime,
   slim = false,
+  onMidClick,
 }) => {
   const [now, setNow] = useState(DateTime.local());
   const [progressPercentageFirstInterval, setProgressPercentageFirstInterval] =
@@ -57,18 +59,18 @@ export const MarketCardTimeline: React.FC<MarketCardTimelineProps> = ({
 
       setProgressPercentageFirstInterval(
         100 -
-        Math.min(
-          Math.max(Math.round((diffFirstInterval / firstInterval) * 100), 0),
-          100
-        )
+          Math.min(
+            Math.max(Math.round((diffFirstInterval / firstInterval) * 100), 0),
+            100
+          )
       );
       setProgressPercentageSecondInterval(0);
 
       setRemainingTimeFirstInterval(
-        formatTime(betCloseDate.diff(now).as('seconds'))
+        formatTime(betCloseDate.diff(now).as("seconds"))
       );
       setRemainingTimeSecondInterval(
-        formatTime(endDate.diff(betCloseDate).as('seconds'))
+        formatTime(endDate.diff(betCloseDate).as("seconds"))
       );
     } else if (now > betCloseDate && now < endDate) {
       const diffSecondInterval = endDate.diff(now).as("seconds");
@@ -76,17 +78,19 @@ export const MarketCardTimeline: React.FC<MarketCardTimelineProps> = ({
       setProgressPercentageFirstInterval(100);
       setProgressPercentageSecondInterval(
         100 -
-        Math.min(
-          Math.max(
-            Math.round((diffSecondInterval / secondIntervall) * 100),
-            0
-          ),
-          100
-        )
+          Math.min(
+            Math.max(
+              Math.round((diffSecondInterval / secondIntervall) * 100),
+              0
+            ),
+            100
+          )
       );
 
       setRemainingTimeFirstInterval(null);
-      setRemainingTimeSecondInterval(formatTime(endDate.diff(now).as('seconds')));
+      setRemainingTimeSecondInterval(
+        formatTime(endDate.diff(now).as("seconds"))
+      );
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [now]);
@@ -137,6 +141,7 @@ export const MarketCardTimeline: React.FC<MarketCardTimelineProps> = ({
             variant="outline"
             size="icon"
             className="z-10 bg-primary text-primary-foreground h-8 w-8 -ml-1 -mr-1"
+            onClick={onMidClick}
           >
             <Lock className="h-4 w-4" />
           </Button>

@@ -1,14 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { validate, parse, InitData } from "@telegram-apps/init-data-node";
+import { storeTelegramUser } from "@/lib/supabase/store-telegram-user";
+import { User } from "grammy/types";
 
 async function authorizeRequest(
   req: NextRequest
 ): Promise<InitData | undefined> {
   const authHeader = req.headers.get("authorization") || "";
   const [authType, authData = ""] = authHeader.split(" ");
-
-  console.log("🎉 authData", authData);
-  console.log("🎉 parsed", parse(authData));
 
   if (authType !== "tma") {
     throw new Error("Unauthorized");
@@ -18,7 +17,29 @@ async function authorizeRequest(
     expiresIn: 3600,
   });
 
-  return parse(authData);
+  const initData = parse(authData);
+
+  if (initData.user) {
+    const user: User = {
+      id: initData.user.id,
+      first_name: initData.user.firstName,
+      last_name: initData.user.lastName,
+      username: initData.user.username,
+      is_premium: initData.user.isPremium || undefined,
+      language_code: initData.user.languageCode,
+      is_bot: !!initData.user.isBot,
+    };
+
+    storeTelegramUser(user).then((result) => {
+      if (result.success) {
+        console.log("user saved", result.data);
+      } else {
+        console.error("error on saving user", result.error);
+      }
+    });
+  }
+
+  return initData;
 }
 
 export async function POST(req: NextRequest) {

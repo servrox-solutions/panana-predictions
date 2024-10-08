@@ -17,7 +17,7 @@ export interface AutoConnectContextState {
 }
 
 export const AutoConnectContext = createContext<AutoConnectContextState>(
-  {} as AutoConnectContextState,
+  {} as AutoConnectContextState
 );
 
 export function useAutoConnect(): AutoConnectContextState {
@@ -33,7 +33,7 @@ export const AutoConnectProvider: FC<{ children: ReactNode }> = ({
     // Wait until the app hydrates before populating `autoConnect` from local storage
     try {
       const isAutoConnect = localStorage.getItem(
-        AUTO_CONNECT_LOCAL_STORAGE_KEY,
+        AUTO_CONNECT_LOCAL_STORAGE_KEY
       );
       if (isAutoConnect) return setAutoConnect(JSON.parse(isAutoConnect));
     } catch (e) {
@@ -50,7 +50,7 @@ export const AutoConnectProvider: FC<{ children: ReactNode }> = ({
       } else {
         localStorage.setItem(
           AUTO_CONNECT_LOCAL_STORAGE_KEY,
-          JSON.stringify(autoConnect),
+          JSON.stringify(autoConnect)
         );
       }
     } catch (error: any) {

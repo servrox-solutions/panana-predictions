@@ -4,7 +4,7 @@ export const fetchCache = "force-no-store";
 
 import { Bot, CommandContext, Context, webhookCallback } from "grammy";
 import { Menu } from "@grammyjs/menu";
-import { saveTelegramUser } from "@/lib/supabase/upsert-telegram-user";
+import { storeTelegramUser } from "@/lib/supabase/store-telegram-user";
 
 const token = process.env.TELEGRAM_BOT_TOKEN;
 
@@ -15,7 +15,7 @@ const bot = new Bot(token);
 
 bot.use(async (ctx, next) => {
   if (ctx.from) {
-    saveTelegramUser(ctx.from).then((result) => {
+    storeTelegramUser(ctx.from).then((result) => {
       if (result.success) {
         console.log("user saved", result.data);
       } else {

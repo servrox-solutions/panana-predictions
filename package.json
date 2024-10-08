@@ -14,7 +14,8 @@
     "move:compile": "node ./move/scripts/move/compile",
     "move:publish": "node ./move/scripts/move/publish",
     "move:upgrade": "node ./move/scripts/move/upgrade",
-    "move:types": "sh ./move/get_abi.sh"
+    "move:types": "sh ./move/get_abi.sh",
+    "supabase:types": "bunx supabase gen types --lang=typescript --project-id \"vxqzsvfksekxlzmbfrra\" --schema secure_schema > lib/supabase/database.types.ts"
   },
   "dependencies": {
     "@aptos-labs/ts-sdk": "^1.29.0",
