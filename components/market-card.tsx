@@ -11,12 +11,14 @@ import { useMarketDataStore } from "@/lib/atoms/useMarketDataStore";
 import { cn } from "@/lib/utils";
 import { useWallet } from "@aptos-labs/wallet-adapter-react";
 import { toast } from "react-toastify";
-import { useMemo, useCallback } from "react";
+import { useMemo, useCallback, memo } from "react";
 
 interface MarketCardProps {
   availableMarket: AvailableMarket;
   initialMarketData?: MarketData;
 }
+
+const MarketCardSimpleUiMemo = memo(MarketCardSimpleUi);
 
 export const MarketCard: React.FC<MarketCardProps> = ({
   availableMarket,
@@ -84,7 +86,7 @@ export const MarketCard: React.FC<MarketCardProps> = ({
       )}
       style={{ order: marketData ? getPosition(marketData) : 0 }}
     >
-      <MarketCardSimpleUi
+      <MarketCardSimpleUiMemo
         startTime={marketData?.startTime ?? 1337}
         createTime={marketData?.createdAt ?? 1337}
         address={marketData?.address ?? "1337"}

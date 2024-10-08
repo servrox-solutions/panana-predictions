@@ -44,6 +44,11 @@ export function ConnectWalletDialog({ close }: ConnectWalletDialogProps) {
           <>
             <DialogHeader className="flex flex-col items-center">
               <DialogTitle className="flex flex-col text-center leading-snug">
+                {process.env.NEXT_PUBLIC_APP_NETWORK !== "mainnet" && (
+                  <span className="text-destructive text-sm pb-2">
+                    Currently only live on Aptos Testnet!
+                  </span>
+                )}
                 <span>Log in or sign up</span>
                 <span>with Social + Aptos Connect</span>
               </DialogTitle>

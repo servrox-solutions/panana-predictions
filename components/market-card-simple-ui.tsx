@@ -102,39 +102,28 @@ export const MarketCardSimpleUi: React.FC<MarketCardSimpleUiProps> = ({
   const handleVoteUp = useCallback(() => onVote(true), [onVote]);
   const handleVoteDown = useCallback(() => onVote(false), [onVote]);
 
-  // Memoize the containers array for SimpleContainerDropdown
-  const containers = useMemo(
-    () => (
-      <div className="grid grid-cols-3 gap-2">
-        <TwitterShareButton className="w-8 h-8" url={getSocialMessage(address)}>
-          <TwitterIcon className="w-8 h-8 rounded-full" />
-        </TwitterShareButton>
-        <TelegramShareButton
-          className="w-8 h-8"
-          url={getSocialMessage(address)}
-        >
-          <TelegramIcon className="w-8 h-8 rounded-full" />
-        </TelegramShareButton>
-        <FacebookShareButton
-          className="w-8 h-8"
-          url={getSocialMessage(address)}
-        >
-          <FacebookIcon className="w-8 h-8 rounded-full" />
-        </FacebookShareButton>
-        <WhatsappShareButton
-          className="w-8 h-8"
-          url={getSocialMessage(address)}
-        >
-          <WhatsappIcon className="w-8 h-8 rounded-full" />
-        </WhatsappShareButton>
-        <EmailShareButton className="w-8 h-8" url={getSocialMessage(address)}>
-          <EmailIcon className="w-8 h-8 rounded-full" />
-        </EmailShareButton>
-        <HatenaShareButton className="w-8 h-8" url={getSocialMessage(address)}>
-          <HatenaIcon className="w-8 h-8 rounded-full" />
-        </HatenaShareButton>
-      </div>
-    ),
+  // Memoize the shareElements for SimpleContainerDropdown
+  const shareElements = useMemo(
+    () => [
+      <TwitterShareButton className="w-8 h-8" url={getSocialMessage(address)}>
+        <TwitterIcon className="w-8 h-8 rounded-full" />
+      </TwitterShareButton>,
+      <TelegramShareButton className="w-8 h-8" url={getSocialMessage(address)}>
+        <TelegramIcon className="w-8 h-8 rounded-full" />
+      </TelegramShareButton>,
+      <FacebookShareButton className="w-8 h-8" url={getSocialMessage(address)}>
+        <FacebookIcon className="w-8 h-8 rounded-full" />
+      </FacebookShareButton>,
+      <WhatsappShareButton className="w-8 h-8" url={getSocialMessage(address)}>
+        <WhatsappIcon className="w-8 h-8 rounded-full" />
+      </WhatsappShareButton>,
+      <EmailShareButton className="w-8 h-8" url={getSocialMessage(address)}>
+        <EmailIcon className="w-8 h-8 rounded-full" />
+      </EmailShareButton>,
+      <HatenaShareButton className="w-8 h-8" url={getSocialMessage(address)}>
+        <HatenaIcon className="w-8 h-8 rounded-full" />
+      </HatenaShareButton>,
+    ],
     [address, getSocialMessage]
   );
 
@@ -174,7 +163,7 @@ export const MarketCardSimpleUi: React.FC<MarketCardSimpleUiProps> = ({
           </div>
           {!bet && (
             <div className="flex-1 text-nowrap text-right">
-              <SimpleContainerDropdown containers={[containers]} />
+              <SimpleContainerDropdown shareButtons={shareElements} />
               <div className="inline-flex overflow-hidden">
                 <Button
                   variant="ghost"
@@ -247,7 +236,7 @@ export const MarketCardSimpleUi: React.FC<MarketCardSimpleUiProps> = ({
                 <div className="flex items-center">
                   <Coins className="w-4 h-4" />
                   <span className="text-xs dark:text-neutral-400 pl-1">
-                    {(upBetsSum + downBetsSum) / (10 ** 9)} APT
+                    {(upBetsSum + downBetsSum) / 10 ** 9} APT
                   </span>
                 </div>
               </div>
