@@ -78,8 +78,8 @@ export const formatTime = (seconds: number): string => {
 export function getMessageByKind(messageKind: MessageKind): string {
   switch (messageKind) {
     case MessageKind.FIVE_MINUTES_BEFORE_BET_CLOSE:
-      return "Five minutes before bet close";
+      return "Five minutes before bet closing";
     case MessageKind.FIVE_MINUTES_BEFORE_MARKET_END:
-      return "Five minutes before market end";
+      return "Five minutes before market ending";
   }
 }

@@ -47,8 +47,11 @@ export async function storeTelegramNotification(
         telegramUserId,
         `🔕 Disabled _${getMessageByKind(
           messageKind
-        )}_ notification for [market](https://app.panana-predictions.xyz/markets/${marketAddress})`,
-        { parse_mode: "MarkdownV2" }
+        )} notification_ for [market](https://app.panana-predictions.xyz/markets/${marketAddress})`,
+        {
+          parse_mode: "MarkdownV2",
+          link_preview_options: { is_disabled: true },
+        }
       );
 
       return { success: true, message: "Existing notification soft deleted" };
@@ -78,8 +81,11 @@ export async function storeTelegramNotification(
       telegramUserId,
       `🔔 Enabled _${getMessageByKind(
         messageKind
-      )}_ notification for [market](https://app.panana-predictions.xyz/markets/${marketAddress})`,
-      { parse_mode: "MarkdownV2" }
+      )} notification_ for [market](https://app.panana-predictions.xyz/markets/${marketAddress})`,
+      {
+        parse_mode: "MarkdownV2",
+        link_preview_options: { is_disabled: true },
+      }
     );
 
     return { success: true, data: data };

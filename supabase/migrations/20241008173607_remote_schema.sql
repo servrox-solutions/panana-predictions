@@ -146,3 +146,56 @@ EXECUTE FUNCTION soft_delete_telegram_notification();
 CREATE POLICY "exclude_soft_deleted" ON "secure_schema"."telegram_notifications"
 FOR SELECT TO PUBLIC
 USING (deleted_at IS NULL);
+
+-- Grant usage and update permissions on the sequence to the relevant role (e.g., service_role or authenticated)
+GRANT USAGE, SELECT ON SEQUENCE "secure_schema"."telegram_notifications_id_seq" TO "service_role";
+GRANT USAGE, SELECT ON SEQUENCE "secure_schema"."telegram_notifications_id_seq" TO "authenticated";
+
+
+-- Step 1: Create the trigger function that updates has_wallet in telegram_users
+CREATE OR REPLACE FUNCTION "secure_schema".update_has_wallet_on_user_wallet_insert()
+RETURNS TRIGGER AS $$
+BEGIN
+  -- Only update if telegram_user_id is not null
+  IF NEW.telegram_user_id IS NOT NULL THEN
+    -- Update the corresponding telegram_users row to set has_wallet to true
+    UPDATE "secure_schema"."telegram_users"
+    SET has_wallet = TRUE
+    WHERE id = NEW.telegram_user_id;
+  END IF;
+
+  -- Return the new row for insertion
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Step 2: Create a trigger on user_wallets that calls the function after insert
+CREATE OR REPLACE TRIGGER trigger_update_has_wallet
+AFTER INSERT ON "secure_schema"."user_wallets"
+FOR EACH ROW
+EXECUTE FUNCTION "secure_schema".update_has_wallet_on_user_wallet_insert();
+
+
+-- Create or replace the trigger function that updates has_wallet in telegram_users
+CREATE OR REPLACE FUNCTION "secure_schema".update_has_wallet_on_user_wallet_insert_or_update()
+RETURNS TRIGGER AS $$
+BEGIN
+  -- Only update if telegram_user_id is not null
+  IF NEW.telegram_user_id IS NOT NULL THEN
+    -- Update the corresponding telegram_users row to set has_wallet to true
+    UPDATE "secure_schema"."telegram_users"
+    SET has_wallet = TRUE
+    WHERE id = NEW.telegram_user_id;
+  END IF;
+
+  -- Return the new or updated row
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Create or replace the trigger on user_wallets that fires on INSERT or UPDATE
+CREATE OR REPLACE TRIGGER trigger_update_has_wallet
+AFTER INSERT OR UPDATE ON "secure_schema"."user_wallets"
+FOR EACH ROW
+EXECUTE FUNCTION "secure_schema".update_has_wallet_on_user_wallet_insert_or_update();
+
