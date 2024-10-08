@@ -15,7 +15,7 @@ export async function MarketOrganizer({ markets }: MarketOrganizerProps) {
   return (
     <div className="flex flex-row flex-wrap content-start gap-4">
       {marketData
-        .sort((prev, cur) => prev.endTime - cur.endTime)
+        .sort((prev, cur) => cur.createdAt - prev.createdAt)
         .map((market, index) => (
           <MarketCard
             key={`${market.creator}-${index}`}

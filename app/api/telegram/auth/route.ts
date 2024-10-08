@@ -1,15 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
-import {
-  validate,
-  parse,
-  InitData,
-} from "@telegram-apps/init-data-node";
+import { validate, parse, InitData } from "@telegram-apps/init-data-node";
 
 async function authorizeRequest(
   req: NextRequest
 ): Promise<InitData | undefined> {
   const authHeader = req.headers.get("authorization") || "";
   const [authType, authData = ""] = authHeader.split(" ");
+
+  console.log("🎉 authData", authData);
+  console.log("🎉 parsed", parse(authData));
 
   if (authType !== "tma") {
     throw new Error("Unauthorized");

@@ -1,3 +1,4 @@
+import { User } from "grammy/types";
 import { createClient } from "./create-client";
 
 const supabase = createClient();
@@ -9,35 +10,77 @@ export interface TelegramUserDb {
   username?: string;
   isPremium?: boolean;
   languageCode?: string;
-  walletAddresses: string[];
+  has_wallet: boolean;
   createdAt?: string;
   updatedAt?: string;
 }
 
-export async function upsertTelegramUser(user: TelegramUserDb) {
+export async function saveTelegramUser(
+  user: User
+): Promise<{ success: boolean; data?: TelegramUserDb; error?: any }> {
   try {
-    const { data, error } = await supabase.from("telegram_users").upsert(
-      {
-        id: user.id,
-        first_name: user.firstName,
-        last_name: user.lastName || null,
-        username: user.username || null,
-        is_premium: user.isPremium || null,
-        language_code: user.languageCode || null,
-        wallet_addresses: user.walletAddresses,
-        created_at: user.createdAt || undefined,
-      },
-      { onConflict: "id" }
-    );
+    const { data: existingUser, error: errorOnGettingUser } = await supabase
+      .from("telegram_users")
+      .select("*")
+      .eq("id", user.id)
+      .maybeSingle();
 
-    if (error) {
-      console.error("Fehler beim Upsert:", error);
-      return { success: false, error };
+    if (errorOnGettingUser) {
+      console.error("error on getting user", errorOnGettingUser);
+      return { success: false, error: errorOnGettingUser };
     }
 
-    return { success: true, data };
+    if (existingUser) {
+      const { data: updatedUser, error: errorOnUpdatingUser } = await supabase
+        .from("telegram_users")
+        .upsert(
+          {
+            id: user.id,
+            first_name: user.first_name,
+            last_name: user.last_name ?? existingUser.last_name ?? null,
+            username: user.username ?? existingUser.username ?? null,
+            is_premium: user.is_premium ?? existingUser.is_premium ?? null,
+            language_code:
+              user.language_code ?? existingUser.language_code ?? null,
+            has_wallet: existingUser.has_wallet,
+          },
+          { onConflict: "id" }
+        )
+        .select()
+        .returns<TelegramUserDb>()
+        .single();
+
+      if (errorOnUpdatingUser) {
+        console.error("error on updating user", errorOnUpdatingUser);
+        return { success: false, error: errorOnUpdatingUser };
+      }
+
+      return { success: true, data: updatedUser };
+    }
+
+    const { data: newUser, error: errorOnCreatingUser } = await supabase
+      .from("telegram_users")
+      .insert({
+        id: user.id,
+        first_name: user.first_name,
+        last_name: user.last_name ?? null,
+        username: user.username ?? null,
+        is_premium: user.is_premium ?? null,
+        language_code: user.language_code ?? null,
+        has_wallet: false,
+      })
+      .select()
+      .returns<TelegramUserDb>()
+      .single();
+
+    if (errorOnCreatingUser) {
+      console.error("error on creating user", errorOnCreatingUser);
+      return { success: false, error: errorOnCreatingUser };
+    }
+
+    return { success: true, data: newUser };
   } catch (err) {
-    console.error("Serverfehler:", err);
+    console.error("error on saveTelegramUser", err);
     return { success: false, error: err };
   }
 }
