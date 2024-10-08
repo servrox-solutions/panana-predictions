@@ -199,3 +199,50 @@ AFTER INSERT OR UPDATE ON "secure_schema"."user_wallets"
 FOR EACH ROW
 EXECUTE FUNCTION "secure_schema".update_has_wallet_on_user_wallet_insert_or_update();
 
+-- Enable the pg_cron extension (in case it's not installed)
+CREATE EXTENSION IF NOT EXISTS pg_cron;
+
+CREATE EXTENSION IF NOT EXISTS "http";
+
+CREATE OR REPLACE FUNCTION call_edge_function(market_address TEXT, telegram_user_id INT, message_kind TEXT)
+RETURNS VOID LANGUAGE plpgsql AS $$
+DECLARE
+    response json;
+BEGIN
+    -- Make the HTTP request to your Supabase Edge Function
+    SELECT content INTO response
+    FROM http_post(
+        'https://app.panana-predictions.xyz/api/telegram/notify',
+        'application/json',
+        json_build_object(
+            'market_address', market_address,
+            'telegram_user_id', telegram_user_id,
+            'message_kind', message_kind
+        )::TEXT
+    );
+    
+    -- Log the response for debugging
+    RAISE NOTICE 'Edge Function Response: %', response;
+END;
+$$;
+
+CREATE OR REPLACE FUNCTION schedule_notification_in_pg_cron()
+RETURNS TRIGGER AS $$
+DECLARE
+    cron_job_id INT;
+BEGIN
+    -- Schedule the task using pg_cron to run at the 'time_to_send'
+    PERFORM cron.schedule(
+        jobname := 'notify_' || NEW.id,
+        schedule := to_char(NEW.time_to_send, 'YYYY-MM-DD HH24:MI:SS'),
+        command := 'SELECT call_edge_function(''' || NEW.market_address || ''', ' || NEW.telegram_user_id || ', ''' || NEW.message_kind || ''')'
+    );
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trigger_schedule_notification
+AFTER INSERT ON "secure_schema"."telegram_notifications"
+FOR EACH ROW
+EXECUTE FUNCTION schedule_notification_in_pg_cron();
