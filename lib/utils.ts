@@ -83,3 +83,7 @@ export function getMessageByKind(messageKind: MessageKind): string {
       return "Five minutes before market ending";
   }
 }
+
+export function escapeMarkdownV2(text: string) {
+  return text.replace(/([_*\[\]()~`>#+\-=|{}.!])/g, "\\$1"); // Escape all special characters
+}
