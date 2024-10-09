@@ -3,9 +3,17 @@
 import { useMarketDataStore } from "@/lib/atoms/useMarketDataStore";
 import { Input } from "./ui/input";
 import { cn } from "@/lib/utils";
+import { useCallback } from "react";
 
 export function MarketsSearch({ className }: { className?: string }) {
   const { searchTerm, setSearchTerm } = useMarketDataStore();
+
+  const handleChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      setSearchTerm(e.target.value);
+    },
+    [setSearchTerm]
+  );
 
   return (
     <div>
@@ -17,7 +25,7 @@ export function MarketsSearch({ className }: { className?: string }) {
           className
         )}
         value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
+        onChange={handleChange}
       />
     </div>
   );
