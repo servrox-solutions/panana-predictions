@@ -7,23 +7,6 @@ export type Json =
   | Json[]
 
 export type Database = {
-  public: {
-    Tables: {
-      [_ in never]: never
-    }
-    Views: {
-      [_ in never]: never
-    }
-    Functions: {
-      [_ in never]: never
-    }
-    Enums: {
-      [_ in never]: never
-    }
-    CompositeTypes: {
-      [_ in never]: never
-    }
-  }
   secure_schema: {
     Tables: {
       telegram_notifications: {
@@ -56,7 +39,7 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "fk_telegram_user_id"
+            foreignKeyName: "telegram_notifications_telegram_user_id_fkey"
             columns: ["telegram_user_id"]
             isOneToOne: false
             referencedRelation: "telegram_users"
@@ -80,7 +63,7 @@ export type Database = {
         Insert: {
           created_at?: string | null
           first_name: string
-          has_wallet: boolean
+          has_wallet?: boolean
           id: number
           is_bot: boolean
           is_premium: boolean
@@ -127,7 +110,7 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "fk_telegram_user_id"
+            foreignKeyName: "user_wallets_telegram_user_id_fkey"
             columns: ["telegram_user_id"]
             isOneToOne: false
             referencedRelation: "telegram_users"

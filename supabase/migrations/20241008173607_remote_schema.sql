@@ -365,3 +365,201 @@ BEGIN
     RAISE NOTICE 'Edge Function Response: %', response;
 END;
 $$;
+
+-- Modify the function to explicitly switch to the postgres role
+CREATE OR REPLACE FUNCTION call_edge_function(market_address TEXT, telegram_user_id INT, message_kind TEXT)
+RETURNS VOID LANGUAGE plpgsql AS $$
+DECLARE
+    response json;
+BEGIN
+    -- Switch to the postgres role (or another appropriate role with login permissions)
+    PERFORM set_config('role', 'postgres', true);
+
+    -- Make the HTTP request with the updated argument order
+    SELECT content INTO response
+    FROM http_post(
+        'https://app.panana-predictions.xyz/api/telegram/notify',
+        json_build_object(
+            'market_address', market_address,
+            'telegram_user_id', telegram_user_id,
+            'message_kind', message_kind
+        )::TEXT,  -- The JSON body as the second parameter
+        'application/json'  -- Content-Type as the third parameter
+    );
+
+    -- Log the response for debugging
+    RAISE NOTICE 'Edge Function Response: %', response;
+    
+    -- Reset the role after executing the function
+    PERFORM set_config('role', current_setting('role', true), true);
+END;
+$$;
+
+-- Drop the existing function if it exists
+DROP FUNCTION IF EXISTS call_edge_function(TEXT, INT, TEXT);
+
+-- Recreate the function with SECURITY DEFINER
+CREATE OR REPLACE FUNCTION call_edge_function(market_address TEXT, telegram_user_id INT, message_kind TEXT)
+RETURNS VOID
+LANGUAGE plpgsql
+SECURITY DEFINER  -- Ensures the function runs with the privileges of the role that defines it
+AS $$
+DECLARE
+    response json;
+BEGIN
+    -- Switch to a different role with login permissions (optional if SECURITY DEFINER is used)
+    PERFORM set_config('role', 'postgres', true);  -- Use 'postgres' or another privileged role
+
+    -- Make the HTTP request
+    SELECT content INTO response
+    FROM http_post(
+        'https://app.panana-predictions.xyz/api/telegram/notify',
+        json_build_object(
+            'market_address', market_address,
+            'telegram_user_id', telegram_user_id,
+            'message_kind', message_kind
+        )::TEXT,
+        'application/json'
+    );
+    
+    -- Log the response for debugging
+    RAISE NOTICE 'Edge Function Response: %', response;
+
+    -- Reset the role to its original state (optional)
+    PERFORM set_config('role', current_setting('role', true), true);
+END;
+$$;
+
+-- Step 1: Create or ensure the 'authenticated' role exists
+DO $$
+BEGIN
+    -- Check if the 'authenticated' role exists, if not, create it
+    IF NOT EXISTS (
+        SELECT FROM pg_catalog.pg_roles WHERE rolname = 'authenticated'
+    ) THEN
+        CREATE ROLE authenticated WITH LOGIN PASSWORD 'your_secure_password';  -- Replace with your secure password
+    END IF;
+END $$;
+
+-- Step 2: Grant necessary permissions to the 'authenticated' role
+-- Grant the role the ability to execute http_post with the correct argument signature
+GRANT EXECUTE ON FUNCTION http_post(character varying, character varying, character varying) TO authenticated;
+
+-- Step 3: Drop the existing 'call_edge_function' function if it exists
+DROP FUNCTION IF EXISTS call_edge_function(TEXT, INT, TEXT);
+
+-- Step 4: Recreate the function with SECURITY DEFINER and set the role to 'authenticated'
+CREATE OR REPLACE FUNCTION call_edge_function(market_address TEXT, telegram_user_id INT, message_kind TEXT)
+RETURNS VOID
+LANGUAGE plpgsql
+SECURITY DEFINER  -- Ensures the function runs with the privileges of the role that defines it
+AS $$
+DECLARE
+    response json;
+BEGIN
+    -- Set the role to 'authenticated' for this transaction
+    PERFORM set_config('role', 'authenticated', true);  -- Switch to 'authenticated' role
+
+    -- Make the HTTP request using the correct http_post signature
+    SELECT content INTO response
+    FROM http_post(
+        'https://app.panana-predictions.xyz/api/telegram/notify',  -- Your API endpoint
+        json_build_object(  -- Build the JSON body as a string
+            'market_address', market_address,
+            'telegram_user_id', telegram_user_id,
+            'message_kind', message_kind
+        )::TEXT,  -- Cast the JSON object to TEXT for the body
+        'application/json'  -- Set Content-Type header
+    );
+
+    -- Log the response for debugging purposes
+    RAISE NOTICE 'Edge Function Response: %', response;
+
+    -- Reset the role to the original state (default role)
+    PERFORM set_config('role', current_setting('role', true), true);
+END;
+$$;
+
+-- Step 5: Ensure the 'authenticated' role has the appropriate access and privileges to perform HTTP requests
+-- This can include additional grants to other functions or database objects as needed for your use case
+
+
+-- Step 1: Create or ensure the 'authenticated' role exists
+DO $$
+BEGIN
+    -- Check if the 'authenticated' role exists, if not, create it
+    IF NOT EXISTS (
+        SELECT FROM pg_catalog.pg_roles WHERE rolname = 'authenticated'
+    ) THEN
+        CREATE ROLE authenticated WITH LOGIN PASSWORD 'your_secure_password';  -- Replace with your secure password
+    END IF;
+END $$;
+
+-- Step 2: Grant necessary permissions to the 'authenticated' role
+-- Grant the role the ability to execute http_post with the correct argument signature
+GRANT EXECUTE ON FUNCTION http_post(character varying, character varying, character varying) TO authenticated;
+
+-- Step 3: Drop the existing 'call_edge_function' function if it exists
+DROP FUNCTION IF EXISTS call_edge_function(TEXT, INT, TEXT);
+
+-- Step 4: Recreate the function with SECURITY DEFINER to use 'postgres' or another privileged role
+CREATE OR REPLACE FUNCTION call_edge_function(market_address TEXT, telegram_user_id INT, message_kind TEXT)
+RETURNS VOID
+LANGUAGE plpgsql
+SECURITY DEFINER  -- Ensures the function runs with the privileges of the role that defines it (postgres or authenticated)
+AS $$
+DECLARE
+    response json;
+BEGIN
+    -- Make the HTTP request using the correct http_post signature
+    SELECT content INTO response
+    FROM http_post(
+        'https://app.panana-predictions.xyz/api/telegram/notify',  -- Your API endpoint
+        json_build_object(  -- Build the JSON body as a string
+            'market_address', market_address,
+            'telegram_user_id', telegram_user_id,
+            'message_kind', message_kind
+        )::TEXT,  -- Cast the JSON object to TEXT for the body
+        'application/json'  -- Set Content-Type header
+    );
+
+    -- Log the response for debugging purposes
+    RAISE NOTICE 'Edge Function Response: %', response;
+END;
+$$;
+
+-- Step 5: Grant EXECUTE privileges to the 'postgres' role or another privileged role to execute this function
+GRANT EXECUTE ON FUNCTION call_edge_function(TEXT, INT, TEXT) TO postgres;
+
+CREATE OR REPLACE FUNCTION "public"."schedule_notification_in_pg_cron"() RETURNS "trigger"
+    LANGUAGE "plpgsql" SECURITY DEFINER
+AS $$
+DECLARE
+    interval_in_seconds INT;
+    cron_schedule TEXT;
+    db_name TEXT := current_database();
+BEGIN
+    -- Calculate the interval in seconds between 'time_to_send' and 'NOW()'
+    interval_in_seconds := FLOOR(EXTRACT(epoch FROM (NEW.time_to_send - NOW())));
+
+    -- Build the command to include the postgres user and current database
+    IF interval_in_seconds BETWEEN 1 AND 59 THEN
+        PERFORM cron.schedule(
+            'notify_' || NEW.id, -- jobname
+            interval_in_seconds || ' seconds', -- interval format
+            'postgres@' || quote_ident(db_name) || ' SELECT call_edge_function(''' || NEW.market_address || ''', ' || NEW.telegram_user_id || ', ''' || NEW.message_kind || ''')' -- Command
+        );
+    ELSE
+        cron_schedule := to_char(NEW.time_to_send, 'MI HH DD MM DY');
+        PERFORM cron.schedule(
+            'notify_' || NEW.id, -- jobname
+            cron_schedule,       -- cron format
+            'postgres@' || quote_ident(db_name) || ' SELECT call_edge_function(''' || NEW.market_address || ''', ' || NEW.telegram_user_id || ', ''' || NEW.message_kind || ''')' -- Command
+        );
+    END IF;
+
+    RETURN NEW;
+END;
+$$;
+
+ALTER FUNCTION "public"."schedule_notification_in_pg_cron"() OWNER TO "postgres";
