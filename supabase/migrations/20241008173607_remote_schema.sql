@@ -246,3 +246,96 @@ CREATE TRIGGER trigger_schedule_notification
 AFTER INSERT ON "secure_schema"."telegram_notifications"
 FOR EACH ROW
 EXECUTE FUNCTION schedule_notification_in_pg_cron();
+
+GRANT USAGE ON SCHEMA cron TO service_role;
+-- Grant EXECUTE permission on cron.schedule function
+GRANT EXECUTE ON FUNCTION cron.schedule(text, text, text) TO service_role;
+
+-- Grant EXECUTE permission on cron.unschedule function
+GRANT EXECUTE ON FUNCTION cron.unschedule(text) TO service_role;
+
+CREATE OR REPLACE FUNCTION schedule_notification_in_pg_cron()
+RETURNS TRIGGER AS $$
+BEGIN
+  -- Schedule the task using pg_cron to run at the 'time_to_send'
+  PERFORM cron.schedule(
+    'notify_' || NEW.id, -- jobname
+    to_char(NEW.time_to_send, 'YYYY-MM-DD HH24:MI:SS'), -- schedule in cron format
+    'SELECT call_edge_function(''' || NEW.market_address || ''', ' || NEW.telegram_user_id || ', ''' || NEW.message_kind || ''')' -- SQL command to execute
+  );
+
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+
+CREATE OR REPLACE FUNCTION schedule_notification_in_pg_cron()
+RETURNS TRIGGER AS $$
+DECLARE
+    interval_str TEXT;
+BEGIN
+    -- Calculate the interval between 'time_to_send' and 'NOW()'
+    interval_str := EXTRACT(epoch FROM (NEW.time_to_send - NOW())) || ' seconds';
+
+    -- Schedule the task using pg_cron to run after the calculated interval
+    PERFORM cron.schedule(
+        'notify_' || NEW.id, -- jobname
+        interval_str,        -- interval format, e.g., '60 seconds'
+        'SELECT call_edge_function(''' || NEW.market_address || ''', ' || NEW.telegram_user_id || ', ''' || NEW.message_kind || ''')' -- SQL command to execute
+    );
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION schedule_notification_in_pg_cron()
+RETURNS TRIGGER AS $$
+DECLARE
+    interval_str TEXT;
+BEGIN
+    -- Calculate the interval between 'time_to_send' and 'NOW()', rounded down to the nearest second
+    interval_str := FLOOR(EXTRACT(epoch FROM (NEW.time_to_send - NOW()))) || ' seconds';
+
+    -- Schedule the task using pg_cron to run after the calculated interval
+    PERFORM cron.schedule(
+        'notify_' || NEW.id, -- jobname
+        interval_str,        -- interval format, e.g., '60 seconds'
+        'SELECT call_edge_function(''' || NEW.market_address || ''', ' || NEW.telegram_user_id || ', ''' || NEW.message_kind || ''')' -- SQL command to execute
+    );
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+
+CREATE OR REPLACE FUNCTION schedule_notification_in_pg_cron()
+RETURNS TRIGGER AS $$
+DECLARE
+    interval_in_seconds INT;
+    cron_schedule TEXT;
+BEGIN
+    -- Calculate the interval in seconds between 'time_to_send' and 'NOW()'
+    interval_in_seconds := FLOOR(EXTRACT(epoch FROM (NEW.time_to_send - NOW())));
+
+    -- If the interval is between 1 and 59 seconds, use the interval format
+    IF interval_in_seconds BETWEEN 1 AND 59 THEN
+        PERFORM cron.schedule(
+            'notify_' || NEW.id, -- jobname
+            interval_in_seconds || ' seconds', -- interval format (e.g., '30 seconds')
+            'SELECT call_edge_function(''' || NEW.market_address || ''', ' || NEW.telegram_user_id || ', ''' || NEW.message_kind || ''')' -- SQL command to execute
+        );
+
+    -- If the interval is more than 59 seconds, use the cron format
+    ELSE
+        -- Convert 'time_to_send' to a valid cron schedule (minute/hour/day)
+        cron_schedule := to_char(NEW.time_to_send, 'MI HH DD MM DY');
+        PERFORM cron.schedule(
+            'notify_' || NEW.id, -- jobname
+            cron_schedule,       -- cron format (e.g., '37 14 08 10 Tue' for 23:37 on Oct 8th)
+            'SELECT call_edge_function(''' || NEW.market_address || ''', ' || NEW.telegram_user_id || ', ''' || NEW.message_kind || ''')' -- SQL command to execute
+        );
+    END IF;
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;

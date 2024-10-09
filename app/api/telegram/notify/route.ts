@@ -2,6 +2,8 @@ import { getMessageByKind } from "@/lib/utils";
 import { Bot } from "grammy";
 
 export async function POST(request: Request) {
+  console.log("🍌", request);
+
   const {
     market_address: marketAddress,
     telegram_user_id: telegramUserId,
