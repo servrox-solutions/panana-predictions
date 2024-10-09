@@ -85,5 +85,5 @@ export function getMessageByKind(messageKind: MessageKind): string {
 }
 
 export function escapeMarkdownV2(text: string) {
-  return text.replace(/([_*\[\]()~`>#+\-=|{}.!])/g, "\\$1"); // Escape all special characters
+  return text.replace(/([_*\[\]()~`>#+\-=|{}.!\\])/g, "\\$1");
 }

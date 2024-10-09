@@ -339,3 +339,29 @@ BEGIN
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
+
+-- Drop the existing function if it exists
+DROP FUNCTION IF EXISTS call_edge_function(TEXT, INT, TEXT);
+
+-- Create or replace the call_edge_function with the new http_post argument order
+CREATE OR REPLACE FUNCTION call_edge_function(market_address TEXT, telegram_user_id INT, message_kind TEXT)
+RETURNS VOID LANGUAGE plpgsql AS $$
+DECLARE
+    response json;
+BEGIN
+    -- Make the HTTP request with the updated argument order
+    SELECT content INTO response
+    FROM http_post(
+        'https://app.panana-predictions.xyz/api/telegram/notify',
+        json_build_object(
+            'market_address', market_address,
+            'telegram_user_id', telegram_user_id,
+            'message_kind', message_kind
+        )::TEXT,  -- The JSON body as the second parameter
+        'application/json'  -- Content-Type as the third parameter
+    );
+    
+    -- Log the response for debugging
+    RAISE NOTICE 'Edge Function Response: %', response;
+END;
+$$;
