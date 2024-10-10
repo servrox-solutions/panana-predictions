@@ -7,6 +7,7 @@ import { WalletProvider } from "./wallet-provider";
 
 import { SDKProvider } from "@telegram-apps/sdk-react";
 import dynamic from "next/dynamic";
+import { PersistenceProvider } from "./persistence-provider";
 const MoonPayProvider = dynamic(
   () => import("@moonpay/moonpay-react").then((mod) => mod.MoonPayProvider),
   { ssr: false }
@@ -38,7 +39,7 @@ export function ClientProvider({ children, ...props }: PropsWithChildren) {
                     apiKey={process.env.NEXT_PUBLIC_MOONPAY_API_KEY!}
                     debug
                   >
-                    {children}
+                    <PersistenceProvider>{children}</PersistenceProvider>
                   </MoonPayProvider>
                 </WalletProvider>
               </AutoConnectProvider>

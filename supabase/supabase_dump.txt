@@ -1,0 +1,958 @@
+
+
+
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET idle_in_transaction_session_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SELECT pg_catalog.set_config('search_path', '', false);
+SET check_function_bodies = false;
+SET xmloption = content;
+SET client_min_messages = warning;
+SET row_security = off;
+
+
+CREATE EXTENSION IF NOT EXISTS "pg_cron" WITH SCHEMA "pg_catalog";
+
+
+
+
+
+
+CREATE EXTENSION IF NOT EXISTS "pgsodium" WITH SCHEMA "pgsodium";
+
+
+
+
+
+
+COMMENT ON SCHEMA "public" IS 'standard public schema';
+
+
+
+CREATE SCHEMA IF NOT EXISTS "secure_schema";
+
+
+ALTER SCHEMA "secure_schema" OWNER TO "postgres";
+
+
+CREATE EXTENSION IF NOT EXISTS "http" WITH SCHEMA "public";
+
+
+
+
+
+
+CREATE EXTENSION IF NOT EXISTS "moddatetime" WITH SCHEMA "extensions";
+
+
+
+
+
+
+CREATE EXTENSION IF NOT EXISTS "pg_graphql" WITH SCHEMA "graphql";
+
+
+
+
+
+
+CREATE EXTENSION IF NOT EXISTS "pg_stat_statements" WITH SCHEMA "extensions";
+
+
+
+
+
+
+CREATE EXTENSION IF NOT EXISTS "pgcrypto" WITH SCHEMA "extensions";
+
+
+
+
+
+
+CREATE EXTENSION IF NOT EXISTS "pgjwt" WITH SCHEMA "extensions";
+
+
+
+
+
+
+CREATE EXTENSION IF NOT EXISTS "supabase_vault" WITH SCHEMA "vault";
+
+
+
+
+
+
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp" WITH SCHEMA "extensions";
+
+
+
+
+
+
+CREATE OR REPLACE FUNCTION "public"."call_edge_function"("market_address" "text", "telegram_user_id" integer, "message_kind" "text") RETURNS "void"
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    AS $$
+DECLARE
+    response json;
+BEGIN
+    -- Make the HTTP request using the correct http_post signature
+    SELECT content INTO response
+    FROM http_post(
+        'https://app.panana-predictions.xyz/api/telegram/notify',  -- Your API endpoint
+        json_build_object(  -- Build the JSON body as a string
+            'market_address', market_address,
+            'telegram_user_id', telegram_user_id,
+            'message_kind', message_kind
+        )::TEXT,  -- Cast the JSON object to TEXT for the body
+        'application/json'  -- Set Content-Type header
+    );
+
+    -- Log the response for debugging purposes
+    RAISE NOTICE 'Edge Function Response: %', response;
+END;
+$$;
+
+
+ALTER FUNCTION "public"."call_edge_function"("market_address" "text", "telegram_user_id" integer, "message_kind" "text") OWNER TO "postgres";
+
+
+CREATE OR REPLACE FUNCTION "public"."moddatetime"() RETURNS "trigger"
+    LANGUAGE "plpgsql"
+    AS $$
+BEGIN
+  NEW.updated_at = NOW();
+  RETURN NEW;
+END;
+$$;
+
+
+ALTER FUNCTION "public"."moddatetime"() OWNER TO "postgres";
+
+
+CREATE OR REPLACE FUNCTION "public"."schedule_notification_in_pg_cron"() RETURNS "trigger"
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    AS $$
+DECLARE
+    interval_in_seconds INT;
+    cron_schedule TEXT;
+BEGIN
+    -- Calculate the interval in seconds between 'time_to_send' and 'NOW()'
+    interval_in_seconds := FLOOR(EXTRACT(epoch FROM (NEW.time_to_send - NOW())));
+
+    IF interval_in_seconds <= 0 THEN
+        -- Execute immediately if the time has already passed
+        RAISE NOTICE 'Time to send is in the past. Executing call_edge_function immediately.';
+        PERFORM call_edge_function(NEW.market_address, NEW.telegram_user_id, NEW.message_kind);
+        RETURN NEW;
+    END IF;
+
+    -- Build the command
+    IF interval_in_seconds <= 59 THEN
+        PERFORM cron.schedule(
+            'notify_' || NEW.id, -- jobname
+            interval_in_seconds || ' seconds', -- interval format
+            'SELECT public.call_edge_function(' ||
+            quote_literal(NEW.market_address) || ', ' ||
+            NEW.telegram_user_id || ', ' ||
+            quote_literal(NEW.message_kind) || ');', -- command
+            current_database(),  -- database
+            'postgres'  -- username
+        );
+    ELSE
+        -- Construct cron_schedule in correct format
+        cron_schedule := to_char(NEW.time_to_send, 'MI HH24 dd MM') || ' ' ||
+                         EXTRACT(DOW FROM NEW.time_to_send)::text;
+        PERFORM cron.schedule(
+            'notify_' || NEW.id, -- jobname
+            cron_schedule,       -- cron format
+            'SELECT public.call_edge_function(' ||
+            quote_literal(NEW.market_address) || ', ' ||
+            NEW.telegram_user_id || ', ' ||
+            quote_literal(NEW.message_kind) || ');', -- command
+            current_database(),  -- database
+            'postgres'  -- username
+        );
+    END IF;
+
+    RETURN NEW;
+END;
+$$;
+
+
+ALTER FUNCTION "public"."schedule_notification_in_pg_cron"() OWNER TO "postgres";
+
+
+CREATE OR REPLACE FUNCTION "public"."soft_delete_telegram_notification"() RETURNS "trigger"
+    LANGUAGE "plpgsql"
+    AS $$
+BEGIN
+  -- Mark the row as deleted by setting the 'deleted_at' timestamp
+  NEW.deleted_at = NOW();
+  RETURN NEW;
+END;
+$$;
+
+
+ALTER FUNCTION "public"."soft_delete_telegram_notification"() OWNER TO "postgres";
+
+
+CREATE OR REPLACE FUNCTION "public"."update_has_wallet_on_user_wallet_insert"() RETURNS "trigger"
+    LANGUAGE "plpgsql"
+    AS $$
+BEGIN
+  -- Only update if telegram_user_id is not null
+  IF NEW.telegram_user_id IS NOT NULL THEN
+    -- Update the corresponding telegram_users row to set has_wallet to true
+    UPDATE "secure_schema"."telegram_users"
+    SET has_wallet = TRUE
+    WHERE id = NEW.telegram_user_id;
+  END IF;
+  
+  -- Return the new row for insertion
+  RETURN NEW;
+END;
+$$;
+
+
+ALTER FUNCTION "public"."update_has_wallet_on_user_wallet_insert"() OWNER TO "postgres";
+
+
+CREATE OR REPLACE FUNCTION "secure_schema"."handle_recreate_notification"() RETURNS "trigger"
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    AS $$
+DECLARE
+    existing_id bigint;
+BEGIN
+    -- Check for an existing soft-deleted notification
+    SELECT id INTO existing_id
+    FROM "secure_schema"."telegram_notifications"
+    WHERE "market_address" = NEW."market_address"
+      AND "telegram_user_id" = NEW."telegram_user_id"
+      AND "message_kind" = NEW."message_kind"
+      AND "deleted_at" IS NOT NULL
+    LIMIT 1;
+
+    IF existing_id IS NOT NULL THEN
+        -- Update the existing soft-deleted notification
+        UPDATE "secure_schema"."telegram_notifications"
+        SET
+            "deleted_at" = NULL,
+            "time_to_send" = NEW."time_to_send",
+            "created_at" = NOW()
+        WHERE id = existing_id;
+
+        -- Prevent insertion of a new row
+        RETURN NULL;
+    ELSE
+        -- Proceed with the insertion
+        RETURN NEW;
+    END IF;
+END;
+$$;
+
+
+ALTER FUNCTION "secure_schema"."handle_recreate_notification"() OWNER TO "postgres";
+
+
+CREATE OR REPLACE FUNCTION "secure_schema"."update_has_wallet_on_user_insert"() RETURNS "trigger"
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    AS $$
+BEGIN
+    -- Function logic remains the same
+END;
+$$;
+
+
+ALTER FUNCTION "secure_schema"."update_has_wallet_on_user_insert"() OWNER TO "postgres";
+
+
+CREATE OR REPLACE FUNCTION "secure_schema"."update_has_wallet_on_user_wallet_insert"() RETURNS "trigger"
+    LANGUAGE "plpgsql"
+    AS $$
+BEGIN
+  -- Only update if telegram_user_id is not null
+  IF NEW.telegram_user_id IS NOT NULL THEN
+    -- Update the corresponding telegram_users row to set has_wallet to true
+    UPDATE "secure_schema"."telegram_users"
+    SET has_wallet = TRUE
+    WHERE id = NEW.telegram_user_id;
+  END IF;
+
+  -- Return the new row for insertion
+  RETURN NEW;
+END;
+$$;
+
+
+ALTER FUNCTION "secure_schema"."update_has_wallet_on_user_wallet_insert"() OWNER TO "postgres";
+
+
+CREATE OR REPLACE FUNCTION "secure_schema"."update_has_wallet_on_user_wallet_insert_or_update"() RETURNS "trigger"
+    LANGUAGE "plpgsql"
+    AS $$
+BEGIN
+  -- Only update if telegram_user_id is not null
+  IF NEW.telegram_user_id IS NOT NULL THEN
+    -- Update the corresponding telegram_users row to set has_wallet to true
+    UPDATE "secure_schema"."telegram_users"
+    SET has_wallet = TRUE
+    WHERE id = NEW.telegram_user_id;
+  END IF;
+
+  -- Return the new or updated row
+  RETURN NEW;
+END;
+$$;
+
+
+ALTER FUNCTION "secure_schema"."update_has_wallet_on_user_wallet_insert_or_update"() OWNER TO "postgres";
+
+SET default_tablespace = '';
+
+SET default_table_access_method = "heap";
+
+
+CREATE TABLE IF NOT EXISTS "secure_schema"."telegram_notifications" (
+    "id" bigint NOT NULL,
+    "created_at" timestamp with time zone DEFAULT "now"(),
+    "market_address" character varying(255) NOT NULL,
+    "telegram_user_id" bigint,
+    "time_to_send" timestamp with time zone NOT NULL,
+    "message_kind" character varying(255) NOT NULL,
+    "deleted_at" timestamp with time zone
+);
+
+
+ALTER TABLE "secure_schema"."telegram_notifications" OWNER TO "postgres";
+
+
+CREATE SEQUENCE IF NOT EXISTS "secure_schema"."telegram_notifications_id_seq"
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE "secure_schema"."telegram_notifications_id_seq" OWNER TO "postgres";
+
+
+ALTER SEQUENCE "secure_schema"."telegram_notifications_id_seq" OWNED BY "secure_schema"."telegram_notifications"."id";
+
+
+
+CREATE TABLE IF NOT EXISTS "secure_schema"."telegram_users" (
+    "id" bigint NOT NULL,
+    "first_name" "text" NOT NULL,
+    "last_name" "text",
+    "username" "text",
+    "is_premium" boolean NOT NULL,
+    "language_code" character varying(10),
+    "created_at" timestamp with time zone DEFAULT "now"(),
+    "updated_at" timestamp with time zone DEFAULT "now"(),
+    "has_wallet" boolean NOT NULL,
+    "is_bot" boolean NOT NULL
+);
+
+
+ALTER TABLE "secure_schema"."telegram_users" OWNER TO "postgres";
+
+
+CREATE TABLE IF NOT EXISTS "secure_schema"."user_wallets" (
+    "wallet_address" character varying(255) NOT NULL,
+    "wallet_name" character varying(255) NOT NULL,
+    "telegram_user_id" bigint,
+    "created_at" timestamp with time zone DEFAULT "now"(),
+    "updated_at" timestamp with time zone DEFAULT "now"()
+);
+
+
+ALTER TABLE "secure_schema"."user_wallets" OWNER TO "postgres";
+
+
+ALTER TABLE ONLY "secure_schema"."telegram_notifications" ALTER COLUMN "id" SET DEFAULT "nextval"('"secure_schema"."telegram_notifications_id_seq"'::"regclass");
+
+
+
+ALTER TABLE ONLY "secure_schema"."telegram_notifications"
+    ADD CONSTRAINT "telegram_notifications_pkey" PRIMARY KEY ("id");
+
+
+
+ALTER TABLE ONLY "secure_schema"."telegram_users"
+    ADD CONSTRAINT "telegram_users_pkey" PRIMARY KEY ("id");
+
+
+
+ALTER TABLE ONLY "secure_schema"."user_wallets"
+    ADD CONSTRAINT "user_wallets_pkey" PRIMARY KEY ("wallet_address");
+
+
+
+CREATE UNIQUE INDEX "idx_unique_active_notification" ON "secure_schema"."telegram_notifications" USING "btree" ("market_address", "telegram_user_id", "message_kind") WHERE ("deleted_at" IS NULL);
+
+
+
+CREATE OR REPLACE TRIGGER "handle_updated_at_telegram" BEFORE UPDATE ON "secure_schema"."telegram_users" FOR EACH ROW EXECUTE FUNCTION "public"."moddatetime"();
+
+
+
+CREATE OR REPLACE TRIGGER "handle_updated_at_wallets" BEFORE UPDATE ON "secure_schema"."user_wallets" FOR EACH ROW EXECUTE FUNCTION "public"."moddatetime"();
+
+
+
+CREATE OR REPLACE TRIGGER "soft_delete_trigger" BEFORE DELETE ON "secure_schema"."telegram_notifications" FOR EACH ROW EXECUTE FUNCTION "public"."soft_delete_telegram_notification"();
+
+
+
+CREATE OR REPLACE TRIGGER "trigger_handle_recreate_notification" BEFORE INSERT ON "secure_schema"."telegram_notifications" FOR EACH ROW EXECUTE FUNCTION "secure_schema"."handle_recreate_notification"();
+
+
+
+CREATE OR REPLACE TRIGGER "trigger_schedule_notification" AFTER INSERT ON "secure_schema"."telegram_notifications" FOR EACH ROW EXECUTE FUNCTION "public"."schedule_notification_in_pg_cron"();
+
+
+
+CREATE OR REPLACE TRIGGER "trigger_update_has_wallet" AFTER INSERT OR UPDATE ON "secure_schema"."user_wallets" FOR EACH ROW EXECUTE FUNCTION "secure_schema"."update_has_wallet_on_user_wallet_insert_or_update"();
+
+
+
+CREATE OR REPLACE TRIGGER "trigger_update_has_wallet_on_user_insert" AFTER INSERT ON "secure_schema"."telegram_users" FOR EACH ROW EXECUTE FUNCTION "secure_schema"."update_has_wallet_on_user_insert"();
+
+
+
+ALTER TABLE ONLY "secure_schema"."user_wallets"
+    ADD CONSTRAINT "fk_telegram_user_id" FOREIGN KEY ("telegram_user_id") REFERENCES "secure_schema"."telegram_users"("id") ON DELETE SET NULL;
+
+
+
+ALTER TABLE ONLY "secure_schema"."telegram_notifications"
+    ADD CONSTRAINT "fk_telegram_user_id" FOREIGN KEY ("telegram_user_id") REFERENCES "secure_schema"."telegram_users"("id") ON DELETE SET NULL;
+
+
+
+CREATE POLICY "exclude_soft_deleted" ON "secure_schema"."telegram_notifications" FOR SELECT USING (("deleted_at" IS NULL));
+
+
+
+CREATE POLICY "service_role_access_telegram_notifications" ON "secure_schema"."telegram_notifications" TO "service_role" USING (true);
+
+
+
+CREATE POLICY "service_role_access_telegram_users" ON "secure_schema"."telegram_users" TO "service_role" USING (true);
+
+
+
+CREATE POLICY "service_role_access_user_wallets" ON "secure_schema"."user_wallets" TO "service_role" USING (true);
+
+
+
+ALTER TABLE "secure_schema"."telegram_notifications" ENABLE ROW LEVEL SECURITY;
+
+
+ALTER TABLE "secure_schema"."telegram_users" ENABLE ROW LEVEL SECURITY;
+
+
+ALTER TABLE "secure_schema"."user_wallets" ENABLE ROW LEVEL SECURITY;
+
+
+
+
+ALTER PUBLICATION "supabase_realtime" OWNER TO "postgres";
+
+
+SET SESSION AUTHORIZATION "postgres";
+RESET SESSION AUTHORIZATION;
+
+
+
+GRANT USAGE ON SCHEMA "public" TO "postgres";
+GRANT USAGE ON SCHEMA "public" TO "anon";
+GRANT USAGE ON SCHEMA "public" TO "authenticated";
+GRANT USAGE ON SCHEMA "public" TO "service_role";
+
+
+
+GRANT USAGE ON SCHEMA "secure_schema" TO "service_role";
+GRANT USAGE ON SCHEMA "secure_schema" TO "authenticated";
+
+
+
+
+
+
+
+
+
+
+
+
+SET SESSION AUTHORIZATION "postgres";
+RESET SESSION AUTHORIZATION;
+
+
+
+
+
+
+
+
+
+SET SESSION AUTHORIZATION "postgres";
+RESET SESSION AUTHORIZATION;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+GRANT ALL ON FUNCTION "public"."bytea_to_text"("data" "bytea") TO "postgres";
+GRANT ALL ON FUNCTION "public"."bytea_to_text"("data" "bytea") TO "anon";
+GRANT ALL ON FUNCTION "public"."bytea_to_text"("data" "bytea") TO "authenticated";
+GRANT ALL ON FUNCTION "public"."bytea_to_text"("data" "bytea") TO "service_role";
+
+
+
+GRANT ALL ON FUNCTION "public"."call_edge_function"("market_address" "text", "telegram_user_id" integer, "message_kind" "text") TO "anon";
+GRANT ALL ON FUNCTION "public"."call_edge_function"("market_address" "text", "telegram_user_id" integer, "message_kind" "text") TO "authenticated";
+GRANT ALL ON FUNCTION "public"."call_edge_function"("market_address" "text", "telegram_user_id" integer, "message_kind" "text") TO "service_role";
+
+
+
+GRANT ALL ON FUNCTION "public"."http"("request" "public"."http_request") TO "postgres";
+GRANT ALL ON FUNCTION "public"."http"("request" "public"."http_request") TO "anon";
+GRANT ALL ON FUNCTION "public"."http"("request" "public"."http_request") TO "authenticated";
+GRANT ALL ON FUNCTION "public"."http"("request" "public"."http_request") TO "service_role";
+
+
+
+GRANT ALL ON FUNCTION "public"."http_delete"("uri" character varying) TO "postgres";
+GRANT ALL ON FUNCTION "public"."http_delete"("uri" character varying) TO "anon";
+GRANT ALL ON FUNCTION "public"."http_delete"("uri" character varying) TO "authenticated";
+GRANT ALL ON FUNCTION "public"."http_delete"("uri" character varying) TO "service_role";
+
+
+
+GRANT ALL ON FUNCTION "public"."http_delete"("uri" character varying, "content" character varying, "content_type" character varying) TO "postgres";
+GRANT ALL ON FUNCTION "public"."http_delete"("uri" character varying, "content" character varying, "content_type" character varying) TO "anon";
+GRANT ALL ON FUNCTION "public"."http_delete"("uri" character varying, "content" character varying, "content_type" character varying) TO "authenticated";
+GRANT ALL ON FUNCTION "public"."http_delete"("uri" character varying, "content" character varying, "content_type" character varying) TO "service_role";
+
+
+
+GRANT ALL ON FUNCTION "public"."http_get"("uri" character varying) TO "postgres";
+GRANT ALL ON FUNCTION "public"."http_get"("uri" character varying) TO "anon";
+GRANT ALL ON FUNCTION "public"."http_get"("uri" character varying) TO "authenticated";
+GRANT ALL ON FUNCTION "public"."http_get"("uri" character varying) TO "service_role";
+
+
+
+GRANT ALL ON FUNCTION "public"."http_get"("uri" character varying, "data" "jsonb") TO "postgres";
+GRANT ALL ON FUNCTION "public"."http_get"("uri" character varying, "data" "jsonb") TO "anon";
+GRANT ALL ON FUNCTION "public"."http_get"("uri" character varying, "data" "jsonb") TO "authenticated";
+GRANT ALL ON FUNCTION "public"."http_get"("uri" character varying, "data" "jsonb") TO "service_role";
+
+
+
+GRANT ALL ON FUNCTION "public"."http_head"("uri" character varying) TO "postgres";
+GRANT ALL ON FUNCTION "public"."http_head"("uri" character varying) TO "anon";
+GRANT ALL ON FUNCTION "public"."http_head"("uri" character varying) TO "authenticated";
+GRANT ALL ON FUNCTION "public"."http_head"("uri" character varying) TO "service_role";
+
+
+
+GRANT ALL ON FUNCTION "public"."http_header"("field" character varying, "value" character varying) TO "postgres";
+GRANT ALL ON FUNCTION "public"."http_header"("field" character varying, "value" character varying) TO "anon";
+GRANT ALL ON FUNCTION "public"."http_header"("field" character varying, "value" character varying) TO "authenticated";
+GRANT ALL ON FUNCTION "public"."http_header"("field" character varying, "value" character varying) TO "service_role";
+
+
+
+GRANT ALL ON FUNCTION "public"."http_list_curlopt"() TO "postgres";
+GRANT ALL ON FUNCTION "public"."http_list_curlopt"() TO "anon";
+GRANT ALL ON FUNCTION "public"."http_list_curlopt"() TO "authenticated";
+GRANT ALL ON FUNCTION "public"."http_list_curlopt"() TO "service_role";
+
+
+
+GRANT ALL ON FUNCTION "public"."http_patch"("uri" character varying, "content" character varying, "content_type" character varying) TO "postgres";
+GRANT ALL ON FUNCTION "public"."http_patch"("uri" character varying, "content" character varying, "content_type" character varying) TO "anon";
+GRANT ALL ON FUNCTION "public"."http_patch"("uri" character varying, "content" character varying, "content_type" character varying) TO "authenticated";
+GRANT ALL ON FUNCTION "public"."http_patch"("uri" character varying, "content" character varying, "content_type" character varying) TO "service_role";
+
+
+
+GRANT ALL ON FUNCTION "public"."http_post"("uri" character varying, "data" "jsonb") TO "postgres";
+GRANT ALL ON FUNCTION "public"."http_post"("uri" character varying, "data" "jsonb") TO "anon";
+GRANT ALL ON FUNCTION "public"."http_post"("uri" character varying, "data" "jsonb") TO "authenticated";
+GRANT ALL ON FUNCTION "public"."http_post"("uri" character varying, "data" "jsonb") TO "service_role";
+
+
+
+GRANT ALL ON FUNCTION "public"."http_post"("uri" character varying, "content" character varying, "content_type" character varying) TO "postgres";
+GRANT ALL ON FUNCTION "public"."http_post"("uri" character varying, "content" character varying, "content_type" character varying) TO "anon";
+GRANT ALL ON FUNCTION "public"."http_post"("uri" character varying, "content" character varying, "content_type" character varying) TO "authenticated";
+GRANT ALL ON FUNCTION "public"."http_post"("uri" character varying, "content" character varying, "content_type" character varying) TO "service_role";
+
+
+
+GRANT ALL ON FUNCTION "public"."http_put"("uri" character varying, "content" character varying, "content_type" character varying) TO "postgres";
+GRANT ALL ON FUNCTION "public"."http_put"("uri" character varying, "content" character varying, "content_type" character varying) TO "anon";
+GRANT ALL ON FUNCTION "public"."http_put"("uri" character varying, "content" character varying, "content_type" character varying) TO "authenticated";
+GRANT ALL ON FUNCTION "public"."http_put"("uri" character varying, "content" character varying, "content_type" character varying) TO "service_role";
+
+
+
+GRANT ALL ON FUNCTION "public"."http_reset_curlopt"() TO "postgres";
+GRANT ALL ON FUNCTION "public"."http_reset_curlopt"() TO "anon";
+GRANT ALL ON FUNCTION "public"."http_reset_curlopt"() TO "authenticated";
+GRANT ALL ON FUNCTION "public"."http_reset_curlopt"() TO "service_role";
+
+
+
+GRANT ALL ON FUNCTION "public"."http_set_curlopt"("curlopt" character varying, "value" character varying) TO "postgres";
+GRANT ALL ON FUNCTION "public"."http_set_curlopt"("curlopt" character varying, "value" character varying) TO "anon";
+GRANT ALL ON FUNCTION "public"."http_set_curlopt"("curlopt" character varying, "value" character varying) TO "authenticated";
+GRANT ALL ON FUNCTION "public"."http_set_curlopt"("curlopt" character varying, "value" character varying) TO "service_role";
+
+
+
+GRANT ALL ON FUNCTION "public"."moddatetime"() TO "anon";
+GRANT ALL ON FUNCTION "public"."moddatetime"() TO "authenticated";
+GRANT ALL ON FUNCTION "public"."moddatetime"() TO "service_role";
+
+
+
+GRANT ALL ON FUNCTION "public"."schedule_notification_in_pg_cron"() TO "anon";
+GRANT ALL ON FUNCTION "public"."schedule_notification_in_pg_cron"() TO "authenticated";
+GRANT ALL ON FUNCTION "public"."schedule_notification_in_pg_cron"() TO "service_role";
+
+
+
+GRANT ALL ON FUNCTION "public"."soft_delete_telegram_notification"() TO "anon";
+GRANT ALL ON FUNCTION "public"."soft_delete_telegram_notification"() TO "authenticated";
+GRANT ALL ON FUNCTION "public"."soft_delete_telegram_notification"() TO "service_role";
+
+
+
+GRANT ALL ON FUNCTION "public"."text_to_bytea"("data" "text") TO "postgres";
+GRANT ALL ON FUNCTION "public"."text_to_bytea"("data" "text") TO "anon";
+GRANT ALL ON FUNCTION "public"."text_to_bytea"("data" "text") TO "authenticated";
+GRANT ALL ON FUNCTION "public"."text_to_bytea"("data" "text") TO "service_role";
+
+
+
+GRANT ALL ON FUNCTION "public"."update_has_wallet_on_user_wallet_insert"() TO "anon";
+GRANT ALL ON FUNCTION "public"."update_has_wallet_on_user_wallet_insert"() TO "authenticated";
+GRANT ALL ON FUNCTION "public"."update_has_wallet_on_user_wallet_insert"() TO "service_role";
+
+
+
+GRANT ALL ON FUNCTION "public"."urlencode"("string" "bytea") TO "postgres";
+GRANT ALL ON FUNCTION "public"."urlencode"("string" "bytea") TO "anon";
+GRANT ALL ON FUNCTION "public"."urlencode"("string" "bytea") TO "authenticated";
+GRANT ALL ON FUNCTION "public"."urlencode"("string" "bytea") TO "service_role";
+
+
+
+GRANT ALL ON FUNCTION "public"."urlencode"("data" "jsonb") TO "postgres";
+GRANT ALL ON FUNCTION "public"."urlencode"("data" "jsonb") TO "anon";
+GRANT ALL ON FUNCTION "public"."urlencode"("data" "jsonb") TO "authenticated";
+GRANT ALL ON FUNCTION "public"."urlencode"("data" "jsonb") TO "service_role";
+
+
+
+GRANT ALL ON FUNCTION "public"."urlencode"("string" character varying) TO "postgres";
+GRANT ALL ON FUNCTION "public"."urlencode"("string" character varying) TO "anon";
+GRANT ALL ON FUNCTION "public"."urlencode"("string" character varying) TO "authenticated";
+GRANT ALL ON FUNCTION "public"."urlencode"("string" character varying) TO "service_role";
+
+
+
+GRANT ALL ON FUNCTION "secure_schema"."handle_recreate_notification"() TO "authenticated";
+GRANT ALL ON FUNCTION "secure_schema"."handle_recreate_notification"() TO "service_role";
+
+
+
+GRANT ALL ON FUNCTION "secure_schema"."update_has_wallet_on_user_insert"() TO "authenticated";
+GRANT ALL ON FUNCTION "secure_schema"."update_has_wallet_on_user_insert"() TO "service_role";
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE "secure_schema"."telegram_notifications" TO "service_role";
+GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE "secure_schema"."telegram_notifications" TO "authenticated";
+
+
+
+GRANT SELECT,USAGE ON SEQUENCE "secure_schema"."telegram_notifications_id_seq" TO "service_role";
+GRANT SELECT,USAGE ON SEQUENCE "secure_schema"."telegram_notifications_id_seq" TO "authenticated";
+
+
+
+GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE "secure_schema"."telegram_users" TO "service_role";
+GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE "secure_schema"."telegram_users" TO "authenticated";
+
+
+
+GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE "secure_schema"."user_wallets" TO "service_role";
+GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE "secure_schema"."user_wallets" TO "authenticated";
+
+
+
+ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON SEQUENCES  TO "postgres";
+ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON SEQUENCES  TO "anon";
+ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON SEQUENCES  TO "authenticated";
+ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON SEQUENCES  TO "service_role";
+
+
+
+
+
+
+ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON FUNCTIONS  TO "postgres";
+ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON FUNCTIONS  TO "anon";
+ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON FUNCTIONS  TO "authenticated";
+ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON FUNCTIONS  TO "service_role";
+
+
+
+
+
+
+ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON TABLES  TO "postgres";
+ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON TABLES  TO "anon";
+ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON TABLES  TO "authenticated";
+ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON TABLES  TO "service_role";
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+RESET ALL;

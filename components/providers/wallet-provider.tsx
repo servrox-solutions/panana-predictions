@@ -15,9 +15,16 @@ export const WalletProvider = ({ children }: PropsWithChildren) => {
     <AptosWalletAdapterProvider
       autoConnect={autoConnect}
       dappConfig={{
-        network: (process.env.NEXT_PUBLIC_APP_NETWORK ?? "testnet") as Network,
+        network:
+          (process.env.NEXT_PUBLIC_APP_NETWORK as Network) ?? Network.TESTNET,
         aptosApiKey: process.env.NEXT_PUBLIC_APTOS_API_KEY,
-        aptosConnect: { dappId: "f44746dc-fd46-4765-a37c-f1b61fee51fa" },
+        aptosConnect: {
+          dappId: "6a12f6e7-bfdc-4401-b019-a0bea0260cf3",
+          dappName: "Panana Predictions",
+          dappImageURI: "https://app.panana-predictions.xyz/mr_peeltos.png",
+          frontendBaseURL: "https://app.panana-predictions.xyz",
+          backendBaseURL: "https://app.panana-predictions.xyz",
+        },
         mizuwallet: {
           manifestURL:
             "https://assets.mz.xyz/static/config/mizuwallet-connect-manifest.json",

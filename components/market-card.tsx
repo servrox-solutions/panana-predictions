@@ -11,13 +11,15 @@ import { useMarketDataStore } from "@/lib/atoms/useMarketDataStore";
 import { cn } from "@/lib/utils";
 import { useWallet } from "@aptos-labs/wallet-adapter-react";
 import { toast } from "react-toastify";
-import { useMemo, useCallback } from "react";
 import { MARKET_ABI } from '@/lib/aptos';
+import { useMemo, useCallback, memo } from "react";
 
 interface MarketCardProps {
   availableMarket: AvailableMarket;
   initialMarketData?: MarketData;
 }
+
+const MarketCardSimpleUiMemo = memo(MarketCardSimpleUi);
 
 export const MarketCard: React.FC<MarketCardProps> = ({
   availableMarket,
@@ -77,6 +79,30 @@ export const MarketCard: React.FC<MarketCardProps> = ({
     [marketData?.tradingPair]
   );
 
+  const memoizedProps = useMemo(
+    () => ({
+      startTime: marketData?.startTime ?? 1337,
+      createTime: marketData?.createdAt ?? 1337,
+      address: marketData?.address ?? "1337",
+      minBet: marketData?.minBet ?? 1337,
+      betCloseTime: marketData?.startTime ?? 1336,
+      resolveTime: marketData?.endTime ?? 1337,
+      tradingPairOne: tradingPair.one,
+      tradingPairTwo: tradingPair.two,
+      upVotesSum: marketData?.upVotesSum ?? 1337,
+      downVotesSum: marketData?.downVotesSum ?? 1337,
+      upWinFactor: marketData?.upWinFactor ?? 1337,
+      downWinFactor: marketData?.downWinFactor ?? 1337,
+      upBetsSum: marketData?.upBetsSum ?? 1337,
+      downBetsSum: marketData?.downBetsSum ?? 1337,
+      upBetsCount: marketData?.upBets.size ?? 1337,
+      downBetsCount: marketData?.downBets.size ?? 1337,
+      onPlaceBet,
+      onVote,
+    }),
+    [marketData, tradingPair, onPlaceBet, onVote]
+  );
+
   return (
     <div
       className={cn(
@@ -85,26 +111,7 @@ export const MarketCard: React.FC<MarketCardProps> = ({
       )}
       style={{ order: marketData ? getPosition(marketData) : 0 }}
     >
-      <MarketCardSimpleUi
-        startTime={marketData?.startTime ?? 1337}
-        createTime={marketData?.createdAt ?? 1337}
-        address={marketData?.address ?? "1337"}
-        minBet={marketData?.minBet ?? 1337}
-        betCloseTime={marketData?.startTime ?? 1336}
-        resolveTime={marketData?.endTime ?? 1337}
-        tradingPairOne={tradingPair.one}
-        tradingPairTwo={tradingPair.two}
-        upVotesSum={marketData?.upVotesSum ?? 1337}
-        downVotesSum={marketData?.downVotesSum ?? 1337}
-        upWinFactor={marketData?.upWinFactor ?? 1337}
-        downWinFactor={marketData?.downWinFactor ?? 1337}
-        upBetsSum={marketData?.upBetsSum ?? 1337}
-        downBetsSum={marketData?.downBetsSum ?? 1337}
-        upBetsCount={marketData?.upBets.size ?? 1337}
-        downBetsCount={marketData?.downBets.size ?? 1337}
-        onPlaceBet={onPlaceBet}
-        onVote={onVote}
-      />
+      <MarketCardSimpleUiMemo {...memoizedProps} />
     </div>
   );
 };

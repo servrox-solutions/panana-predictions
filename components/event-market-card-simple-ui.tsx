@@ -204,7 +204,7 @@ function FrontFooter(
 ) {
   return (
     <div className="flex">
-      <SimpleContainerDropdown containers={[containers]} />
+      <SimpleContainerDropdown shareButtons={[containers]} />
       <div className="inline-flex overflow-hidden">
         <Button
           variant="ghost"

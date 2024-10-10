@@ -16,13 +16,14 @@ function AdvancedChart({ marketType }: { marketType: MarketType }) {
       scriptAppendedRef.current
     )
       return;
-    console.log(resolvedTheme)
+    console.log(resolvedTheme);
 
     scriptAppendedRef.current = true;
 
     const config = {
       autosize: true,
-      symbol: `COINBASE:${marketType}USD`,
+      symbol:
+        marketType === "USDC" ? `CRYPTO:USDCUSD` : `COINBASE:${marketType}USD`,
       range: "1D", // TODO: make this dynamic based on market data https://www.tradingview.com/widget-docs/widgets/charts/advanced-chart/
       // interval: "D",
       timezone: "Etc/UTC",

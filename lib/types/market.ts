@@ -52,6 +52,11 @@ export const marketTypes = [`BTC`, `APT`, `SOL`, `USDC`, `ETH`] as const;
 
 export type MarketType = (typeof marketTypes)[number];
 
+export enum MessageKind {
+  FIVE_MINUTES_BEFORE_BET_CLOSE = "five_minutes_before_bet_close",
+  FIVE_MINUTES_BEFORE_MARKET_END = "five_minutes_before_market_end",
+}
+
 export interface MarketOld {
   key: string;
   tradingPair: string;

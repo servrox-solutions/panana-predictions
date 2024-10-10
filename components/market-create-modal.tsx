@@ -248,8 +248,8 @@ export function MarketCreateModal({
                               key={asset.value}
                               id={asset.value}
                               className={`${field.value === asset.value
-                                ? "bg-primary text-secondary"
-                                : ""
+                                  ? "bg-primary text-secondary"
+                                  : ""
                                 }`}
                               onClick={() => handleAssetChange(asset.value)}
                             >
@@ -294,8 +294,8 @@ export function MarketCreateModal({
                               key={i.as("seconds")}
                               id={`${i.as("seconds")}`}
                               className={`w-full ${field.value === i.as("seconds")
-                                ? "bg-primary text-secondary hover:bg-primary hover:text-secondary"
-                                : ""
+                                  ? "bg-primary text-secondary hover:bg-primary hover:text-secondary"
+                                  : ""
                                 }`}
                               onClick={() =>
                                 handleDurationChange(i.as("seconds"))

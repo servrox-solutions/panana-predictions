@@ -6,8 +6,6 @@ import {
   type ClientResponse,
   Account,
   Ed25519PrivateKey,
-  type CommittedTransactionResponse,
-  type UserTransactionResponse,
 } from "@aptos-labs/ts-sdk";
 import axios, { type AxiosResponse } from "axios";
 import { ABI as MARKET_ABI } from "../lib/market-abi.ts";
@@ -18,6 +16,7 @@ import * as yaml from "js-yaml";
 import { readFileSync } from "fs";
 import { DateTime } from "luxon";
 import { MODULE_ADDRESS_FROM_ABI } from "../lib/aptos.ts";
+import { telegramNotifier } from "./telegram-notifier/index.ts";
 
 // Configuration Loader
 function loadConfig() {
@@ -101,27 +100,35 @@ interface AvailableMarketplace {
 function scheduleCreateMarket(marketplace: AvailableMarketplace, min: number) {
   const rule = new RecurrenceRule();
   rule.minute = [min];
-  scheduleExecutionWithRetry('Create Market', async () => createMarket(marketplace), rule);
+  scheduleExecutionWithRetry(
+    "Create Market",
+    async () => createMarket(marketplace),
+    rule
+  );
   console.log(
     `create market scheduler scheduled for ${marketplace.key} (${marketplace.value})`
   );
 }
 
 // Create market function
-async function createMarket(marketplace: AvailableMarketplace): Promise<{success: boolean}> {
-    const startTime = DateTime.now()
-      .plus({ minute: 30 })
-      .set({ second: 0, millisecond: 0 })
-      .toSeconds();
-    const endTime = DateTime.fromSeconds(startTime)
-      .plus({ minute: 30 })
-      .toSeconds();
-    console.log(`Scheduled create market: ${marketplace.key}:${marketplace.value}`);
-    return marketSurfClient.entry.create_market({
-      typeArguments: [marketplace.value],
-      functionArguments: [marketplace.key, startTime, endTime, 1000000, 2, 100],
-      account,
-    });
+async function createMarket(
+  marketplace: AvailableMarketplace
+): Promise<{ success: boolean }> {
+  const startTime = DateTime.now()
+    .plus({ minute: 30 })
+    .set({ second: 0, millisecond: 0 })
+    .toSeconds();
+  const endTime = DateTime.fromSeconds(startTime)
+    .plus({ minute: 30 })
+    .toSeconds();
+  console.log(
+    `Scheduled create market: ${marketplace.key}:${marketplace.value}`
+  );
+  return marketSurfClient.entry.create_market({
+    typeArguments: [marketplace.value],
+    functionArguments: [marketplace.key, startTime, endTime, 1000000, 2, 100],
+    account,
+  });
 }
 
 // Fetch and schedule available marketplaces
@@ -227,7 +234,7 @@ function setupStartPriceTimer(
         });
         return res;
       } catch (err: any) {
-        if (err?.transaction?.vm_status?.includes('E_MARKET_RUNNING')) {
+        if (err?.transaction?.vm_status?.includes("E_MARKET_RUNNING")) {
           return { success: true }; // if the error is market running, the start price is already set
         }
         console.error(`error starting market`, JSON.stringify(err));
@@ -255,15 +262,15 @@ function setupResolveMarketTimer(
   scheduleExecutionWithRetry(
     jobName,
     async () => {
-        try {
-          const res = await marketSurfClient.entry.resolve_market({
-            typeArguments: [type],
-            functionArguments: [marketAddress],
-            account,
-          });
-          return res;
+      try {
+        const res = await marketSurfClient.entry.resolve_market({
+          typeArguments: [type],
+          functionArguments: [marketAddress],
+          account,
+        });
+        return res;
       } catch (err: any) {
-        if (err?.transaction?.vm_status?.includes('E_MARKET_CLOSED')) {
+        if (err?.transaction?.vm_status?.includes("E_MARKET_CLOSED")) {
           return { success: true }; // if the error is market closed, the end price is already set
         }
         console.error(`error resolving market`, JSON.stringify(err));
@@ -333,6 +340,13 @@ function retryExecution(
     DateTime.fromJSDate(fireDate).plus({ seconds: retryDelay }).toJSDate()
   );
 }
-      
-// Fetch marketplaces and schedule job
-fetchAndScheduleMarketplaces();
+
+(async () => {
+  try {
+    // Run both telegramNotifier and fetchAndScheduleMarketplaces concurrently
+    await Promise.all([telegramNotifier(), fetchAndScheduleMarketplaces()]);
+    console.log("Initialization complete.");
+  } catch (error) {
+    console.error("Error during initialization:", error);
+  }
+})();

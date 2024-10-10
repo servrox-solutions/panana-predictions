@@ -1,12 +1,7 @@
 "use client";
 
 import { useTelegramMock } from "@/lib/hooks/useTelegramMock";
-import {
-  TelegramUserDb,
-  upsertTelegramUser,
-} from "@/lib/supabase/upsert-telegram-user";
 import { isTelegramApp } from "@/lib/telegram";
-import { useWallet } from "@aptos-labs/wallet-adapter-react";
 import {
   bindMiniAppCSSVars,
   bindThemeParamsCSSVars,
@@ -26,8 +21,6 @@ export function TelegramProvider({ children, ...props }: PropsWithChildren) {
   const viewport = useViewport(true);
   const initDataRaw = useLaunchParams(true)?.initDataRaw;
   const debug = useLaunchParams(true)?.startParam === "debug";
-
-  const { account } = useWallet();
 
   useEffect(() => {
     if (debug) {
@@ -80,20 +73,6 @@ export function TelegramProvider({ children, ...props }: PropsWithChildren) {
         if (!response.ok) {
           miniApp?.close();
         }
-
-        const user = await response.json();
-
-        const update: TelegramUserDb = {
-          id: user.id,
-          firstName: user.first_name,
-          lastName: user.last_name,
-          username: user.username,
-          languageCode: user.language_code,
-          isPremium: user.is_premium,
-          walletAddresses: account ? [account.address] : [],
-        };
-
-        upsertTelegramUser(update);
       } catch {
         miniApp?.close();
       }

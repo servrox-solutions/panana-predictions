@@ -36,7 +36,10 @@ import { MarketTitle } from "./market-title";
 import { Card } from "./ui/card";
 import DepositBet from "./deposit-bet";
 import { Web3Icon } from "./web3-icon";
-
+import { storeTelegramNotification } from "@/lib/supabase/store-telegram-notification";
+import { useLaunchParams, useInitData } from "@telegram-apps/sdk-react";
+import { DateTime } from "luxon";
+import { MessageKind } from "@/lib/types/market";
 export interface MarketCardSimpleUiProps {
   tradingPairOne: MarketType; // Destructured property
   tradingPairTwo: string; // Destructured property
@@ -82,6 +85,24 @@ export const MarketCardSimpleUi: React.FC<MarketCardSimpleUiProps> = ({
   const [amount, setAmount] = useState<number>(minBet / 10 ** 8);
   const getSocialMessage = (marketId: string) =>
     `📈 Think you can predict the next move in crypto?\nJoin our latest market and put your forecast to the test!\n\nhttps://app.panana-predictions.xyz/markets/${marketId}\n\nOnly on 🍌Panana Predictions!`;
+  const launchParams = useLaunchParams(true);
+  const initData = useInitData(true);
+
+  const handleMidClick = async () => {
+    const telegramUserId =
+      launchParams?.platform !== "mock" ? initData?.user?.id : undefined;
+
+    if (!telegramUserId) return;
+
+    const result = await storeTelegramNotification(
+      address,
+      telegramUserId,
+      DateTime.fromSeconds(betCloseTime).minus({ minutes: 5 }).toString(),
+      MessageKind.FIVE_MINUTES_BEFORE_BET_CLOSE
+    );
+
+    console.log("result", result);
+  };
 
   // Memoize the MarketCardTimeline component to prevent unnecessary re-renders
   const MemoizedMarketCardTimeline = useMemo(
@@ -91,9 +112,10 @@ export const MarketCardSimpleUi: React.FC<MarketCardSimpleUiProps> = ({
         betCloseTime={betCloseTime}
         endTime={resolveTime}
         slim={startTime > Date.now() / 1000}
+        onMidClick={handleMidClick}
       />
     ),
-    [createTime, betCloseTime, resolveTime]
+    [createTime, betCloseTime, resolveTime, handleMidClick]
   );
 
   // Memoize the onClick handlers to prevent unnecessary re-renders
@@ -102,39 +124,28 @@ export const MarketCardSimpleUi: React.FC<MarketCardSimpleUiProps> = ({
   const handleVoteUp = useCallback(() => onVote(true), [onVote]);
   const handleVoteDown = useCallback(() => onVote(false), [onVote]);
 
-  // Memoize the containers array for SimpleContainerDropdown
-  const containers = useMemo(
-    () => (
-      <div className="grid grid-cols-3 gap-2">
-        <TwitterShareButton className="w-8 h-8" url={getSocialMessage(address)}>
-          <TwitterIcon className="w-8 h-8 rounded-full" />
-        </TwitterShareButton>
-        <TelegramShareButton
-          className="w-8 h-8"
-          url={getSocialMessage(address)}
-        >
-          <TelegramIcon className="w-8 h-8 rounded-full" />
-        </TelegramShareButton>
-        <FacebookShareButton
-          className="w-8 h-8"
-          url={getSocialMessage(address)}
-        >
-          <FacebookIcon className="w-8 h-8 rounded-full" />
-        </FacebookShareButton>
-        <WhatsappShareButton
-          className="w-8 h-8"
-          url={getSocialMessage(address)}
-        >
-          <WhatsappIcon className="w-8 h-8 rounded-full" />
-        </WhatsappShareButton>
-        <EmailShareButton className="w-8 h-8" url={getSocialMessage(address)}>
-          <EmailIcon className="w-8 h-8 rounded-full" />
-        </EmailShareButton>
-        <HatenaShareButton className="w-8 h-8" url={getSocialMessage(address)}>
-          <HatenaIcon className="w-8 h-8 rounded-full" />
-        </HatenaShareButton>
-      </div>
-    ),
+  // Memoize the shareElements for SimpleContainerDropdown
+  const shareElements = useMemo(
+    () => [
+      <TwitterShareButton className="w-8 h-8" url={getSocialMessage(address)}>
+        <TwitterIcon className="w-8 h-8 rounded-full" />
+      </TwitterShareButton>,
+      <TelegramShareButton className="w-8 h-8" url={getSocialMessage(address)}>
+        <TelegramIcon className="w-8 h-8 rounded-full" />
+      </TelegramShareButton>,
+      <FacebookShareButton className="w-8 h-8" url={getSocialMessage(address)}>
+        <FacebookIcon className="w-8 h-8 rounded-full" />
+      </FacebookShareButton>,
+      <WhatsappShareButton className="w-8 h-8" url={getSocialMessage(address)}>
+        <WhatsappIcon className="w-8 h-8 rounded-full" />
+      </WhatsappShareButton>,
+      <EmailShareButton className="w-8 h-8" url={getSocialMessage(address)}>
+        <EmailIcon className="w-8 h-8 rounded-full" />
+      </EmailShareButton>,
+      <HatenaShareButton className="w-8 h-8" url={getSocialMessage(address)}>
+        <HatenaIcon className="w-8 h-8 rounded-full" />
+      </HatenaShareButton>,
+    ],
     [address, getSocialMessage]
   );
 
@@ -174,7 +185,7 @@ export const MarketCardSimpleUi: React.FC<MarketCardSimpleUiProps> = ({
           </div>
           {!bet && (
             <div className="flex-1 text-nowrap text-right">
-              <SimpleContainerDropdown containers={[containers]} />
+              <SimpleContainerDropdown shareButtons={shareElements} />
               <div className="inline-flex overflow-hidden">
                 <Button
                   variant="ghost"
@@ -247,7 +258,7 @@ export const MarketCardSimpleUi: React.FC<MarketCardSimpleUiProps> = ({
                 <div className="flex items-center">
                   <Coins className="w-4 h-4" />
                   <span className="text-xs dark:text-neutral-400 pl-1">
-                    {(upBetsSum + downBetsSum) / (10 ** 9)} APT
+                    {(upBetsSum + downBetsSum) / 10 ** 9} APT
                   </span>
                 </div>
               </div>

@@ -7,7 +7,6 @@ import {
   Coins,
   ThumbsDown,
   ThumbsUp,
-  Undo2,
 } from "lucide-react";
 import {
   EmailIcon,
@@ -23,14 +22,12 @@ import {
   WhatsappIcon,
   WhatsappShareButton,
 } from "react-share";
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
-import { calculateUserWin, cn } from "@/lib/utils";
-import { MarketCardTimeline } from "./market-card-timeline";
+import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { SimpleContainerDropdown } from "./simple-container-dropdown";
-import { MarketTitle } from "./market-title";
 
 export interface MarketCardSimpleUiProps {
   tradingPair: { one: MarketType; two: string };
@@ -52,11 +49,7 @@ export interface MarketCardSimpleUiProps {
 }
 
 export const MarketCardExtendedUi: React.FC<MarketCardSimpleUiProps> = ({
-  tradingPair,
   minBet,
-  betCloseTime,
-  resolveTime,
-  createTime,
   upVotesSum,
   downVotesSum,
   upWinFactor,
@@ -66,13 +59,36 @@ export const MarketCardExtendedUi: React.FC<MarketCardSimpleUiProps> = ({
   upBetsCount,
   downBetsCount,
   address,
-  onPlaceBet,
   onVote,
 }) => {
   const [bet, setBet] = useState<"up" | "down" | null>(null);
   const [amount, setAmount] = useState<number>(minBet / 10 ** 9);
   const getSocialMessage = (marketId: string) =>
     `📈 Think you can predict the next move in crypto?\nJoin our latest market and put your forecast to the test!\n\nhttps://app.panana-predictions.xyz/markets/${marketId}\n\nOnly on 🍌Panana Predictions!`;
+
+  const shareElements = useMemo(
+    () => [
+      <TwitterShareButton className="w-8 h-8" url={getSocialMessage(address)}>
+        <TwitterIcon className="w-8 h-8 rounded-full" />
+      </TwitterShareButton>,
+      <TelegramShareButton className="w-8 h-8" url={getSocialMessage(address)}>
+        <TelegramIcon className="w-8 h-8 rounded-full" />
+      </TelegramShareButton>,
+      <FacebookShareButton className="w-8 h-8" url={getSocialMessage(address)}>
+        <FacebookIcon className="w-8 h-8 rounded-full" />
+      </FacebookShareButton>,
+      <WhatsappShareButton className="w-8 h-8" url={getSocialMessage(address)}>
+        <WhatsappIcon className="w-8 h-8 rounded-full" />
+      </WhatsappShareButton>,
+      <EmailShareButton className="w-8 h-8" url={getSocialMessage(address)}>
+        <EmailIcon className="w-8 h-8 rounded-full" />
+      </EmailShareButton>,
+      <HatenaShareButton className="w-8 h-8" url={getSocialMessage(address)}>
+        <HatenaIcon className="w-8 h-8 rounded-full" />
+      </HatenaShareButton>,
+    ],
+    [address, getSocialMessage]
+  );
 
   return (
     <div className="flex flex-col gap-4 max-w-full w-96 backdrop-grayscale-[.5] bg-gray-800 bg-opacity-30 backdrop-blur-lg rounded-3xl p-3 shadow-lg border border-white border-opacity-20">
@@ -98,7 +114,6 @@ export const MarketCardExtendedUi: React.FC<MarketCardSimpleUiProps> = ({
         />
       </div>
 
-
       {/* Stats Section */}
 
       <div className="flex justify-between items-center text-center text-opacity-80 h-20">
@@ -108,8 +123,7 @@ export const MarketCardExtendedUi: React.FC<MarketCardSimpleUiProps> = ({
         </div>
 
         <div className="text-center">
-          <p className="font-bold">{`${downBetsCount + upBetsCount
-            } Bets`}</p>
+          <p className="font-bold">{`${downBetsCount + upBetsCount} Bets`}</p>
           <p className="text-sm">{downBetsSum + upBetsSum} APT</p>
         </div>
 
@@ -118,7 +132,6 @@ export const MarketCardExtendedUi: React.FC<MarketCardSimpleUiProps> = ({
           <p className="text-xs">{upBetsSum} APT</p>
         </div>
       </div>
-
 
       {/* Bet Buttons Section */}
 
@@ -164,7 +177,6 @@ export const MarketCardExtendedUi: React.FC<MarketCardSimpleUiProps> = ({
         </div>
       </div>
 
-
       {/* Icons */}
 
       <div className="flex justify-between items-stretch pt-4">
@@ -198,51 +210,9 @@ export const MarketCardExtendedUi: React.FC<MarketCardSimpleUiProps> = ({
             </span>
           </Button>
 
-          <SimpleContainerDropdown
-            containers={[
-              <div className="grid grid-cols-3 gap-2">
-                <TwitterShareButton
-                  className="w-8 h-8"
-                  url={getSocialMessage(address)}
-                >
-                  <TwitterIcon className="w-8 h-8 rounded-full" />
-                </TwitterShareButton>
-                <TelegramShareButton
-                  className="w-8 h-8"
-                  url={getSocialMessage(address)}
-                >
-                  <TelegramIcon className="w-8 h-8 rounded-full" />
-                </TelegramShareButton>
-                <FacebookShareButton
-                  className="w-8 h-8"
-                  url={getSocialMessage(address)}
-                >
-                  <FacebookIcon className="w-8 h-8 rounded-full" />
-                </FacebookShareButton>
-                <WhatsappShareButton
-                  className="w-8 h-8"
-                  url={getSocialMessage(address)}
-                >
-                  <WhatsappIcon className="w-8 h-8 rounded-full" />
-                </WhatsappShareButton>
-                <EmailShareButton
-                  className="w-8 h-8"
-                  url={getSocialMessage(address)}
-                >
-                  <EmailIcon className="w-8 h-8 rounded-full" />
-                </EmailShareButton>
-                <HatenaShareButton
-                  className="w-8 h-8"
-                  url={getSocialMessage(address)}
-                >
-                  <HatenaIcon className="w-8 h-8 rounded-full" />
-                </HatenaShareButton>
-              </div>,
-            ]}
-          />
+          <SimpleContainerDropdown shareButtons={shareElements} />
         </div>
       </div>
-
     </div>
   );
 };
