@@ -12,6 +12,7 @@ import { cn } from "@/lib/utils";
 import { useWallet } from "@aptos-labs/wallet-adapter-react";
 import { toast } from "react-toastify";
 import { MarketCardExtendedUi } from './market-card-extended-ui';
+import { MARKET_ABI } from '@/lib/aptos';
 
 interface MarketCardExtendedProps {
   availableMarket: AvailableMarket;
@@ -56,7 +57,7 @@ export const MarketCardExtended: React.FC<MarketCardExtendedProps> = ({
       return;
     }
     if (marketData) {
-      await submitVote(marketData, isVoteUp);
+      await submitVote(`${MARKET_ABI.address}::switchboard_asset::${marketData.tradingPair.one}`, marketData.address, isVoteUp);
     }
   };
 

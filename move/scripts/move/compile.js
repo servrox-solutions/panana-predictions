@@ -9,8 +9,6 @@ const profile = `${process.env.PROJECT_NAME}-${process.env.NEXT_PUBLIC_APP_NETWO
 const accountAddress = config["profiles"][profile]["account"];
 
 async function compile() {
-  console.log(profile);
-
   // const aptosConfig = new aptosSDK.AptosConfig({ network: process.env.NEXT_PUBLIC_APP_NETWORK })
   // const aptos = new aptosSDK.Aptos(aptosConfig)
 
@@ -30,6 +28,7 @@ async function compile() {
     namedAddresses: {
       owner: accountAddress,
       panana: accountAddress,
+      market_admin: accountAddress,
     },
     extraArguments: [],
     profile,

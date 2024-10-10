@@ -4,6 +4,7 @@ version = "0.3.0"
 
 [addresses]
 owner = "_"
+market_admin = "_"
 switchboard = "0xb91d3fef0eeb4e685dc85e739c7d3e2968784945be4424e92e2f86e2418bf271"
 switchbaord_feed_apt = "0x7ac62190ba57b945975146f3d8725430ad3821391070b965b38206fe4cec9fd5"
 switchbaord_feed_sol = "0xe2677e5bd7473c13b7a8849d463b0b920b9bb02e98bbb6e638992dcf02394688"

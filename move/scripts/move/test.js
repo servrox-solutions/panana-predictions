@@ -9,7 +9,8 @@ async function test() {
     packageDirectoryPath: "move/contract",
     namedAddresses: {
       owner: "0x100",
-      panana: "0x123"
+      panana: "0x123",
+      market_admin: "0x400",
     },
     extraArguments: ['--coverage']
   });

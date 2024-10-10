@@ -2,6 +2,7 @@ import { Aptos, AptosConfig, Network } from "@aptos-labs/ts-sdk";
 import { createSurfClient } from "@thalalabs/surf";
 import { ABI as MarketplaceAbi } from "./marketplace-abi";
 import { ABI as MarketAbi } from "./market-abi";
+import { ABI as EventMarketAbi } from "./event-market-abi";
 import { Address } from "./types/market";
 import { TxnBuilderTypes } from 'aptos';
 
@@ -11,12 +12,15 @@ export const aptos = new Aptos(config);
 export const surfClientMarketplace =
   createSurfClient(aptos).useABI(MarketplaceAbi);
 export const surfClientMarket = createSurfClient(aptos).useABI(MarketAbi);
+export const surfClientEventMarket =
+  createSurfClient(aptos).useABI(EventMarketAbi);
 
 export const MODULE_ADDRESS_FROM_ABI: Address =
-  MarketplaceAbi.address ?? MarketAbi.address;
+  MarketplaceAbi.address ?? MarketAbi.address ?? EventMarketAbi.address;
 
 export const MARKET_ABI = MarketAbi;
 export const MARKETPLACE_ABI = MarketplaceAbi;
+export const EVENT_MARKET_ABI = EventMarketAbi;
 
 // Use Surf to executes an entry function
 // const result = await surfClient.entry.transfer({

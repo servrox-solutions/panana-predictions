@@ -35,7 +35,7 @@ export const getMarketRessource = async (
   availableMarket: AvailableMarket
 ): Promise<MarketRessource> => {
   const logger = getLogger();
-
+  console.log(availableMarket)
   const market = await surfClientMarket.resource
     .Market({
       account: availableMarket.address,

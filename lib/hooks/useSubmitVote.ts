@@ -1,24 +1,25 @@
 import { createEntryPayload } from "@thalalabs/surf";
-import { MARKET_ABI } from "@/lib/aptos";
-import { MarketData } from "@/lib/types/market";
+import { EVENT_MARKET_ABI, MARKET_ABI } from "@/lib/aptos";
+import { Address } from "@/lib/types/market";
 import { useWallet } from "@aptos-labs/wallet-adapter-react";
 
 export const useSubmitVote = () => {
   const { account, signAndSubmitTransaction } = useWallet();
 
   const submitVote = async (
-    marketData: MarketData,
+    type: `${string}::${string}::${string}`,
+    marketAddress: Address,
     isVoteUp: boolean
   ): Promise<boolean> => {
-    if (!account || !marketData) return false;
+    if (!account) return false;
+    const marketType = type.split("::")[1];
+    const abi = marketType === 'switchboard_asset' ? MARKET_ABI : EVENT_MARKET_ABI;
 
     try {
-      const payload = createEntryPayload(MARKET_ABI, {
+      const payload = createEntryPayload(abi, {
         function: "vote",
-        typeArguments: [
-          `${MARKET_ABI.address}::switchboard_asset::${marketData.tradingPair.one}`,
-        ],
-        functionArguments: [marketData.address, isVoteUp],
+        typeArguments: [type],
+        functionArguments: [marketAddress, isVoteUp],
       });
 
       await signAndSubmitTransaction({

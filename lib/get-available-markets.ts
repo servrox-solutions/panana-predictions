@@ -17,6 +17,7 @@ export const getAvailableMarkets = async (
   const logger = getLogger();
 
   for (const marketplace of marketplaces) {
+    console.log(marketplace)
     await surfClientMarketplace.view
       .available_markets({
         typeArguments: [`${marketplace.typeArgument}`],

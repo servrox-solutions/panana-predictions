@@ -40,6 +40,7 @@ async function publish() {
     namedAddresses: {
       owner: accountAddress,
       panana: moduleAddress,
+      market_admin: accountAddress,
     },
     profile,
     extraArguments: ["--included-artifacts=none", "--assume-yes"],

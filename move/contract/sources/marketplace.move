@@ -12,8 +12,11 @@ module panana::marketplace {
     use switchboard::math;
     use switchboard::aggregator;
     use panana::switchboard_asset;
+    use panana::event_category;
 
     friend panana::market;
+    friend panana::event_market;
+    
     #[test_only]
     friend panana::market_test;
     #[test_only]
@@ -49,6 +52,8 @@ module panana::marketplace {
         create_marketplace<switchboard_asset::SOL>(sender, @switchbaord_feed_sol);
         create_marketplace<switchboard_asset::USDC>(sender, @switchbaord_feed_usdc);
         create_marketplace<switchboard_asset::ETH>(sender, @switchbaord_feed_eth);
+        create_marketplace<event_category::Sports>(sender, @0x0);
+        create_marketplace<event_category::Politics>(sender, @0x0);
     }
 
     #[view]

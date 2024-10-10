@@ -12,6 +12,7 @@ import { cn } from "@/lib/utils";
 import { useWallet } from "@aptos-labs/wallet-adapter-react";
 import { toast } from "react-toastify";
 import { useMemo, useCallback } from "react";
+import { MARKET_ABI } from '@/lib/aptos';
 
 interface MarketCardProps {
   availableMarket: AvailableMarket;
@@ -28,12 +29,12 @@ export const MarketCard: React.FC<MarketCardProps> = ({
     availableMarket,
     3000,
     initialMarketData ??
-      marketDataStore?.find(
-        (market) => market.address === availableMarket.address
-      ) ??
-      filteredMarketData.find(
-        (market) => market.address === availableMarket.address
-      )
+    marketDataStore?.find(
+      (market) => market.address === availableMarket.address
+    ) ??
+    filteredMarketData.find(
+      (market) => market.address === availableMarket.address
+    )
   );
   const { account } = useWallet();
   const { placeBet } = usePlaceBet();
@@ -60,7 +61,7 @@ export const MarketCard: React.FC<MarketCardProps> = ({
         return;
       }
       if (marketData) {
-        const isSuccess = await submitVote(marketData, isVoteUp);
+        const isSuccess = await submitVote(`${MARKET_ABI.address}::switchboard_asset::${marketData.tradingPair.one}`, marketData.address, isVoteUp);
         if (isSuccess)
           toast.success("Vote submitted successfully.", { autoClose: 2000 });
       }

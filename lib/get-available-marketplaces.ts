@@ -12,7 +12,7 @@ export interface AvailableMarketplace {
   typeArgument: `${string}::${string}::${MarketType}`;
 }
 
-export const getAvailableMarketplaces = async (): Promise<
+export const getAvailableMarketplaces = async (marketplaceType: 'switchboard_asset' | 'event_category' = 'switchboard_asset'): Promise<
   AvailableMarketplace[]
 > => {
   const logger = getLogger();
@@ -20,7 +20,7 @@ export const getAvailableMarketplaces = async (): Promise<
   const marketplaces = await surfClientMarketplace.view
     .available_marketplaces({
       typeArguments: [],
-      functionArguments: [MODULE_ADDRESS_FROM_ABI],
+      functionArguments: [marketplaceType === 'switchboard_asset' ? MODULE_ADDRESS_FROM_ABI : '0x59e9982aaa5194058e51c8be75519ec54c518ea3651b3a4a87c39b9bd88ba314'], // TODO: only use Marketplace_abi address
     })
     .catch((error) => {
       logger.error(error);
@@ -36,5 +36,6 @@ export const getAvailableMarketplaces = async (): Promise<
       })
     ) ?? [];
 
-  return availableMarketplaces;
+  
+  return availableMarketplaces.filter(marketplace => marketplace.typeArgument.split('::')[1] === marketplaceType);
 };

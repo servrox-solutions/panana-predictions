@@ -70,7 +70,7 @@ export function MarketCreateModal({
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
-      asset: marketplaces[0].typeArgument, // use first marketplace as default
+      asset: marketplaces?.[0]?.typeArgument ?? 'APT', // use first marketplace as default
       startTime: undefined,
       durationSeconds: undefined,
       minBet: 0.01,
@@ -248,8 +248,8 @@ export function MarketCreateModal({
                               key={asset.value}
                               id={asset.value}
                               className={`${field.value === asset.value
-                                  ? "bg-primary text-secondary"
-                                  : ""
+                                ? "bg-primary text-secondary"
+                                : ""
                                 }`}
                               onClick={() => handleAssetChange(asset.value)}
                             >
@@ -294,8 +294,8 @@ export function MarketCreateModal({
                               key={i.as("seconds")}
                               id={`${i.as("seconds")}`}
                               className={`w-full ${field.value === i.as("seconds")
-                                  ? "bg-primary text-secondary hover:bg-primary hover:text-secondary"
-                                  : ""
+                                ? "bg-primary text-secondary hover:bg-primary hover:text-secondary"
+                                : ""
                                 }`}
                               onClick={() =>
                                 handleDurationChange(i.as("seconds"))

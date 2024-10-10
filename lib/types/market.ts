@@ -24,6 +24,30 @@ export interface MarketData {
   downWinFactor: number;
 }
 
+export interface EventMarketData {
+  name: string;
+  address: `0x${string}`;
+  creator: string;
+  createdAt: number;
+  minBet: number;
+  fee: number;
+  userVotes: Map<Address, boolean>;
+  upVotesSum: number;
+  downVotesSum: number;
+  upWinFactor: number;
+  downWinFactor: number;
+  resolvedAt?: number;
+  acceptedAt?: number;
+  winningAnswerIdx?: number;
+  totalBets: Array<number>;
+  answers: Array<string>;
+  accepted?: boolean;
+  rejectionReason?: string;
+  question: string;
+  rules: string;
+}
+
+
 export const marketTypes = [`BTC`, `APT`, `SOL`, `USDC`, `ETH`] as const;
 
 export type MarketType = (typeof marketTypes)[number];

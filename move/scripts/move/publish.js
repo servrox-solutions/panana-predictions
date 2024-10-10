@@ -35,6 +35,7 @@ async function publish() {
       namedAddresses: {
         // Publish module to new object, but since we create the object on the fly, we fill in the publisher's account address here
         owner: accountAddress,
+        market_admin: accountAddress,
       },
       profile,
       extraArguments: ["--included-artifacts=none", "--assume-yes"],
