@@ -124,11 +124,37 @@ async function createMarket(
   console.log(
     `Scheduled create market: ${marketplace.key}:${marketplace.value}`
   );
-  return marketSurfClient.entry.create_market({
+  const res = marketSurfClient.entry.create_market({
     typeArguments: [marketplace.value],
     functionArguments: [marketplace.key, startTime, endTime, 1000000, 2, 100],
     account,
   });
+
+  revalidateMarket();
+  
+  return res;
+}
+
+// if market address not present, we revalidate 0x0 address instead
+async function revalidateMarket(marketAddress: string = '0x0') {
+  const url = `https://app.panana-predictions.xyz/api/market/revalidate/${marketAddress}`; 
+
+  try {
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: '{}'
+    });
+    if (response.status === 200) {
+      console.log(`revalidation succeeded`);
+    } else {
+      console.log(`revalidation failed: ${response.status}`);
+    }
+  } catch (err: unknown) {
+    console.log(`revalidation failed: ${JSON.stringify(err)}`);
+  }
 }
 
 // Fetch and schedule available marketplaces
@@ -239,6 +265,8 @@ function setupStartPriceTimer(
         }
         console.error(`error starting market`, JSON.stringify(err));
         return { success: false };
+      } finally {
+        revalidateMarket(marketAddress);
       }
     },
     date
@@ -275,6 +303,8 @@ function setupResolveMarketTimer(
         }
         console.error(`error resolving market`, JSON.stringify(err));
         return { success: false };
+      } finally {
+        revalidateMarket(marketAddress);
       }
     },
     date
