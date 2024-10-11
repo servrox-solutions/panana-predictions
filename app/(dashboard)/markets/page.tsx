@@ -38,7 +38,7 @@ export default async function Markets({
               preSelected={searchParams?.markets}
             />
 
-            <SortDropdown />
+            <SortDropdown marketType='market' />
 
             <MarketCreateModal
               marketplaces={marketplaces}

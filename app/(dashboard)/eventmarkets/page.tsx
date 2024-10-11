@@ -33,12 +33,12 @@ export default async function Markets({
 
           <div className="flex space-x-2">
             <FilterDropdown
-              name="markets"
+              name="eventmarkets"
               items={uniqueAvailableMarkets}
               preSelected={searchParams?.markets}
             />
 
-            <SortDropdown />
+            <SortDropdown marketType='eventmarket' />
 
             <EventMarketCreateModal
               marketplaces={marketplaces}

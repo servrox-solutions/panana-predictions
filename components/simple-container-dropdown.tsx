@@ -28,7 +28,7 @@ export const SimpleContainerDropdown: React.FC<SocialShareDropdownProps> = ({
       </DropdownMenuTrigger>
       <DropdownMenuContent
         align="end"
-        className="bg-popover grid grid-cols-3 gap-2 p-2"
+        className="bg-popover"
       >
         {shareButtons.map((item, idx) => (
           <DropdownMenuItem

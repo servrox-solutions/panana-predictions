@@ -17,6 +17,7 @@ import {
 } from "./ui/dropdown-menu";
 import { ArrowDownUp } from "lucide-react";
 import { Button } from "./ui/button";
+import { useEventMarketDataStore } from '@/lib/atoms/useEventMarketDataStore';
 
 function formatSortOption(option: string) {
   return option
@@ -25,8 +26,8 @@ function formatSortOption(option: string) {
     .trim();
 }
 
-export function SortDropdown() {
-  const { orderBy, setOrderBy } = useMarketDataStore();
+export function SortDropdown({ marketType }: { marketType: 'eventmarket' | 'market' }) {
+  const { orderBy, setOrderBy } = marketType === 'market' ? useMarketDataStore() : useEventMarketDataStore();
 
   return (
     <DropdownMenu modal={false}>

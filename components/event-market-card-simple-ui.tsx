@@ -3,22 +3,13 @@
 import React, { useState, useMemo, useCallback } from "react";
 import { Button } from "./ui/button";
 import { cn, calculateUserWin } from "@/lib/utils";
-import { MarketCardTimeline } from "./market-card-timeline";
-import Link from "next/link";
 import { SimpleContainerDropdown } from "./simple-container-dropdown";
-import { MarketTitle } from "./market-title";
 import { Card } from "./ui/card";
 import DepositBet from "./deposit-bet";
-import { Web3Icon } from "./web3-icon";
 import {
-  ChartLine,
-  ChevronsDown,
-  ChevronsUp,
   Coins,
   ThumbsDown,
   ThumbsUp,
-  TrendingDown,
-  TrendingUp,
   TrophyIcon,
   Undo2,
 } from "lucide-react";
@@ -45,16 +36,12 @@ export interface EventMarketCardSimpleUiProps extends EventMarketData {
 
 export const EventMarketCardSimpleUi: React.FC<EventMarketCardSimpleUiProps> = ({
   address,
-  createdAt,
   minBet,
   upVotesSum,
   downVotesSum,
   upWinFactor,
   downWinFactor,
-  resolvedAt,
-  acceptedAt,
   answers,
-  winningAnswerIdx,
   totalBets,
   question,
   onPlaceBet,
@@ -109,9 +96,9 @@ export const EventMarketCardSimpleUi: React.FC<EventMarketCardSimpleUiProps> = (
         <FrontHeader question={question} selectedAnswerIdx={selectedAnswerIdx} setSelectedAnswerIdx={setSelectedAnswerIdx} />
         <div className="flex flex-col gap-4 px-4">
           {
-            !selectedAnswerIdx ?
+            selectedAnswerIdx === undefined ?
               <AnswerSelection answers={answers} handleBet={setSelectedAnswerIdx} upWinFactor={upWinFactor} downWinFactor={downWinFactor} /> :
-              <BettingArea buttonText={selectedAnswerIdx ? answers[selectedAnswerIdx] : 'Bet'} winFactor={calculateUserWin(
+              <BettingArea buttonText={selectedAnswerIdx !== undefined ? answers[selectedAnswerIdx] : 'Answer'} winFactor={calculateUserWin(
                 upWinFactor,
                 downWinFactor,
                 1,
@@ -133,7 +120,7 @@ function FrontHeader({ question, selectedAnswerIdx, setSelectedAnswerIdx }: { qu
       <div className="w-full line-clamp-2">
         {question}
       </div>
-      <div className={cn('flex-1 text-right space-x-2', !selectedAnswerIdx && 'invisible')}>
+      <div className={cn('flex-1 text-right space-x-2', selectedAnswerIdx === undefined && 'invisible')}>
         <Button variant="ghost" size="icon" className="hover:bg-transparent" onClick={() => setSelectedAnswerIdx(undefined)}>
           <Undo2 className="h-4 w-4" />
         </Button>
@@ -174,11 +161,11 @@ function AnswerSelection({ answers, handleBet, upWinFactor, downWinFactor }: { a
             className="group w-full h-6 font-semibold bg-gradient-to-r from-positive-1 to-positive-2 transition-all hover:to-green-500 text-white relative"
             onClick={() => handleBet(idx)}
           >
-            <span className="z-10">Place Bet</span>
+            <span className="z-10">Bet</span>
             {/* <ChevronsUp className="ml-2 h-4 w-4" /> */}
             <span
               className={cn(
-                "absolute bottom-0 right-1 -mb-1 text-lg group-hover:text-4xl text-white/30",
+                "absolute bottom-0 right-1 -mb-1 text-sm group-hover:text-lg text-white/30",
                 upWinFactor > downWinFactor ? "animate-pulse" : ""
               )}
             >
