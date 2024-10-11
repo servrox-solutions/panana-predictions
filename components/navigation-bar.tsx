@@ -1,7 +1,7 @@
 import { SidenavItem } from "./sidenav/sidenav-items";
 import { headers } from "next/headers";
 import { NavigationBarItem } from "./navigation-bar-item";
-import { Home, ChartCandlestick, User } from "lucide-react";
+import { Home, ChartCandlestick, User, ChartColumn } from "lucide-react";
 import { DebugNavigationBarItem } from "./debug-navigation-bar-item";
 
 const items: SidenavItem[] = [
@@ -11,9 +11,14 @@ const items: SidenavItem[] = [
     path: "/dashboard",
   },
   {
-    name: "Markets",
+    name: "Assets",
     icon: <ChartCandlestick />,
     path: "/markets",
+  },
+  {
+    name: "Events",
+    icon: <ChartColumn />,
+    path: "/eventmarkets",
   },
   {
     name: "Profile",
@@ -25,7 +30,6 @@ const items: SidenavItem[] = [
 export function NavigationBar() {
   const headerList = headers();
   const pathname = headerList.get("x-current-path");
-  console.log(pathname)
 
   return (
     <div className="w-full bg-white/30 backdrop-blur-lg border-t border-gray-200 dark:bg-gray-700/30 dark:border-gray-600 pt-2 pb-[calc(0.5rem+var(--safe-area-inset-bottom))] px-3 transition-all -mb-[--safe-area-inset-bottom]">

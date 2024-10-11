@@ -1,4 +1,4 @@
-import { Home, ChartCandlestick, User } from "lucide-react";
+import { Home, ChartCandlestick, User, ChartColumn } from "lucide-react";
 
 export interface SidenavItem {
   name: string;
@@ -13,9 +13,14 @@ export const sidenavItems: SidenavItem[] = [
     path: "/dashboard",
   },
   {
-    name: "Markets",
+    name: "Assets",
     icon: <ChartCandlestick />,
     path: "/markets",
+  },
+  {
+    name: "Events",
+    icon: <ChartColumn />,
+    path: "/eventmarkets",
   },
   {
     name: "Profile",
