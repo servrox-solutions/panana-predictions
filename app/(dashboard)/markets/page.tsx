@@ -1,12 +1,12 @@
 import { FilterDropdown } from "@/components/filter-dropdown";
-import { MarketCreateModal } from "@/components/market-create-modal";
-import { MarketOrganizer } from "@/components/market-organizer";
-import { MarketsSearch } from "@/components/markets-search";
-import { SortDropdown } from "@/components/sort-dropdown";
-import { SwitchMarketView } from "@/components/switch-market-view";
+import { MarketSwitchView } from "@/components/market/market-switch-view";
 import { getAvailableMarketplaces } from "@/lib/get-available-marketplaces";
 import { getAvailableMarkets } from "@/lib/get-available-markets";
 import { revalidatePath } from "next/cache";
+import { MarketSortDropdown } from '@/components/market/market-sort-dropdown';
+import { MarketCreateModal } from '@/components/market/market-create-modal';
+import { MarketOrganizer } from '@/components/market/market-organizer';
+import { MarketsSearch } from '@/components/market/markets-search';
 
 export const revalidate = 30; // in seconds
 // export const revalidate = false; // Infinity (default)
@@ -26,7 +26,7 @@ export default async function Markets({
   return (
     <div className="p-3 flex flex-col gap-4">
       <div className="flex items-center justify-between flex-wrap-reverse gap-2">
-        <SwitchMarketView />
+        <MarketSwitchView />
 
         <div className="flex justify-between sm:justify-end sm: space-x-2 grow">
           <MarketsSearch />
@@ -38,7 +38,7 @@ export default async function Markets({
               preSelected={searchParams?.markets}
             />
 
-            <SortDropdown marketType='market' />
+            <MarketSortDropdown />
 
             <MarketCreateModal
               marketplaces={marketplaces}

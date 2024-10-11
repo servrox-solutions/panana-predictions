@@ -6,20 +6,20 @@ import {
   ModalTrigger,
   ModalBody,
   ModalContent,
-} from "./ui/animated-modal";
+} from "../ui/animated-modal";
 
-import { Button } from "./ui/button";
+import { Button } from "../ui/button";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { FormField, FormItem, FormLabel, FormMessage, Form } from "./ui/form";
+import { FormField, FormItem, FormLabel, FormMessage, Form } from "../ui/form";
 import { useFieldArray, useForm } from "react-hook-form";
 import { useWallet } from "@aptos-labs/wallet-adapter-react";
-import { Input } from "./ui/input";
+import { Input } from "../ui/input";
 import { AvailableMarketplace } from "@/lib/get-available-marketplaces";
 import { toast } from "react-toastify";
 import { useCallback, useMemo, useState } from "react";
 import { creatEventMarket } from '@/lib/create-event-market';
-import { Textarea } from './ui/textarea';
+import { Textarea } from '../ui/textarea';
 
 export interface EventMarketCreateModalProps {
   marketplaces: AvailableMarketplace[];

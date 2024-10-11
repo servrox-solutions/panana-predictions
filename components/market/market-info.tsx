@@ -1,7 +1,7 @@
 "use client";
 
 import { AvailableMarket } from "@/lib/get-available-markets";
-import { Card } from "./ui/card";
+import { Card } from "../ui/card";
 import { useMarket } from "@/lib/hooks/useMarket";
 import { MarketData } from "@/lib/types/market";
 import { useIsMounted } from "@/lib/hooks/useIsMounted";

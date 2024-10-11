@@ -3,13 +3,11 @@
 import {
   PartyPopper,
   Lock,
-  DollarSign,
+  Coins,
   Store,
-  ChevronsUp,
-  ChevronsDown,
+  Banana,
   User,
   ChartNoAxesColumn,
-  ChevronsLeftRight,
 } from "lucide-react";
 
 import {
@@ -23,35 +21,31 @@ import {
 import Link from "next/link";
 import { DateTime } from "luxon";
 import { getExplorerObjectLink } from "@/lib/aptos";
-import { Web3Icon } from "./web3-icon";
+import { Web3Icon } from "../web3-icon";
 import { useIsMounted } from "@/lib/hooks/useIsMounted";
 import { MarketType } from "@/lib/types/market";
+import { cn } from "@/lib/utils";
 
-export interface ResolvedMarket {
+export interface CreatedMarket {
   assetSymbol: MarketType;
+  createdAtTimestamp: number;
   endTimeTimestamp: number;
   startTimeTimestamp: number;
   marketAddress: string;
   marketplaceAddress: string;
+  minBet: number;
   creator: string;
-  startPrice: number;
-  endPrice: number;
-  marketCap: {
-    asset: number;
-    usd: number;
-  };
-  dissolved: boolean;
 }
 
-export interface ResolvedMarketsTable {
-  latestResolvedMarkets: ResolvedMarket[];
+export interface CreatedMarketsTableProps {
+  latestCreatedMarkets: CreatedMarket[];
   filter: MarketType[];
 }
 
-export function ResolvedMarketsTable({
-  latestResolvedMarkets,
+export function CreatedMarketsTable({
+  latestCreatedMarkets,
   filter = [],
-}: ResolvedMarketsTable) {
+}: CreatedMarketsTableProps) {
   const isMounted = useIsMounted();
 
   return (
@@ -59,10 +53,8 @@ export function ResolvedMarketsTable({
       <TableHeader>
         <TableRow>
           <TableHead className="hidden sm:table-cell">Asset</TableHead>
-          <TableHead className="hidden sm:table-cell">
-            Final Price Pool
-          </TableHead>
-          <TableHead className="hidden sm:table-cell">Result</TableHead>
+          <TableHead className="hidden sm:table-cell">Min Bet</TableHead>
+          <TableHead className="hidden sm:table-cell">Created At</TableHead>
           <TableHead className="hidden lg:table-cell">End Betting</TableHead>
           <TableHead className="hidden sm:table-cell">
             Market Resolution
@@ -78,75 +70,70 @@ export function ResolvedMarketsTable({
           </TableHead> */}
         </TableRow>
       </TableHeader>
+
       <TableBody>
-        <TableRow
-          className={`table-row hover:bg-initial hover:sm:bg-gray-500 hover:sm:bg-opacity-50 ${latestResolvedMarkets.filter((latestResolvedMarket) =>
-            filter.length === 0
-              ? true
-              : filter.includes(latestResolvedMarket.assetSymbol)
-          ).length === 0
-            ? ""
-            : "hidden"
-            }`}
-          key="empty table"
-        >
-          <TableCell className="table-cell text-center" colSpan={8}>
-            <span className="p-4">No Values</span>
-          </TableCell>
-        </TableRow>
-        {latestResolvedMarkets.map((latestResolvedMarket, idx) => (
-          <Link className={`hover:bg-initial hover:sm:bg-gray-500 table-row hover:sm:bg-opacity-50 ${filter.length === 0 ||
-            filter.includes(latestResolvedMarket.assetSymbol)
-            ? ""
-            : "hidden"
-            }`}
-            key={latestResolvedMarket.marketAddress}
-            href={`/markets/${latestResolvedMarket.marketAddress}`}>
+        <div>
+          <TableRow
+            className={cn(
+              "table-row hover:sm:bg-gray-500 hover:sm:bg-opacity-50",
+              latestCreatedMarkets.filter((latestCreatedMarket) =>
+                filter.length === 0
+                  ? true
+                  : filter.includes(latestCreatedMarket.assetSymbol)
+              ).length === 0
+                ? ""
+                : "hidden"
+            )}
+            key="empty table"
+          >
+            <TableCell className="table-cell text-center" colSpan={8}>
+              <span className="p-4">No Values</span>
+            </TableCell>
+          </TableRow>
+        </div>
+        {latestCreatedMarkets.map((latestCreatedMarket) => (
+          <Link
+            className={cn(
+              "hover:bg-initial hover:sm:bg-gray-500 hover:sm:bg-opacity-50 table-row",
+              filter.length === 0 ||
+                filter.includes(latestCreatedMarket.assetSymbol)
+                ? ""
+                : "hidden"
+            )}
+            key={latestCreatedMarket.marketAddress}
+            href={`/markets/${latestCreatedMarket.marketAddress}`}
+          >
             <TableCell className="hidden sm:table-cell">
-              <div
-                className={`h-full ${idx !== 3 && idx !== 5 ? `text-positive-1` : "text-negative-1"
-                  }`}
-              >
+              <div className="h-full">
                 <div className="text-md text-muted-foreground flex justify-center align-center gap-2">
                   <Web3Icon
                     className="scale-[2]"
-                    asset={latestResolvedMarket.assetSymbol}
+                    asset={latestCreatedMarket.assetSymbol}
                   />
                 </div>
               </div>
             </TableCell>
             <TableCell className="hidden sm:table-cell">
               <div className="flex items-center">
-                <DollarSign className="h-4 w-4 mr-2" />
+                <Coins className="h-4 w-4 mr-2" />
                 <div className="flex flex-col">
                   <div className="flex gap-2">
-                    <span>{latestResolvedMarket.marketCap.usd.toFixed(2)}</span>
-                    <span className="text-muted-foreground">
-                      ({latestResolvedMarket.marketCap.asset.toFixed(4)} APT)
-                    </span>
+                    {latestCreatedMarket.minBet / 10 ** 9}
                   </div>
                 </div>
               </div>
             </TableCell>
             <TableCell className="hidden sm:table-cell">
-              <div
-                className={`flex items-center w-full font-semibold ${latestResolvedMarket.startPrice <
-                  latestResolvedMarket.endPrice
-                  ? `text-positive-1`
-                  : "text-negative-1"
-                  } relative`}
-              >
-                {(latestResolvedMarket.startPrice / 10 ** 9).toFixed(3)} ${" "}
-                {latestResolvedMarket.startPrice ===
-                  latestResolvedMarket.endPrice ? (
-                  <ChevronsLeftRight />
-                ) : latestResolvedMarket.startPrice <
-                  latestResolvedMarket.endPrice ? (
-                  <ChevronsUp />
-                ) : (
-                  <ChevronsDown />
-                )}{" "}
-                {(latestResolvedMarket.endPrice / 10 ** 9).toFixed(3)} $
+              <div className="flex items-center">
+                <Banana className="h-4 w-4 mr-2" />
+                <div className="flex flex-col">
+                  <span>
+                    {isMounted &&
+                      DateTime.fromSeconds(
+                        latestCreatedMarket.createdAtTimestamp
+                      ).toLocaleString(DateTime.DATETIME_MED)}
+                  </span>
+                </div>
               </div>
             </TableCell>
             <TableCell className="hidden lg:table-cell">
@@ -156,7 +143,7 @@ export function ResolvedMarketsTable({
                   <span>
                     {isMounted &&
                       DateTime.fromSeconds(
-                        latestResolvedMarket.startTimeTimestamp
+                        latestCreatedMarket.startTimeTimestamp
                       ).toLocaleString(DateTime.DATETIME_MED)}
                   </span>
                 </div>
@@ -167,10 +154,9 @@ export function ResolvedMarketsTable({
                 <PartyPopper className="h-4 w-4 mr-2" />
                 <div className="flex flex-col">
                   <span>
-                    {isMounted &&
-                      DateTime.fromSeconds(
-                        latestResolvedMarket.endTimeTimestamp
-                      ).toLocaleString(DateTime.DATETIME_MED)}
+                    {DateTime.fromSeconds(
+                      latestCreatedMarket.endTimeTimestamp
+                    ).toLocaleString(DateTime.DATETIME_MED)}
                   </span>
                 </div>
               </div>
@@ -184,11 +170,11 @@ export function ResolvedMarketsTable({
                       className="underline"
                       target="_blank"
                       href={getExplorerObjectLink(
-                        latestResolvedMarket.creator,
+                        latestCreatedMarket.creator,
                         true
                       )}
                     >
-                      {latestResolvedMarket.marketplaceAddress}
+                      {latestCreatedMarket.marketplaceAddress}
                     </Link>
                   </p>
                 </div>
@@ -203,11 +189,11 @@ export function ResolvedMarketsTable({
                       className="underline"
                       target="_blank"
                       href={getExplorerObjectLink(
-                        latestResolvedMarket.marketAddress,
+                        latestCreatedMarket.marketAddress,
                         true
                       )}
                     >
-                      {latestResolvedMarket.marketAddress}
+                      {latestCreatedMarket.marketAddress}
                     </Link>
                   </p>
                 </div>
@@ -222,11 +208,11 @@ export function ResolvedMarketsTable({
                       className="underline"
                       target="_blank"
                       href={getExplorerObjectLink(
-                        latestResolvedMarket.marketplaceAddress,
+                        latestCreatedMarket.marketplaceAddress,
                         true
                       )}
                     >
-                      {latestResolvedMarket.marketplaceAddress}
+                      {latestCreatedMarket.marketplaceAddress}
                     </Link>
                   </p>
                 </div>
@@ -236,62 +222,37 @@ export function ResolvedMarketsTable({
             <TableCell className="sm:hidden px-0">
               <div className="flex gap-2 text-xl pb-4 items-center">
                 <Web3Icon
-                  asset={latestResolvedMarket.assetSymbol}
+                  asset={latestCreatedMarket.assetSymbol}
                   className="w-8 h-8"
                 />{" "}
-                {latestResolvedMarket.assetSymbol}
+                {latestCreatedMarket.assetSymbol}
               </div>
               <div className="grid grid-cols-2 grid-rows auto-rows-fr gap-4">
                 <div className="flex items-center">
-                  <DollarSign className="h-4 w-4 mr-4" />
+                  <Coins className="h-4 w-4 mr-4" />
                   <div className="flex flex-col">
                     <span className="text-neutral-700 dark:text-neutral-300 text-xs">
-                      Final Price Pool
+                      Min Bet
                     </span>
-                    <div className="flex flex-col w-full">
-                      <span>
-                        {latestResolvedMarket.marketCap.usd.toFixed(2)}
-                      </span>
-                      <span className="text-muted-foreground">
-                        ({latestResolvedMarket.marketCap.asset.toFixed(2)} APT)
-                      </span>
+                    <div className="flex w-full">
+                      {latestCreatedMarket.minBet / 10 ** 9}
                     </div>
                   </div>
                 </div>
                 <div className="flex items-center">
-                  {latestResolvedMarket.startPrice ===
-                    latestResolvedMarket.endPrice ? (
-                    <ChevronsLeftRight className="w-4 h-4 mr-4" />
-                  ) : latestResolvedMarket.startPrice <
-                    latestResolvedMarket.endPrice ? (
-                    <ChevronsUp className="h-4 w-4 mr-4" />
-                  ) : (
-                    <ChevronsDown className="h-4 w-4 mr-4" />
-                  )}
+                  <Banana className="h-4 w-4 mr-4" />
                   <div className="flex flex-col">
                     <span className="text-neutral-700 dark:text-neutral-300 text-xs">
-                      Result
+                      Created At
                     </span>
-                    <div className="flex">
-                      <div
-                        className={`flex flex-col items-center w-full font-semibold relative ${latestResolvedMarket.startPrice <
-                          latestResolvedMarket.endPrice
-                          ? "text-positive-1"
-                          : "text-negative-1"
-                          }`}
-                      >
-                        <div>
-                          {(latestResolvedMarket.startPrice / 10 ** 9).toFixed(
-                            3
-                          )}{" "}
-                          $
-                        </div>
-                        <div>
-                          {(latestResolvedMarket.endPrice / 10 ** 9).toFixed(3)}{" "}
-                          $
-                        </div>
+                    <span>
+                      <div className="flex items-center w-full relative">
+                        {isMounted &&
+                          DateTime.fromSeconds(
+                            latestCreatedMarket.createdAtTimestamp
+                          ).toLocaleString(DateTime.DATETIME_MED)}
                       </div>
-                    </div>
+                    </span>
                   </div>
                 </div>
 
@@ -306,7 +267,7 @@ export function ResolvedMarketsTable({
                         <span>
                           {isMounted &&
                             DateTime.fromSeconds(
-                              latestResolvedMarket.startTimeTimestamp
+                              latestCreatedMarket.startTimeTimestamp
                             ).toLocaleString(DateTime.DATETIME_MED)}
                         </span>
                       </div>
@@ -324,7 +285,7 @@ export function ResolvedMarketsTable({
                         <span>
                           {isMounted &&
                             DateTime.fromSeconds(
-                              latestResolvedMarket.endTimeTimestamp
+                              latestCreatedMarket.endTimeTimestamp
                             ).toLocaleString(DateTime.DATETIME_MED)}
                         </span>
                       </div>

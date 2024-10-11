@@ -1,11 +1,11 @@
 "use client";
 
 import React, { useState, useMemo, useCallback } from "react";
-import { Button } from "./ui/button";
+import { Button } from "../ui/button";
 import { cn, calculateUserWin } from "@/lib/utils";
-import { SimpleContainerDropdown } from "./simple-container-dropdown";
-import { Card } from "./ui/card";
-import DepositBet from "./deposit-bet";
+import { SimpleContainerDropdown } from "../simple-container-dropdown";
+import { Card } from "../ui/card";
+import DepositBet from "../deposit-bet";
 import {
   Coins,
   ThumbsDown,

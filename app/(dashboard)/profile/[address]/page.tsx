@@ -1,7 +1,7 @@
 import { ModeToggle } from "@/components/mode-toggle";
 import { MoonPayBuyWidgetButton } from "@/components/moon-pay-buy-widget-button";
-import ProfileCard from "@/components/profile-card";
-import Statistics from "@/components/profile-statistics";
+import ProfileCard from "@/components/profile/profile-card";
+import Statistics from '@/components/profile/profile-statistics';
 import { Card } from "@/components/ui/card";
 import { WalletReconnect } from "@/components/wallet-reconnect";
 import { MODULE_ADDRESS_FROM_ABI } from "@/lib/aptos";

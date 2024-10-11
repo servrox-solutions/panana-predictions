@@ -4,7 +4,7 @@ import { fetchPriceUSD } from "@/lib/fetch-price";
 import { MODULE_ADDRESS_FROM_ABI } from "@/lib/aptos";
 import { getAvailableMarketplaces } from "@/lib/get-available-marketplaces";
 import { getMarketplaceRessource } from "@/lib/get-marketplace-ressource";
-import { DashboardContent } from "@/components/dashboard-content";
+import { DashboardContent } from "@/components/dashboard/dashboard-content";
 import { MarketType } from "@/lib/types/market";
 
 export interface MarketResolvedEventData {

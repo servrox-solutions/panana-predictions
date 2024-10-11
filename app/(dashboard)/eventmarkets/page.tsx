@@ -1,12 +1,13 @@
-import { EventMarketCreateModal } from '@/components/event-market-create-modal';
-import { EventMarketOrganizer } from '@/components/event-market-organizer';
-import { FilterDropdown } from "@/components/filter-dropdown";
-import { MarketsSearch } from "@/components/markets-search";
-import { SortDropdown } from "@/components/sort-dropdown";
-import { SwitchEventMarketView } from '@/components/switch-event-market-view';
+
+import { EventMarketSwitchView } from '@/components/eventmarket/event-market-switch-view';
 import { getAvailableMarketplaces } from "@/lib/get-available-marketplaces";
 import { getAvailableMarkets } from "@/lib/get-available-markets";
 import { revalidatePath } from "next/cache";
+import { EventMarketSortDropdown } from '@/components/eventmarket/event-market-sort-dropdown';
+import { EventMarketCreateModal } from '@/components/eventmarket/event-market-create-modal';
+import { EventMarketOrganizer } from '@/components/eventmarket/event-market-organizer';
+import { FilterDropdown } from '@/components/filter-dropdown';
+import { EventMarketsSearch } from '@/components/eventmarket/event-markets-search';
 
 export const revalidate = 30; // in seconds
 // export const revalidate = false; // Infinity (default)
@@ -26,10 +27,10 @@ export default async function Markets({
   return (
     <div className="p-3 flex flex-col gap-4">
       <div className="flex items-center justify-between flex-wrap-reverse gap-2">
-        <SwitchEventMarketView />
+        <EventMarketSwitchView />
 
         <div className="flex justify-between sm:justify-end sm: space-x-2 grow">
-          <MarketsSearch />
+          <EventMarketsSearch />
 
           <div className="flex space-x-2">
             <FilterDropdown
@@ -38,7 +39,7 @@ export default async function Markets({
               preSelected={searchParams?.markets}
             />
 
-            <SortDropdown marketType='eventmarket' />
+            <EventMarketSortDropdown />
 
             <EventMarketCreateModal
               marketplaces={marketplaces}

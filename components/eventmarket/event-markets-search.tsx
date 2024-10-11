@@ -1,12 +1,12 @@
 "use client";
 
-import { useMarketDataStore } from "@/lib/atoms/useMarketDataStore";
-import { Input } from "./ui/input";
+import { Input } from "../ui/input";
 import { cn } from "@/lib/utils";
 import { useCallback } from "react";
+import { useEventMarketDataStore } from '@/lib/atoms/useEventMarketDataStore';
 
-export function MarketsSearch({ className }: { className?: string }) {
-  const { searchTerm, setSearchTerm } = useMarketDataStore();
+export function EventMarketsSearch({ className }: { className?: string }) {
+  const { searchTerm, setSearchTerm } = useEventMarketDataStore();
 
   const handleChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {

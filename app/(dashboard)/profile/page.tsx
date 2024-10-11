@@ -1,4 +1,4 @@
-import { ProfileRedirect } from '@/components/ProfileRedirect';
+import { ProfileRedirect } from '@/components/profile/profile-redirect';
 import { Card } from '@/components/ui/card';
 import { WalletSelector } from '@/components/wallet-selector';
 import Image from 'next/image';

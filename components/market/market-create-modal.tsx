@@ -7,19 +7,19 @@ import {
   ModalBody,
   ModalContent,
   ModalFooter,
-} from "./ui/animated-modal";
+} from "../ui/animated-modal";
 
-import { DatePicker } from "./ui/date-picker";
+import { DatePicker } from "../ui/date-picker";
 import { DateTime, Duration } from "luxon";
-import { Button } from "./ui/button";
+import { Button } from "../ui/button";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { FormField, FormItem, FormLabel, FormMessage, Form } from "./ui/form";
+import { FormField, FormItem, FormLabel, FormMessage, Form } from "../ui/form";
 import { useForm } from "react-hook-form";
 import { createMarket } from "@/lib/create-market";
 import { useWallet } from "@aptos-labs/wallet-adapter-react";
 import { MODULE_ADDRESS_FROM_ABI } from "@/lib/aptos";
-import { Input } from "./ui/input";
+import { Input } from "../ui/input";
 import { AvailableMarketplace } from "@/lib/get-available-marketplaces";
 import { toast } from "react-toastify";
 import { useCallback, useMemo } from "react";
@@ -248,8 +248,8 @@ export function MarketCreateModal({
                               key={asset.value}
                               id={asset.value}
                               className={`${field.value === asset.value
-                                  ? "bg-primary text-secondary"
-                                  : ""
+                                ? "bg-primary text-secondary"
+                                : ""
                                 }`}
                               onClick={() => handleAssetChange(asset.value)}
                             >
@@ -294,8 +294,8 @@ export function MarketCreateModal({
                               key={i.as("seconds")}
                               id={`${i.as("seconds")}`}
                               className={`w-full ${field.value === i.as("seconds")
-                                  ? "bg-primary text-secondary hover:bg-primary hover:text-secondary"
-                                  : ""
+                                ? "bg-primary text-secondary hover:bg-primary hover:text-secondary"
+                                : ""
                                 }`}
                               onClick={() =>
                                 handleDurationChange(i.as("seconds"))

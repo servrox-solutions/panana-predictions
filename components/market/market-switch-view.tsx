@@ -1,9 +1,9 @@
 "use client";
 
 import { useMarketDataStore } from "@/lib/atoms/useMarketDataStore";
-import { Tabs, TabsList, TabsTrigger } from "./ui/tabs";
+import { Tabs, TabsList, TabsTrigger } from "../ui/tabs";
 
-export function SwitchMarketView() {
+export function MarketSwitchView() {
   const { displayMarketData, setDisplayMarketData } = useMarketDataStore();
 
   // Define handlers outside of the render to avoid inline functions

@@ -1,10 +1,10 @@
 "use client";
 
-import { Tabs, TabsList, TabsTrigger } from "./ui/tabs";
+import { Tabs, TabsList, TabsTrigger } from "../ui/tabs";
 import { useEventMarketDataStore } from '@/lib/atoms/useEventMarketDataStore';
 
-export function SwitchEventMarketView() {
-  const { displayMarketData, setDisplayMarketData } = useEventMarketDataStore();
+export function EventMarketSwitchView() {
+  const { setDisplayMarketData } = useEventMarketDataStore();
 
   // Define handlers outside of the render to avoid inline functions
   const handleOpenMarketsClick = () => setDisplayMarketData("accepted");

@@ -18,8 +18,8 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Clock, DollarSign, ArrowUp, ArrowDown, Users } from "lucide-react";
-import { TruncatedText } from "./truncated-text";
-import { MarketOld } from "../lib/types/market";
+import { TruncatedText } from "../truncated-text";
+import { MarketOld } from "../../lib/types/market";
 
 import { useForm, Controller } from "react-hook-form";
 import { z } from "zod";

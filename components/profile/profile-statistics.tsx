@@ -1,6 +1,6 @@
 import { ThumbsDown, ThumbsUp } from "lucide-react";
-import { Card } from "./ui/card";
-import { Web3AmountCard } from "./web3-amount-card";
+import { Card } from "../ui/card";
+import { Web3AmountCard } from "../web3-amount-card";
 import { MarketType } from "@/lib/types/market";
 
 export interface StatisticsProps {

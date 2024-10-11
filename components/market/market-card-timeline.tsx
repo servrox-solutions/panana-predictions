@@ -3,9 +3,9 @@
 import React, { useEffect, useState } from "react";
 import { DateTime } from "luxon";
 
-import { Progress } from "./ui/progress";
+import { Progress } from "../ui/progress";
 import { Banana, Lock, PartyPopper } from "lucide-react";
-import { Button } from "./ui/button";
+import { Button } from "../ui/button";
 import { formatTime } from "@/lib/utils";
 
 interface MarketCardTimelineProps {
@@ -59,10 +59,10 @@ export const MarketCardTimeline: React.FC<MarketCardTimelineProps> = ({
 
       setProgressPercentageFirstInterval(
         100 -
-          Math.min(
-            Math.max(Math.round((diffFirstInterval / firstInterval) * 100), 0),
-            100
-          )
+        Math.min(
+          Math.max(Math.round((diffFirstInterval / firstInterval) * 100), 0),
+          100
+        )
       );
       setProgressPercentageSecondInterval(0);
 
@@ -78,13 +78,13 @@ export const MarketCardTimeline: React.FC<MarketCardTimelineProps> = ({
       setProgressPercentageFirstInterval(100);
       setProgressPercentageSecondInterval(
         100 -
-          Math.min(
-            Math.max(
-              Math.round((diffSecondInterval / secondIntervall) * 100),
-              0
-            ),
-            100
-          )
+        Math.min(
+          Math.max(
+            Math.round((diffSecondInterval / secondIntervall) * 100),
+            0
+          ),
+          100
+        )
       );
 
       setRemainingTimeFirstInterval(null);

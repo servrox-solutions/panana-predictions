@@ -1,8 +1,8 @@
-import { Card, CardContent, CardHeader } from "./ui/card";
+import { Card, CardContent, CardHeader } from "../ui/card";
 import { Address } from "@/lib/types/market";
-import { Avatar } from "./avatar";
+import { Avatar } from "../avatar";
 import { addEllipsis, cn } from "@/lib/utils";
-import { TelegramUsername } from "./telegram-username";
+import { TelegramUsername } from "../telegram-username";
 import Link from 'next/link';
 import { getExplorerAccountLink } from '@/lib/aptos';
 

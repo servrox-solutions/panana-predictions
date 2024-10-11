@@ -13,10 +13,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ResolvedMarket, ResolvedMarketsTable } from "./resolved-markets-table";
 import { CreatedMarket, CreatedMarketsTable } from "./created-markets-table";
 import { useState } from "react";
-import { FilterDropdown } from "./filter-dropdown";
+import { FilterDropdown } from "../filter-dropdown";
 import { DateTime } from "luxon";
 import { MarketType } from "@/lib/types/market";
-import { Web3AmountCard } from "./web3-amount-card";
+import { Web3AmountCard } from "../web3-amount-card";
 import { useIsMounted } from "@/lib/hooks/useIsMounted";
 
 export interface DashboardContentProps {
@@ -44,8 +44,8 @@ export function DashboardContent({
       value === undefined
         ? []
         : Array.isArray(value)
-        ? value.map((v) => [key, v])
-        : [[key, value]]
+          ? value.map((v) => [key, v])
+          : [[key, value]]
     )
   );
   const pathname = usePathname();

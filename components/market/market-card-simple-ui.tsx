@@ -27,15 +27,15 @@ import {
   WhatsappShareButton,
 } from "react-share";
 import React, { useState, useMemo, useCallback } from "react";
-import { Button } from "./ui/button";
+import { Button } from "../ui/button";
 import { calculateUserWin, cn } from "@/lib/utils";
 import { MarketCardTimeline } from "./market-card-timeline";
 import Link from "next/link";
-import { SimpleContainerDropdown } from "./simple-container-dropdown";
+import { SimpleContainerDropdown } from "../simple-container-dropdown";
 import { MarketTitle } from "./market-title";
-import { Card } from "./ui/card";
-import DepositBet from "./deposit-bet";
-import { Web3Icon } from "./web3-icon";
+import { Card } from "../ui/card";
+import DepositBet from "../deposit-bet";
+import { Web3Icon } from "../web3-icon";
 import { storeTelegramNotification } from "@/lib/supabase/store-telegram-notification";
 import { useLaunchParams, useInitData } from "@telegram-apps/sdk-react";
 import { DateTime } from "luxon";

@@ -23,11 +23,11 @@ import {
   WhatsappShareButton,
 } from "react-share";
 import React, { useMemo, useState } from "react";
-import { Button } from "./ui/button";
-import { Input } from "./ui/input";
+import { Button } from "../ui/button";
+import { Input } from "../ui/input";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { SimpleContainerDropdown } from "./simple-container-dropdown";
+import { SimpleContainerDropdown } from "../simple-container-dropdown";
 
 export interface MarketCardSimpleUiProps {
   tradingPair: { one: MarketType; two: string };
