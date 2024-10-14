@@ -26,6 +26,11 @@ export const EventMarketInfo: React.FC<EventMarketInfoProps> = ({
       <div className="col-span-4 sm:col-span-2 row-span-2">
         <Card className="h-full">
           <div className="grid grid-cols-2 gap-4">
+            <InfoItem
+              className="col-span-2"
+              label="Status"
+              value={getStatusText(marketData?.accepted)}
+            />
             <div>
               <dt className="font-medium text-muted-foreground">Address</dt>
               <p className="mt-1 text-ellipsis overflow-hidden">
@@ -71,35 +76,24 @@ export const EventMarketInfo: React.FC<EventMarketInfoProps> = ({
 
 
       {children && <div className="col-span-4 sm:col-span-3 row-span-5">{children}</div>}
-
-
-      {/* <div className="col-span-4 row-span-1">
-        <Card className="h-full">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <InfoItem
-              label="Up Bets Sum"
-              value={`APT ${marketData?.upBetsSum
-                ? formatAptPrice(marketData?.upBetsSum)
-                : "n/a"
-                }`}
-            />
-            <InfoItem
-              label="Down Bets Sum"
-              value={`APT ${marketData?.downBetsSum
-                ? formatAptPrice(marketData?.downBetsSum)
-                : "n/a"
-                }`}
-            />
-          </div>
-        </Card>
-      </div> */}
     </div>
   );
 };
 
-function InfoItem({ label, value }: { label: string; value: string | number }) {
+function getStatusText(status?: boolean) {
+  switch (status) {
+    case undefined:
+      return 'Open to vote';
+    case true:
+      return 'Accepted';
+    case false:
+      return 'Rejected';
+  }
+}
+
+function InfoItem({ label, value, className }: { label: string; value: string | number, className?: string }) {
   return (
-    <div>
+    <div className={className}>
       <dt className="font-medium text-muted-foreground">{label}</dt>
       <dd className="mt-1">{value}</dd>
     </div>
