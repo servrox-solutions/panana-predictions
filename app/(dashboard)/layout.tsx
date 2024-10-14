@@ -10,7 +10,7 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex flex-col min-h-viewportStable max-h-viewportStable min-w-full blur-125 bg-[url('/bg-light.jpg')] lg:dark:bg-[url('/bg-dark.jpg')] dark:bg-[url('/bg-dark-mobile.jpg')] bg-no-repeat bg-cover bg-top overflow-hidden">
+    <div className="flex flex-col min-h-viewportStable max-h-viewportStable min-w-full blur-125 bg-[url('/bg-light.jpg')] lg:dark:bg-[url('/bg-dark.jpg')] dark:bg-[url('/bg-dark-mobile.jpg')] bg-no-repeat bg-cover bg-top">
       <SidenavDesktop />
       <div className="flex flex-col sm:pl-14 min-h-viewportStable max-h-viewportStable">
         <Header />
