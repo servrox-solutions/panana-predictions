@@ -5,12 +5,15 @@ export async function POST(request: Request) {
     market_address: marketAddress,
     telegram_user_id: telegramUserId,
     message_kind: messageKind,
+    time_to_send: timeToSend,
   } = await request.json();
 
   await sendNotificationSetupMessage(
     telegramUserId,
     messageKind,
-    marketAddress
+    marketAddress,
+    timeToSend,
+    true
   );
 
   return Response.json({ success: true });

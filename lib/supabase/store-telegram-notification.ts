@@ -43,6 +43,7 @@ export async function storeTelegramNotification(
           telegramUserId,
           messageKind,
           marketAddress,
+          timeToSend,
           false
         );
 
@@ -63,6 +64,7 @@ export async function storeTelegramNotification(
           telegramUserId,
           messageKind,
           marketAddress,
+          timeToSend,
           true
         );
 
@@ -91,6 +93,7 @@ export async function storeTelegramNotification(
         telegramUserId,
         messageKind,
         marketAddress,
+        timeToSend,
         true
       );
 

@@ -3,6 +3,7 @@
 import { Bot, CommandContext, Context, InlineKeyboard } from "grammy";
 import { MessageKind } from "./types/market";
 import { addEllipsis, getMessageByKind } from "./utils";
+import { callbackIdentifierNotificationSetup } from "@/app/api/telegram/webhook/route";
 
 const token = process.env.TELEGRAM_BOT_TOKEN;
 
@@ -32,37 +33,22 @@ export async function sendNotificationSetupMessage(
   telegramUserId: number,
   messageKind: MessageKind,
   marketAddress: string,
-  isEnabled = true
+  timeToSend: string,
+  isEnabled: boolean
 ) {
   const message = `${isEnabled ? "🔔" : "🔕"} *${getMessageByKind(
     messageKind
-  )}* Notification`;
+  )}* Notification ${isEnabled ? "enabled" : "disabled"}\\.`;
 
   const actionText = isEnabled ? "🔕 Disable" : "🔔 Re-Enable";
 
   const urlText = `For Market (${addEllipsis(marketAddress, 6, 4)})`;
 
-  //   return bot.api.sendMessage(
-  //     telegramUserId,
-  //     `${isEnabled ? "🔕" : "🔔"} *${getMessageByKind(
-  //       messageKind
-  //     )}* Notification for [Market \\(${addEllipsis(
-  //       marketAddress,
-  //       6,
-  //       4,
-  //       true
-  //     )}\\)](https://app.panana-predictions.xyz/markets/${marketAddress})`,
-  //     {
-  //       parse_mode: "MarkdownV2",
-  //       link_preview_options: { is_disabled: true },
-  //     }
-  //   );
-
   const inlineKeyboard = new InlineKeyboard()
-    .text(actionText, `notification-setup-${messageKind}`)
+    .text(actionText, callbackIdentifierNotificationSetup)
     .url(
       urlText,
-      `https://app.panana-predictions.xyz/markets/${marketAddress}`
+      `https://app.panana-predictions.xyz/markets/${marketAddress}?messageKind=${messageKind}&timeToSend=${timeToSend}`
     );
 
   return bot.api.sendMessage(telegramUserId, message, {
@@ -77,17 +63,20 @@ export async function sendNotification(
   messageKind: MessageKind,
   marketAddress: string
 ) {
-  return bot.api.sendMessage(
-    telegramUserId,
-    `🚨 *${getMessageByKind(messageKind)}* for [Market \\(${addEllipsis(
-      marketAddress,
-      6,
-      4,
-      true
-    )}\\)](https://app.panana-predictions.xyz/markets/${marketAddress})`,
-    {
-      parse_mode: "MarkdownV2",
-      link_preview_options: { is_disabled: true },
-    }
-  );
+  const message = `🚨 *${getMessageByKind(messageKind)}* Notification`;
+
+  const urlText = `Go to Market (${addEllipsis(marketAddress, 6, 4)})`;
+
+  const inlineKeyboard = new InlineKeyboard()
+    .webApp("Open App 🍌", "https://app.panana-predictions.xyz/")
+    .url(
+      urlText,
+      `https://app.panana-predictions.xyz/markets/${marketAddress}`
+    );
+
+  return bot.api.sendMessage(telegramUserId, message, {
+    reply_markup: inlineKeyboard,
+    parse_mode: "MarkdownV2",
+    link_preview_options: { is_disabled: true },
+  });
 }

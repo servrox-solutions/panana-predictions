@@ -130,68 +130,31 @@ bot.command("help", async (ctx) => {
 //   await ctx.reply(ctx.message.text);
 // });
 
-bot.callbackQuery(
-  `notification-setup-${MessageKind.FIVE_MINUTES_BEFORE_BET_CLOSE}`,
-  async (ctx) => {
-    //TODO: refactor
-    const marketAddress = (
-      ctx.callbackQuery.message?.reply_markup?.inline_keyboard[0][1] as any
-    ).url
-      .split("/")
-      .at(-1);
+export const callbackIdentifierNotificationSetup = "notification-setup";
 
-    const marketType = await getMarketType(marketAddress as Address);
+bot.callbackQuery(callbackIdentifierNotificationSetup, async (ctx) => {
+  const attachedUrl = (
+    ctx?.callbackQuery?.message?.reply_markup?.inline_keyboard?.[0]?.[1] as any
+  )?.url;
 
-    const availableMarket: AvailableMarket = {
-      address: marketAddress as Address,
-      type: marketType,
-    };
+  if (attachedUrl && ctx.from) {
+    const url = new URL(attachedUrl);
+    const marketAddress = url.pathname.split("/").at(-1);
 
-    const marketData: MarketData = await initializeMarket(availableMarket);
+    const messageKind = url.searchParams.get("messageKind");
+    const timeToSend = url.searchParams.get("timeToSend");
 
-    await storeTelegramNotification(
-      marketAddress,
-      ctx.from.id,
-      DateTime.fromSeconds(marketData.startTime)
-        .minus({ minutes: 5 })
-        .toString(),
-      MessageKind.FIVE_MINUTES_BEFORE_BET_CLOSE
-    );
-
-    await ctx.answerCallbackQuery();
+    if (messageKind && timeToSend) {
+      await storeTelegramNotification(
+        marketAddress as Address,
+        ctx.from.id,
+        timeToSend as string,
+        messageKind as MessageKind
+      );
+    }
   }
-);
 
-bot.callbackQuery(
-  `notification-setup-${MessageKind.FIVE_MINUTES_BEFORE_MARKET_END}`,
-  async (ctx) => {
-    //TODO: refactor // maybe use url query params to pass values
-    const marketAddress = (
-      ctx.callbackQuery.message?.reply_markup?.inline_keyboard[0][1] as any
-    ).url
-      .split("/")
-      .at(-1);
-
-    const marketType = await getMarketType(marketAddress as Address);
-
-    const availableMarket: AvailableMarket = {
-      address: marketAddress as Address,
-      type: marketType,
-    };
-
-    const marketData: MarketData = await initializeMarket(availableMarket);
-
-    await storeTelegramNotification(
-      marketAddress,
-      ctx.from.id,
-      DateTime.fromSeconds(marketData.startTime)
-        .minus({ minutes: 5 })
-        .toString(),
-      MessageKind.FIVE_MINUTES_BEFORE_MARKET_END
-    );
-
-    await ctx.answerCallbackQuery();
-  }
-);
+  await ctx.answerCallbackQuery();
+});
 
 export const POST = webhookCallback(bot, "std/http");
