@@ -8,6 +8,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
+import { cn } from '@/lib/utils';
 
 export interface BreadcrumbsProps {
   className: string;
@@ -25,7 +26,7 @@ export function Breadcrumbs({
   ...props
 }: BreadcrumbsProps) {
   return (
-    <Breadcrumb className={className} {...props}>
+    <Breadcrumb className={cn('text-wrap break-all', className)} {...props}>
       <BreadcrumbList>
         <BreadcrumbItem>
           <BreadcrumbLink asChild>

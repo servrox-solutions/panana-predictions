@@ -1,11 +1,12 @@
 "use client";
 
-import { Banana, Trash } from "lucide-react";
+import { Banana, PlusCircle, Trash } from "lucide-react";
 import {
   Modal,
   ModalTrigger,
   ModalBody,
   ModalContent,
+  ModalFooter,
 } from "../ui/animated-modal";
 
 import { Button } from "../ui/button";
@@ -242,69 +243,24 @@ export function EventMarketCreateModal({
                       />
                     ))
                   }
+                  {answersArray.fields.length < 6 && <Button className="align-self-center" type='button' variant='outline' onClick={() => addAnswer()}><PlusCircle className="mr-2" /> Add Answer</Button>}
                 </div>
-                <Button type='button' onClick={() => addAnswer()}>Add Answer</Button>
-                <Button type='submit'>Create Market</Button>
               </form>
             </Form>
           </ModalContent>
-          {/* <ModalFooter className="gap-4 flex flex-col">
+          <ModalFooter className="gap-4 flex flex-col">
             <Form {...form}>
               <form
                 className="space-y-6"
                 onSubmit={form.handleSubmit(onSubmit)}
               >
-                <div className="grid grid-cols-2 lg:grid-cols-3">
-                  <div className="items-center hidden lg:flex">
-                    <Banana className="h-4 w-4 mx-4" />
-                    <div className="flex flex-col">
-                      <span className="text-neutral-700 dark:text-neutral-300 text-sm">
-                        Start betting:
-                      </span>
-                      <span>Now</span>
-                    </div>
-                  </div>
-                  <div className="flex items-center">
-                    <Lock className="h-4 w-4 mx-4" />
-                    <div className="flex flex-col">
-                      <span className="text-neutral-700 dark:text-neutral-300 text-sm">
-                        End betting:
-                      </span>
-                      <span>
-                        {form.getValues("startTime")
-                          ? DateTime.fromJSDate(
-                            form.getValues("startTime")!
-                          ).toLocaleString(DateTime.DATETIME_SHORT)
-                          : "tbd."}
-                      </span>
-                    </div>
-                  </div>
-                  <div className="flex items-center">
-                    <PartyPopper className="h-4 w-4 mx-4" />
-                    <div className="flex flex-col">
-                      <span className="text-neutral-700 dark:text-neutral-300 text-sm">
-                        Market resolution:
-                      </span>
-                      <span>
-                        {form.getValues("durationSeconds") &&
-                          form.getValues("startTime")
-                          ? DateTime.fromJSDate(form.getValues("startTime"))
-                            .plus({
-                              second: form.getValues("durationSeconds"),
-                            })
-                            ?.toLocaleString(DateTime.DATETIME_SHORT)
-                          : "tbd."}
-                      </span>
-                    </div>
-                  </div>
-                </div>
                 <Button type="submit" className="w-full">
                   <Banana className="w-4 h-4 mx-2" />
                   Create Market
                 </Button>
               </form>
             </Form>
-          </ModalFooter> */}
+          </ModalFooter>
         </ModalBody>
       </Modal>
     </>

@@ -49,8 +49,13 @@ export interface EventMarketData {
 
 
 export const marketTypes = [`BTC`, `APT`, `SOL`, `USDC`, `ETH`] as const;
+export const eventMarketTypes = ['Sports', 'Politics', 'Other'] as const;
 
 export type MarketType = (typeof marketTypes)[number];
+export type EventMarketType = (typeof eventMarketTypes)[number];
+
+export type AllMarketTypes = MarketType | EventMarketType;
+
 
 export enum MessageKind {
   FIVE_MINUTES_BEFORE_BET_CLOSE = "five_minutes_before_bet_close",

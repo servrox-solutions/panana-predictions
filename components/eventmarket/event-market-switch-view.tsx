@@ -4,7 +4,7 @@ import { Tabs, TabsList, TabsTrigger } from "../ui/tabs";
 import { useEventMarketDataStore } from '@/lib/atoms/useEventMarketDataStore';
 
 export function EventMarketSwitchView() {
-  const { setDisplayMarketData } = useEventMarketDataStore();
+  const { displayMarketData, setDisplayMarketData } = useEventMarketDataStore();
 
   // Define handlers outside of the render to avoid inline functions
   const handleOpenMarketsClick = () => setDisplayMarketData("accepted");
@@ -13,7 +13,7 @@ export function EventMarketSwitchView() {
 
   return (
     <Tabs
-      defaultValue={'accepted'}
+      defaultValue={displayMarketData}
     >
       <TabsList>
         <TabsTrigger

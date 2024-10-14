@@ -7,7 +7,6 @@ import { SimpleContainerDropdown } from "../simple-container-dropdown";
 import { Card } from "../ui/card";
 import DepositBet from "../deposit-bet";
 import {
-  ChartLine,
   Coins,
   Share2,
   ThumbsDown,
@@ -30,15 +29,16 @@ import {
   HatenaIcon,
 } from "react-share";
 import { Address, EventMarketData } from "@/lib/types/market";
-import Link from "next/link";
+import { EVENT_MARKET_ABI } from "@/lib/aptos";
+import { usePlaceEventMarketBet } from "@/lib/hooks/usePlaceEventMarketBet";
+import { useSubmitVote } from "@/lib/hooks/useSubmitVote";
+import { useWallet } from "@aptos-labs/wallet-adapter-react";
+import { toast } from "react-toastify";
 
-export interface EventMarketCardSimpleUiProps extends EventMarketData {
-  onPlaceBet: (idx: number, amount: number) => void;
-  onVote: (isVoteUp: boolean) => void;
-}
+export interface EventMarketCardExtendedUiProps extends EventMarketData {}
 
-export const EventMarketCardSimpleUi: React.FC<
-  EventMarketCardSimpleUiProps
+export const EventMarketCardExtendedUi: React.FC<
+  EventMarketCardExtendedUiProps
 > = ({
   address,
   minBet,
@@ -48,9 +48,8 @@ export const EventMarketCardSimpleUi: React.FC<
   downWinFactor,
   answers,
   totalBets,
+  accepted,
   question,
-  onPlaceBet,
-  onVote,
 }) => {
   const [selectedAnswerIdx, setSelectedAnswerIdx] = useState<
     number | undefined
@@ -59,8 +58,44 @@ export const EventMarketCardSimpleUi: React.FC<
   const getSocialMessage = (marketId: string) =>
     `📊 Participate in the latest prediction market: "${question}"!\n\nJoin the challenge: https://app.panana-predictions.xyz/eventmarkets/${marketId}`;
 
-  const handleVoteUp = useCallback(() => onVote(true), [onVote]);
-  const handleVoteDown = useCallback(() => onVote(false), [onVote]);
+  const { account } = useWallet();
+  const { placeBet } = usePlaceEventMarketBet();
+  const { submitVote } = useSubmitVote();
+
+  const onPlaceBet = useCallback(
+    async (selectedAnswerIdx: number, amount: number) => {
+      if (!account?.address) {
+        toast.info("Please connect your wallet first.");
+        return;
+      }
+      if (accepted !== true) {
+        toast.info("Betting only possible on accepted markets.");
+        return;
+      }
+      if (address) {
+        const isSuccess = await placeBet(address, selectedAnswerIdx, amount);
+        if (isSuccess) toast.success("Bet placed successfully.");
+      }
+    },
+    [address, accepted, placeBet]
+  );
+
+  const onVote = useCallback(
+    async (isVoteUp: boolean) => {
+      if (!account?.address) {
+        toast.info("Please connect your wallet first.", { autoClose: 2000 });
+        return;
+      }
+      const isSuccess = await submitVote(
+        `${EVENT_MARKET_ABI.address}::event_category::Sports`,
+        address,
+        isVoteUp
+      );
+      if (isSuccess)
+        toast.success("Vote submitted successfully.", { autoClose: 2000 });
+    },
+    [address, submitVote]
+  );
 
   const containers = useMemo(
     () => (
@@ -98,18 +133,14 @@ export const EventMarketCardSimpleUi: React.FC<
   );
 
   return (
-    <Card
-      className={cn(
-        "w-96 h-56 max-w-full overflow-hidden flex flex-col relative p-0"
-      )}
-    >
+    <Card className={cn("max-w-full flex flex-col relative p-0")}>
       {/* Background Web3Icon */}
       <div className="absolute inset-0 z-0 flex items-center justify-start opacity-10">
         <TrophyIcon className="h-1/2 w-1/2 p-2" />
       </div>
 
       {/* Content */}
-      <div className="relative z-10 flex flex-col h-full gap-4">
+      <div className="relative z-10 flex flex-col gap-4">
         {/* Header */}
         <FrontHeader
           question={question}
@@ -149,9 +180,9 @@ export const EventMarketCardSimpleUi: React.FC<
           )}
           <FrontFooter
             containers={containers}
-            handleVoteUp={handleVoteUp}
+            handleVoteUp={() => onVote(true)}
             upVotesSum={upVotesSum}
-            handleVoteDown={handleVoteDown}
+            handleVoteDown={() => onVote(false)}
             downVotesSum={downVotesSum}
             address={address}
             totalBets={totalBets}
@@ -174,13 +205,8 @@ function FrontHeader({
   address: Address;
 }) {
   return (
-    <div className="h-12 font-bold dark:text-secondary px-4 bg-primary rounded flex justify-between items-center max-w-full">
-      <Link
-        className="w-full line-clamp-2 hover:underline"
-        href={`/eventmarkets/${address}`}
-      >
-        {question}
-      </Link>
+    <div className="h-12 font-bold dark:text-secondary px-4 bg-primary rounded-t-2xl flex justify-between items-center max-w-full">
+      <div className="w-full line-clamp-2">{question}</div>
       <div
         className={cn(
           "flex-1 text-right space-x-2",
@@ -250,12 +276,19 @@ function AnswerSelection({
   downWinFactor: number;
 }) {
   return (
-    <div className="grid grid-cols-3 gap-2 flex-grow-1 w-full overflow-y-auto max-h-[100px] min-h-[100px]">
+    <div className="flex flex-col flex-grow-1 w-full gap-2">
       {answers.map((answer, idx) => (
-        <>
-          <div className="col-span-2">{answer}</div>
+        <div
+          className={cn(
+            "grid rounded-md grid-cols-3 items-center px-4",
+            idx % 2 === 0 ? "bg-[#FFFFFF33]" : ""
+          )}
+        >
+          <div className="col-span-2 text-xl py-4 h-full flex items-center">
+            {answer}
+          </div>
           <Button
-            className="group w-full h-6 font-semibold bg-gradient-to-r from-positive-1 to-positive-2 transition-all hover:to-green-500 text-white relative"
+            className="group w-full font-semibold bg-gradient-to-r from-positive-1 to-positive-2 transition-all hover:to-green-500 text-white relative"
             onClick={() => handleBet(idx)}
           >
             <span className="z-10">Bet</span>
@@ -269,7 +302,7 @@ function AnswerSelection({
               &times;{upWinFactor.toFixed(2)}
             </span>
           </Button>
-        </>
+        </div>
       ))}
     </div>
   );
@@ -331,11 +364,11 @@ function FrontFooter({
           </span>
         </Button>
       </div>
-      <Button variant="ghost" size="icon" asChild>
-        <Link href={`/eventmarkets/${address}`}>
+      {/* <Button variant="ghost" size="icon" asChild>
+        <Link href={`/markets/${address}`}>
           <ChartLine className="h-4 w-4" />
         </Link>
-      </Button>
+      </Button> */}
       <div className="flex flex-1 items-center justify-end">
         <Coins className="w-4 h-4" />
         <span className="text-xs dark:text-neutral-400 pl-1">
