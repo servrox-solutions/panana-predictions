@@ -32,9 +32,11 @@ export function TelegramProvider({ children, ...props }: PropsWithChildren) {
     if (!miniApp) return;
 
     miniApp.ready();
-    miniApp.setHeaderColor("#ffc80a");
-    miniApp.setBgColor("#ffc80a");
-    //   miniApp.setBottomBarColor("#ffc80a");
+    miniApp.setHeaderColor("#362451");
+    miniApp.setBgColor("#362451");
+    // miniApp.setHeaderColor("#ffc80a");
+    // miniApp.setBgColor("#ffc80a");
+    // miniApp.setBottomBarColor("#ffc80a");
   }, [miniApp]);
 
   useEffect(() => {
