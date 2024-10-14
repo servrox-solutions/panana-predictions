@@ -22,8 +22,6 @@ export const WalletProvider = ({ children }: PropsWithChildren) => {
           dappId: "6a12f6e7-bfdc-4401-b019-a0bea0260cf3",
           dappName: "Panana Predictions",
           dappImageURI: "https://app.panana-predictions.xyz/mr_peeltos.png",
-          frontendBaseURL: "https://app.panana-predictions.xyz",
-          backendBaseURL: "https://app.panana-predictions.xyz",
         },
         mizuwallet: {
           manifestURL:
