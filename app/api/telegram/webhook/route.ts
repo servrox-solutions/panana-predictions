@@ -6,12 +6,8 @@ import { Bot, webhookCallback } from "grammy";
 import { Menu } from "@grammyjs/menu";
 import { storeTelegramUser } from "@/lib/supabase/store-telegram-user";
 import { sendDebugMessage } from "@/lib/send-telegram-message";
-import { Address, MarketData, MessageKind } from "@/lib/types/market";
+import { Address, MessageKind } from "@/lib/types/market";
 import { storeTelegramNotification } from "@/lib/supabase/store-telegram-notification";
-import { DateTime } from "luxon";
-import { AvailableMarket } from "@/lib/get-available-markets";
-import { getMarketType } from "@/lib/get-market-type";
-import { initializeMarket } from "@/lib/initialize-market";
 
 const token = process.env.TELEGRAM_BOT_TOKEN;
 
@@ -130,9 +126,7 @@ bot.command("help", async (ctx) => {
 //   await ctx.reply(ctx.message.text);
 // });
 
-export const callbackIdentifierNotificationSetup = "notification-setup";
-
-bot.callbackQuery(callbackIdentifierNotificationSetup, async (ctx) => {
+bot.callbackQuery("notification-setup", async (ctx) => {
   const attachedUrl = (
     ctx?.callbackQuery?.message?.reply_markup?.inline_keyboard?.[0]?.[1] as any
   )?.url;

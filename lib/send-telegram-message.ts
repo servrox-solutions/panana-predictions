@@ -3,7 +3,6 @@
 import { Bot, CommandContext, Context, InlineKeyboard } from "grammy";
 import { MessageKind } from "./types/market";
 import { addEllipsis, getMessageByKind } from "./utils";
-import { callbackIdentifierNotificationSetup } from "@/app/api/telegram/webhook/route";
 
 const token = process.env.TELEGRAM_BOT_TOKEN;
 
@@ -45,7 +44,7 @@ export async function sendNotificationSetupMessage(
   const urlText = `For Market (${addEllipsis(marketAddress, 6, 4)})`;
 
   const inlineKeyboard = new InlineKeyboard()
-    .text(actionText, callbackIdentifierNotificationSetup)
+    .text(actionText, "notification-setup")
     .url(
       urlText,
       `https://app.panana-predictions.xyz/markets/${marketAddress}?messageKind=${messageKind}&timeToSend=${timeToSend}`
