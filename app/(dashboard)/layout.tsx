@@ -1,8 +1,8 @@
 import { Header } from "@/components/header";
 import { NavigationBar } from "@/components/navigation-bar";
 import { SidenavDesktop } from "@/components/sidenav/sidenav-desktop";
-import { RouteGuard } from '@/components/ui/route-guard';
-import { URLPattern } from 'next/server';
+// import { RouteGuard } from "@/components/ui/route-guard";
+// import { URLPattern } from "next/server";
 
 export default function DashboardLayout({
   children,
@@ -10,7 +10,7 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex flex-col min-h-viewportStable max-h-viewportStable min-w-full blur-125 bg-[url('/bg-light.jpg')] lg:dark:bg-[url('/bg-dark.jpg')] dark:bg-[url('/bg-dark-mobile.jpg')] bg-no-repeat bg-cover bg-top">
+    <div className="flex flex-col min-h-viewportStable max-h-viewportStable min-w-full blur-125 bg-[url('/bg-light.jpg')] lg:dark:bg-[url('/bg-dark.jpg')] dark:bg-[url('/bg-dark-mobile.jpg')] bg-no-repeat bg-cover bg-top overflow-hidden">
       <SidenavDesktop />
       <div className="flex flex-col sm:pl-14 min-h-viewportStable max-h-viewportStable">
         <Header />
