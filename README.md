@@ -5,7 +5,7 @@
 
 ## Panana Predictions
 
-Panana Predictions is a **decentralized prediction market** platform built on the Aptos blockchain. Designed as a **Telegram app** for ease of use and to attract new users, it allows participants to predict future asset prices in a user-friendly environment.
+Panana Predictions is a **decentralized prediction market** platform built on the Aptos blockchain. Designed as a **Telegram app** for ease of use and to attract new users, it allows participants to predict future asset prices and real-world events in a user-friendly environment.
 
 ## Table of Contents
 
@@ -19,7 +19,7 @@ Panana Predictions is a **decentralized prediction market** platform built on th
 - [Team](#team)
 ## Introduction
 
-Panana Predictions is a decentralized platform that enables users to **create their own markets** and **predict the future prices** of various assets. By offering a simple and engaging way for users to participate in prediction markets directly through **Telegram**, we aim to make decentralized finance **accessible to everyone**.
+Panana Predictions is a decentralized platform that enables users to **create their own markets** and **predict the future prices** of various assets, as well as the **outcomes of future real-world events**, such as sports or politics. By offering a simple and engaging way for users to participate in prediction markets directly through **Telegram**, we aim to make decentralized finance **accessible to everyone**.
 
 ## Key Features
 
@@ -118,20 +118,46 @@ To set up the project locally, follow these steps:
 
 ## Vision and Roadmap
 
-Panana Predictions aims to become the leading prediction market platform on the Aptos blockchain, offering not only asset prices but real-world events, such as **sport events, elections, and many more**. Our future plans include:
+**Panana Predictions** aims to be the leading decentralized prediction market platform on the Aptos network, offering users the ability to bet not only on crypto asset prices but also on real-world events, such as sports, politics, and more. All through an easy-to-use Telegram app. As we continue to grow, we are committed to introducing new features that enhance user experience and expand the platform's capabilities.
 
-- **Milestone 1 - Mainnet Launch (Q4 2024)**: Launch Panana on Aptos mainnet, allowing users to predict the prices of crypto assets with full WebApp and Telegram Bot functionality.
-- **Milestone 2 - Expansion to Sports & Events (Q1 2025)**: Introduce prediction markets for live sports and other real-world events, using oracles for real-time data.
-- **Milestone 3 - Community Market Creation (Q2 2025)**: Enable users to create custom prediction markets with community governance and advanced analytics.
-- **Milestone 4 - Global Prediction Platform (Q3 2025+)**: Expand to a global platform supporting cross-chain betting, multi-currency markets, and a user reputation system.
+
+### **Milestone 1 - Mainnet Launch (Q4 2024):**
+- **Objective:** Officially launch Panana Predictions on the Aptos mainnet.
+- **Features:** 
+  - Full functionality for predicting real-world events and crypto asset prices, accessible via both WebApp and Telegram Bot.
+  - Generate traction through X and other channels.
+  - Smart contract audits to ensure security and transparency.
+  - Implement metrics to evaluate future success of the plattform.
+
+### **Milestone 2 - Creation of Panana Liquidity Token and Implementation of Optimistic Resolution (Q1 2025):**
+- **Objective:** Introduce a Panana Liquidity Token (PLT) to enhance market liquidity and unlock user stakes.
+- **Features:** 
+  - Users will receive liquidity tokens in exchange for their staked assets, enabling liquidity without locking up funds.
+  - These liquidity tokens can be traded or used in DeFi protocols, adding more flexibility for users.
+  - Liquidity incentives and staking rewards to increase engagement and participation.
+  - Implement an optimistic resolution strategy to resolve markets in a decentralized manner.
+
+### **Milestone 3 - Multi-Token Betting (Q2 2025):**
+- **Objective:** Expand token support beyond the current assets.
+- **Features:**
+  - Allow users to place bets using stablecoins and meme-coins popular in the Aptos ecosystem.
+  - Enhanced flexibility in asset choices, broadening the appeal for a wider user base.
+
+### **Milestone 4 - Further Marketplace Scaling and Growth (Q3 2025 onward):**
+- **Objective:** Launch targeted marketing campaigns and features to grow the Panana user base and scale the marketplace.
+- **Features:**
+  - Social media campaigns, influencer partnerships, and paid advertisements to raise awareness.
+  - Community-driven growth through referral programs and incentive schemes.
+  - Ongoing user education and outreach, focusing on global adoption and partnerships with other platforms.
+  - Multilingual support for global accessibility.
 
 ## Team
 
 Panana Predictions is built by a dedicated team with a diverse set of skills and extensive experience in software development, design, and blockchain technology.
 
-- **Marcel Mayer**: With over 9 years of experience in software development and a strong track record in Customer Innovation and New Business at Porsche Digital, Marcel brings a wealth of expertise in software architecture, development, and blockchain technology.
-- **Aaron Röhl**: With over 7 years of software engineering experience across various industries, Aaron specializes in infrastructure design for high scalability and availability. He has a proven track record of leading technological growth and winning multiple hackathons.
-- **Marco Lechner**: The designer and UX artist behind Panana Predictions, Marco ensures that the user experience is intuitive and engaging.
+- **Marcel**: With over 9 years of experience in software development and a strong track record in Customer Innovation and New Business at Porsche Digital, Marcel brings a wealth of expertise in software architecture, development, and blockchain technology.
+- **Aaron**: With over 7 years of software engineering experience across various industries, Aaron specializes in infrastructure design for high scalability and availability. He has a proven track record of leading technological growth and winning multiple hackathons.
+- **Marco**: The designer and UX artist behind Panana Predictions, Marco ensures that the user experience is intuitive and engaging.
 - **Mr. Peeltos**: The mascot and spirit of Panana Predictions, Mr. Peeltos brings a fun and friendly face to our platform.
 
 Our team's combined expertise makes us well-suited to build and sustain a prediction market platform on Aptos.
