@@ -13,7 +13,6 @@ interface MarketCardTimelineProps {
   betCloseTime: number;
   endTime: number;
   slim?: boolean;
-  onMidClick?: () => void;
 }
 
 // Wrap Banana component with React.memo to prevent unnecessary re-renders
@@ -24,7 +23,6 @@ export const MarketCardTimeline: React.FC<MarketCardTimelineProps> = ({
   betCloseTime,
   endTime,
   slim = false,
-  onMidClick,
 }) => {
   const [now, setNow] = useState(DateTime.local());
   const [progressPercentageFirstInterval, setProgressPercentageFirstInterval] =
@@ -59,10 +57,10 @@ export const MarketCardTimeline: React.FC<MarketCardTimelineProps> = ({
 
       setProgressPercentageFirstInterval(
         100 -
-        Math.min(
-          Math.max(Math.round((diffFirstInterval / firstInterval) * 100), 0),
-          100
-        )
+          Math.min(
+            Math.max(Math.round((diffFirstInterval / firstInterval) * 100), 0),
+            100
+          )
       );
       setProgressPercentageSecondInterval(0);
 
@@ -78,13 +76,13 @@ export const MarketCardTimeline: React.FC<MarketCardTimelineProps> = ({
       setProgressPercentageFirstInterval(100);
       setProgressPercentageSecondInterval(
         100 -
-        Math.min(
-          Math.max(
-            Math.round((diffSecondInterval / secondIntervall) * 100),
-            0
-          ),
-          100
-        )
+          Math.min(
+            Math.max(
+              Math.round((diffSecondInterval / secondIntervall) * 100),
+              0
+            ),
+            100
+          )
       );
 
       setRemainingTimeFirstInterval(null);
@@ -141,7 +139,6 @@ export const MarketCardTimeline: React.FC<MarketCardTimelineProps> = ({
             variant="outline"
             size="icon"
             className="z-10 bg-primary text-primary-foreground h-8 w-8 -ml-1 -mr-1"
-            onClick={onMidClick}
           >
             <Lock className="h-4 w-4" />
           </Button>

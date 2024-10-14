@@ -30,32 +30,30 @@ export const NotificationDropdown = ({
       buttons={[
         <Button
           variant="ghost"
-          size="icon"
-          className="group hover:text-green-500 hover:bg-green-500/20"
+          className="group hover:text-green-500 hover:bg-yellow-500/20"
           onClick={() =>
             handleSetupNotification(MessageKind.FIVE_MINUTES_BEFORE_BET_CLOSE)
           }
         >
           <AlarmClock className="h-4 w-4" />
-          {/* <span className="text-xs dark:text-neutral-400 group-hover:text-green-500 pl-1">
-            asd
-          </span> */}
+          <span className="text-xs dark:text-neutral-400 group-hover:text-yellow-500 pl-1">
+            5 Min before prediction closing
+          </span>
         </Button>,
         <Button
           variant="ghost"
-          size="icon"
-          className="group hover:text-red-500 hover:bg-red-500/20"
+          className="group hover:text-green-500 hover:bg-orange-500/20"
           onClick={() =>
             handleSetupNotification(MessageKind.FIVE_MINUTES_BEFORE_MARKET_END)
           }
         >
           <AlarmClockCheck className="h-4 w-4" />
-          {/* <span className="text-xs dark:text-neutral-400 group-hover:text-red-500 pl-1">
-            asd
-          </span> */}
+          <span className="text-xs dark:text-neutral-400 group-hover:text-orange-500 pl-1">
+            5 Min before market resolving
+          </span>
         </Button>,
       ]}
-      className="grid-cols-2 min-w-fit"
+      className="grid-rows-2 grid-cols-1 min-w-fit"
     />
   );
 };

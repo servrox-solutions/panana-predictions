@@ -13,6 +13,9 @@ import { useWallet } from "@aptos-labs/wallet-adapter-react";
 import { toast } from "react-toastify";
 import { MARKET_ABI } from "@/lib/aptos";
 import { useMemo, useCallback, memo } from "react";
+import { storeTelegramNotification } from "@/lib/supabase/store-telegram-notification";
+import { useLaunchParams, useInitData } from "@telegram-apps/sdk-react";
+import { DateTime } from "luxon";
 
 interface MarketCardProps {
   availableMarket: AvailableMarket;
@@ -41,6 +44,9 @@ export const MarketCard: React.FC<MarketCardProps> = ({
   const { account } = useWallet();
   const { placeBet } = usePlaceBet();
   const { submitVote } = useSubmitVote();
+
+  const launchParams = useLaunchParams(true);
+  const initData = useInitData(true);
 
   const onPlaceBet = useCallback(
     async (betUp: boolean, amount: number) => {
@@ -75,9 +81,48 @@ export const MarketCard: React.FC<MarketCardProps> = ({
     [account?.address, marketData, submitVote]
   );
 
-  const onSetupNotification = useCallback((messageKind: MessageKind) => {
-    console.log(messageKind);
-  }, []);
+  const onSetupNotification = useCallback(
+    async (messageKind: MessageKind) => {
+      const telegramUserId =
+        launchParams?.platform !== "mock" ? initData?.user?.id : undefined;
+
+      if (
+        !telegramUserId ||
+        !marketData?.address ||
+        !marketData?.startTime ||
+        !marketData?.endTime
+      )
+        return;
+
+      let timeToSend: string | undefined;
+
+      if (messageKind === MessageKind.FIVE_MINUTES_BEFORE_BET_CLOSE) {
+        timeToSend = DateTime.fromSeconds(marketData.startTime)
+          .minus({ minutes: 5 })
+          .toString();
+      } else if (messageKind === MessageKind.FIVE_MINUTES_BEFORE_MARKET_END) {
+        timeToSend = DateTime.fromSeconds(marketData.endTime)
+          .minus({
+            minutes: 5,
+          })
+          .toString();
+      } else {
+        return;
+      }
+
+      const result = await storeTelegramNotification(
+        marketData.address,
+        telegramUserId,
+        DateTime.fromSeconds(marketData.startTime)
+          .minus({ minutes: 5 })
+          .toString(),
+        messageKind
+      );
+
+      console.log("result", result);
+    },
+    [launchParams, initData, marketData]
+  );
 
   const tradingPair = useMemo(
     () => ({

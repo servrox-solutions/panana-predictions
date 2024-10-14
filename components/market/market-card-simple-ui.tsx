@@ -20,9 +20,6 @@ import { MarketTitle } from "./market-title";
 import { Card } from "../ui/card";
 import DepositBet from "../deposit-bet";
 import { Web3Icon } from "../web3-icon";
-import { storeTelegramNotification } from "@/lib/supabase/store-telegram-notification";
-import { useLaunchParams, useInitData } from "@telegram-apps/sdk-react";
-import { DateTime } from "luxon";
 import { MessageKind } from "@/lib/types/market";
 import { ShareDropdown } from "./share-dropdown";
 import { VoteDropdown } from "./vote-dropdown";
@@ -74,25 +71,6 @@ export const MarketCardSimpleUi: React.FC<MarketCardSimpleUiProps> = ({
   const [bet, setBet] = useState<"up" | "down" | null>(null);
   const [amount, setAmount] = useState<number>(minBet / 10 ** 8);
 
-  const launchParams = useLaunchParams(true);
-  const initData = useInitData(true);
-
-  const handleMidClick = async () => {
-    const telegramUserId =
-      launchParams?.platform !== "mock" ? initData?.user?.id : undefined;
-
-    if (!telegramUserId) return;
-
-    const result = await storeTelegramNotification(
-      address,
-      telegramUserId,
-      DateTime.fromSeconds(betCloseTime).minus({ minutes: 5 }).toString(),
-      MessageKind.FIVE_MINUTES_BEFORE_BET_CLOSE
-    );
-
-    console.log("result", result);
-  };
-
   // Memoize the MarketCardTimeline component to prevent unnecessary re-renders
   const MemoizedMarketCardTimeline = useMemo(
     () => (
@@ -101,10 +79,9 @@ export const MarketCardSimpleUi: React.FC<MarketCardSimpleUiProps> = ({
         betCloseTime={betCloseTime}
         endTime={resolveTime}
         slim={startTime > Date.now() / 1000}
-        onMidClick={handleMidClick}
       />
     ),
-    [createTime, betCloseTime, resolveTime, handleMidClick]
+    [createTime, betCloseTime, resolveTime]
   );
 
   // Memoize the onClick handlers to prevent unnecessary re-renders
