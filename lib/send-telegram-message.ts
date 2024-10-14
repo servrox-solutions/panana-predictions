@@ -34,11 +34,11 @@ export async function sendNotificationSetupMessage(
   marketAddress: string,
   isEnabled = true
 ) {
-  const message = `${isEnabled ? "🔕" : "🔔"} *${getMessageByKind(
+  const message = `${isEnabled ? "🔔" : "🔕"} *${getMessageByKind(
     messageKind
   )}* Notification`;
 
-  const actionText = isEnabled ? "🔔 Re-Enable" : "🔕 Disable";
+  const actionText = isEnabled ? "🔕 Disable" : "🔔 Re-Enable";
 
   const urlText = `For Market (${addEllipsis(marketAddress, 6, 4)})`;
 
