@@ -53,7 +53,7 @@ export const NotificationDropdown = ({
           </span>
         </Button>,
       ]}
-      className="grid-rows-2 grid-cols-1 min-w-fit"
+      className="grid-rows-2 grid-cols-1 min-w-fit place-items-start"
     />
   );
 };

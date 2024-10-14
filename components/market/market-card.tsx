@@ -113,9 +113,7 @@ export const MarketCard: React.FC<MarketCardProps> = ({
       const result = await storeTelegramNotification(
         marketData.address,
         telegramUserId,
-        DateTime.fromSeconds(marketData.startTime)
-          .minus({ minutes: 5 })
-          .toString(),
+        timeToSend,
         messageKind
       );
 
