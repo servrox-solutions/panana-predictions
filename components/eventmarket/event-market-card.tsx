@@ -51,7 +51,7 @@ export const EventMarketCard: React.FC<EventMarketCardProps> = ({
         return;
       }
       if (marketData) {
-        const isSuccess = await placeBet(marketData, selectedAnswerIdx, amount);
+        const isSuccess = await placeBet(marketData.address, selectedAnswerIdx, amount);
         if (isSuccess) toast.success("Bet placed successfully.");
       }
     },
@@ -64,7 +64,6 @@ export const EventMarketCard: React.FC<EventMarketCardProps> = ({
         toast.info("Please connect your wallet first.", { autoClose: 2000 });
         return;
       }
-      console.log(marketData)
       if (marketData) {
         const isSuccess = await submitVote(`${EVENT_MARKET_ABI.address}::event_category::Sports`, marketData.address, isVoteUp);
         if (isSuccess)

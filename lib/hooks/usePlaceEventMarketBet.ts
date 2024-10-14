@@ -1,17 +1,17 @@
 import { createEntryPayload } from "@thalalabs/surf";
 import { EVENT_MARKET_ABI } from "@/lib/aptos";
-import { EventMarketData } from "@/lib/types/market";
+import { Address } from "@/lib/types/market";
 import { useWallet } from "@aptos-labs/wallet-adapter-react";
 
 export const usePlaceEventMarketBet = () => {
   const { account, signAndSubmitTransaction } = useWallet();
 
   const placeBet = async (
-    eventMarketData: EventMarketData,
+    address: Address,
     selectedAnswerIdx: number,
     amount: number
   ): Promise<boolean> => {
-    if (!account || !eventMarketData) return false;
+    if (!account) return false;
 
     try {
       const payload = createEntryPayload(EVENT_MARKET_ABI, {
@@ -19,7 +19,7 @@ export const usePlaceEventMarketBet = () => {
         typeArguments: [
           `${EVENT_MARKET_ABI.address}::event_category::Sports`,
         ],
-        functionArguments: [eventMarketData.address, selectedAnswerIdx, amount.toString()],
+        functionArguments: [address, selectedAnswerIdx, amount.toString()],
       });
 
       const transactionResponse = await signAndSubmitTransaction({
