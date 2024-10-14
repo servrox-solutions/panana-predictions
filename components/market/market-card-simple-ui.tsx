@@ -6,32 +6,16 @@ import {
   ChevronsDown,
   ChevronsUp,
   Coins,
-  ThumbsDown,
-  ThumbsUp,
   TrendingDown,
   TrendingUp,
   Undo2,
 } from "lucide-react";
-import {
-  EmailIcon,
-  EmailShareButton,
-  FacebookIcon,
-  FacebookShareButton,
-  HatenaIcon,
-  HatenaShareButton,
-  TelegramIcon,
-  TelegramShareButton,
-  TwitterIcon,
-  TwitterShareButton,
-  WhatsappIcon,
-  WhatsappShareButton,
-} from "react-share";
+
 import React, { useState, useMemo, useCallback } from "react";
 import { Button } from "../ui/button";
 import { calculateUserWin, cn } from "@/lib/utils";
 import { MarketCardTimeline } from "./market-card-timeline";
 import Link from "next/link";
-import { SimpleContainerDropdown } from "../simple-container-dropdown";
 import { MarketTitle } from "./market-title";
 import { Card } from "../ui/card";
 import DepositBet from "../deposit-bet";
@@ -40,6 +24,10 @@ import { storeTelegramNotification } from "@/lib/supabase/store-telegram-notific
 import { useLaunchParams, useInitData } from "@telegram-apps/sdk-react";
 import { DateTime } from "luxon";
 import { MessageKind } from "@/lib/types/market";
+import { ShareDropdown } from "./share-dropdown";
+import { VoteDropdown } from "./vote-dropdown";
+import { NotificationDropdown } from "./notification-dropdown";
+import { isTelegramApp } from "@/lib/telegram";
 export interface MarketCardSimpleUiProps {
   tradingPairOne: MarketType; // Destructured property
   tradingPairTwo: string; // Destructured property
@@ -59,6 +47,7 @@ export interface MarketCardSimpleUiProps {
   startTime: number;
   onPlaceBet: (betUp: boolean, amount: number) => void;
   onVote: (isVoteUp: boolean) => void;
+  onSetupNotification: (messageKind: MessageKind) => void;
 }
 
 export const MarketCardSimpleUi: React.FC<MarketCardSimpleUiProps> = ({
@@ -80,11 +69,11 @@ export const MarketCardSimpleUi: React.FC<MarketCardSimpleUiProps> = ({
   startTime,
   onPlaceBet,
   onVote,
+  onSetupNotification,
 }) => {
   const [bet, setBet] = useState<"up" | "down" | null>(null);
   const [amount, setAmount] = useState<number>(minBet / 10 ** 8);
-  const getSocialMessage = (marketId: string) =>
-    `📈 Think you can predict the next move in crypto?\nJoin our latest market and put your forecast to the test!\n\nhttps://app.panana-predictions.xyz/markets/${marketId}\n\nOnly on 🍌Panana Predictions!`;
+
   const launchParams = useLaunchParams(true);
   const initData = useInitData(true);
 
@@ -121,33 +110,6 @@ export const MarketCardSimpleUi: React.FC<MarketCardSimpleUiProps> = ({
   // Memoize the onClick handlers to prevent unnecessary re-renders
   const handleBetUp = useCallback(() => setBet("up"), []);
   const handleBetDown = useCallback(() => setBet("down"), []);
-  const handleVoteUp = useCallback(() => onVote(true), [onVote]);
-  const handleVoteDown = useCallback(() => onVote(false), [onVote]);
-
-  // Memoize the shareElements for SimpleContainerDropdown
-  const shareElements = useMemo(
-    () => [
-      <TwitterShareButton className="w-8 h-8" url={getSocialMessage(address)}>
-        <TwitterIcon className="w-8 h-8 rounded-full" />
-      </TwitterShareButton>,
-      <TelegramShareButton className="w-8 h-8" url={getSocialMessage(address)}>
-        <TelegramIcon className="w-8 h-8 rounded-full" />
-      </TelegramShareButton>,
-      <FacebookShareButton className="w-8 h-8" url={getSocialMessage(address)}>
-        <FacebookIcon className="w-8 h-8 rounded-full" />
-      </FacebookShareButton>,
-      <WhatsappShareButton className="w-8 h-8" url={getSocialMessage(address)}>
-        <WhatsappIcon className="w-8 h-8 rounded-full" />
-      </WhatsappShareButton>,
-      <EmailShareButton className="w-8 h-8" url={getSocialMessage(address)}>
-        <EmailIcon className="w-8 h-8 rounded-full" />
-      </EmailShareButton>,
-      <HatenaShareButton className="w-8 h-8" url={getSocialMessage(address)}>
-        <HatenaIcon className="w-8 h-8 rounded-full" />
-      </HatenaShareButton>,
-    ],
-    [address, getSocialMessage]
-  );
 
   // Memoize the MarketTitle component to prevent unnecessary re-renders
   const MemoizedMarketTitle = useMemo(
@@ -185,31 +147,19 @@ export const MarketCardSimpleUi: React.FC<MarketCardSimpleUiProps> = ({
           </div>
           {!bet && (
             <div className="flex-1 text-nowrap text-right">
-              <SimpleContainerDropdown shareButtons={shareElements} />
+              <ShareDropdown address={address} />
               <div className="inline-flex overflow-hidden">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="group hover:text-green-500 hover:bg-green-500/20"
-                  onClick={handleVoteUp}
-                >
-                  <ThumbsUp className="h-4 w-4" />
-                  <span className="text-xs dark:text-neutral-400 group-hover:text-green-500 pl-1">
-                    {upVotesSum}
-                  </span>
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="group hover:text-red-500 hover:bg-red-500/20"
-                  onClick={handleVoteDown}
-                >
-                  <ThumbsDown className="h-4 w-4" />
-                  <span className="text-xs dark:text-neutral-400 group-hover:text-red-500 pl-1">
-                    {downVotesSum}
-                  </span>
-                </Button>
+                <VoteDropdown
+                  upVotesSum={upVotesSum}
+                  downVotesSum={downVotesSum}
+                  onVote={onVote}
+                />
               </div>
+              {isTelegramApp() && (
+                <NotificationDropdown
+                  onSetupNotification={onSetupNotification}
+                />
+              )}
               <Button variant="ghost" size="icon" className="" asChild>
                 <Link href={`/markets/${address}`}>
                   <ChartLine className="h-4 w-4" />

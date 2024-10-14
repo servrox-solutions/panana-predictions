@@ -5,6 +5,7 @@ import {
   ChevronsDown,
   ChevronsUp,
   Coins,
+  Share2,
   ThumbsDown,
   ThumbsUp,
 } from "lucide-react";
@@ -210,7 +211,19 @@ export const MarketCardExtendedUi: React.FC<MarketCardSimpleUiProps> = ({
             </span>
           </Button>
 
-          <SimpleContainerDropdown shareButtons={shareElements} />
+          <SimpleContainerDropdown
+            trigger={
+              <Button
+                variant="ghost"
+                size="icon"
+                className="hover:text-primary hover:bg-primary/20"
+                disabled={shareElements.length === 0}
+              >
+                <Share2 className="h-4 w-4" />
+              </Button>
+            }
+            buttons={shareElements}
+          />
         </div>
       </div>
     </div>
