@@ -43,7 +43,15 @@ export async function storeTelegramUser(
       .single();
 
     if (errorOnUpsert) {
-      console.error("error on upserting user", errorOnUpsert);
+      console.error(
+        "error on upserting user",
+        "\n error:",
+        errorOnUpsert,
+        "\n given user: ",
+        user,
+        "\n upserted user: ",
+        upsertedUser
+      );
       return { success: false, error: errorOnUpsert };
     }
 

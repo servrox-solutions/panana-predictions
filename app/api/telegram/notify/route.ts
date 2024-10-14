@@ -1,5 +1,4 @@
-import { escapeMarkdownV2, getMessageByKind } from "@/lib/utils";
-import { Bot } from "grammy";
+import { sendNotificationSetupMessage } from "@/lib/send-telegram-message";
 
 export async function POST(request: Request) {
   const {
@@ -8,18 +7,11 @@ export async function POST(request: Request) {
     message_kind: messageKind,
   } = await request.json();
 
-  //TODO: this is just a quick test
-  const bot = new Bot(process.env.TELEGRAM_BOT_TOKEN!);
-  const message = escapeMarkdownV2(
-    `🚨 **${getMessageByKind(
-      messageKind
-    )}.** Do your last bet [here](https://app.panana-predictions.xyz/markets/${marketAddress})`
+  await sendNotificationSetupMessage(
+    telegramUserId,
+    messageKind,
+    marketAddress
   );
-
-  await bot.api.sendMessage(telegramUserId, message, {
-    parse_mode: "MarkdownV2",
-    link_preview_options: { is_disabled: true },
-  });
 
   return Response.json({ success: true });
 }

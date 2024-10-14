@@ -2,9 +2,16 @@ export const dynamic = "force-dynamic";
 
 export const fetchCache = "force-no-store";
 
-import { Bot, CommandContext, Context, webhookCallback } from "grammy";
+import { Bot, webhookCallback } from "grammy";
 import { Menu } from "@grammyjs/menu";
 import { storeTelegramUser } from "@/lib/supabase/store-telegram-user";
+import { sendDebugMessage } from "@/lib/send-telegram-message";
+import { Address, MarketData, MessageKind } from "@/lib/types/market";
+import { storeTelegramNotification } from "@/lib/supabase/store-telegram-notification";
+import { DateTime } from "luxon";
+import { AvailableMarket } from "@/lib/get-available-markets";
+import { getMarketType } from "@/lib/get-market-type";
+import { initializeMarket } from "@/lib/initialize-market";
 
 const token = process.env.TELEGRAM_BOT_TOKEN;
 
@@ -98,23 +105,6 @@ const welcomeMenu = new Menu("welcome-menu")
 
 bot.use(welcomeMenu);
 
-const sendMessage = (ctx: CommandContext<Context>) => {
-  const info = ctx.update.message?.from ?? ctx.update.message?.chat;
-  if (!info) return;
-
-  const msg =
-    "/start by " +
-    `@${info.username ?? "unknown"}` +
-    "\n" +
-    `first name: ${info.first_name ?? "unknown"}` +
-    "\n" +
-    `last name: ${info.last_name ?? "unknown"}` +
-    "\n" +
-    `language: ${ctx.update.message?.from.language_code ?? "unknown"}`;
-
-  bot.api.sendMessage(134685150, msg);
-};
-
 bot.command("start", async (ctx) => {
   await ctx.replyWithPhoto(
     "https://app.panana-predictions.xyz/pp-preview-purple.jpg",
@@ -128,7 +118,7 @@ bot.command("start", async (ctx) => {
     reply_markup: welcomeMenu,
   });
 
-  sendMessage(ctx);
+  sendDebugMessage(ctx);
 });
 
 bot.command("help", async (ctx) => {
@@ -139,5 +129,69 @@ bot.command("help", async (ctx) => {
 //   console.log(ctx);
 //   await ctx.reply(ctx.message.text);
 // });
+
+bot.callbackQuery(
+  `notification-setup-${MessageKind.FIVE_MINUTES_BEFORE_BET_CLOSE}`,
+  async (ctx) => {
+    //TODO: refactor
+    const marketAddress = (
+      ctx.callbackQuery.message?.reply_markup?.inline_keyboard[0][1] as any
+    ).url
+      .split("/")
+      .at(-1);
+
+    const marketType = await getMarketType(marketAddress as Address);
+
+    const availableMarket: AvailableMarket = {
+      address: marketAddress as Address,
+      type: marketType,
+    };
+
+    const marketData: MarketData = await initializeMarket(availableMarket);
+
+    await storeTelegramNotification(
+      marketAddress,
+      ctx.from.id,
+      DateTime.fromSeconds(marketData.startTime)
+        .minus({ minutes: 5 })
+        .toString(),
+      MessageKind.FIVE_MINUTES_BEFORE_BET_CLOSE
+    );
+
+    await ctx.answerCallbackQuery();
+  }
+);
+
+bot.callbackQuery(
+  `notification-setup-${MessageKind.FIVE_MINUTES_BEFORE_MARKET_END}`,
+  async (ctx) => {
+    //TODO: refactor // maybe use url query params to pass values
+    const marketAddress = (
+      ctx.callbackQuery.message?.reply_markup?.inline_keyboard[0][1] as any
+    ).url
+      .split("/")
+      .at(-1);
+
+    const marketType = await getMarketType(marketAddress as Address);
+
+    const availableMarket: AvailableMarket = {
+      address: marketAddress as Address,
+      type: marketType,
+    };
+
+    const marketData: MarketData = await initializeMarket(availableMarket);
+
+    await storeTelegramNotification(
+      marketAddress,
+      ctx.from.id,
+      DateTime.fromSeconds(marketData.startTime)
+        .minus({ minutes: 5 })
+        .toString(),
+      MessageKind.FIVE_MINUTES_BEFORE_MARKET_END
+    );
+
+    await ctx.answerCallbackQuery();
+  }
+);
 
 export const POST = webhookCallback(bot, "std/http");

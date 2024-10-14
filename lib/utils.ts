@@ -7,9 +7,16 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export function addEllipsis(str: string, startChars = 6, endChars = 4) {
+export function addEllipsis(
+  str: string,
+  startChars = 6,
+  endChars = 4,
+  escape = false
+) {
   return (
-    str.substring(0, startChars) + "..." + str.substring(str.length - endChars)
+    str.substring(0, startChars) +
+    (escape ? "\\.\\.\\." : "...") +
+    str.substring(str.length - endChars)
   );
 }
 
@@ -78,9 +85,9 @@ export const formatTime = (seconds: number): string => {
 export function getMessageByKind(messageKind: MessageKind): string {
   switch (messageKind) {
     case MessageKind.FIVE_MINUTES_BEFORE_BET_CLOSE:
-      return "Five minutes before bet closing";
+      return "PREDICT: 5 MIN LEFT";
     case MessageKind.FIVE_MINUTES_BEFORE_MARKET_END:
-      return "Five minutes before market ending";
+      return "RESOLVE: IN 5 MIN";
   }
 }
 

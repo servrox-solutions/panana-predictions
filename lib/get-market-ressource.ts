@@ -17,7 +17,6 @@ export interface MarketRessource {
     numerator: string;
   };
   min_bet: string;
-  // price_up: boolean; // TODO: fix
   resolved_at: { vec: [string] };
   start_price: { vec: [string] };
   start_time: string;
@@ -35,7 +34,6 @@ export const getMarketRessource = async (
   availableMarket: AvailableMarket
 ): Promise<MarketRessource> => {
   const logger = getLogger();
-  console.log(availableMarket)
   const market = await surfClientMarket.resource
     .Market({
       account: availableMarket.address,

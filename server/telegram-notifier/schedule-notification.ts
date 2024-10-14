@@ -1,6 +1,6 @@
 import { Cron } from "croner";
-import { sendTelegramNotification } from "./send-telegram-notification";
 import type { MessageKind } from "../../lib/types/market";
+import { sendNotification } from "../../lib/send-telegram-message";
 import { jobScheduler } from "./job-scheduler";
 
 export async function scheduleNotification(notification: any): Promise<Cron> {
@@ -10,10 +10,10 @@ export async function scheduleNotification(notification: any): Promise<Cron> {
   const timeToSend = new Date(time_to_send);
 
   const job = Cron(timeToSend, async () => {
-    await sendTelegramNotification(
+    await sendNotification(
       telegram_user_id,
-      market_address,
-      message_kind as MessageKind
+      message_kind as MessageKind,
+      market_address
     );
 
     jobScheduler.removeJob(id);
