@@ -8,6 +8,8 @@ import { WalletProvider } from "./wallet-provider";
 import { SDKProvider } from "@telegram-apps/sdk-react";
 import dynamic from "next/dynamic";
 import { PersistenceProvider } from "./persistence-provider";
+import { Console } from "../console";
+
 const MoonPayProvider = dynamic(
   () => import("@moonpay/moonpay-react").then((mod) => mod.MoonPayProvider),
   { ssr: false }
@@ -40,6 +42,7 @@ export function ClientProvider({ children, ...props }: PropsWithChildren) {
                     debug
                   >
                     <PersistenceProvider>{children}</PersistenceProvider>
+                    <Console text="panana-predictions.xyz" />
                   </MoonPayProvider>
                 </WalletProvider>
               </AutoConnectProvider>
