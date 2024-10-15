@@ -32,6 +32,7 @@ import {
 import { Address, EventMarketData } from "@/lib/types/market";
 import Link from "next/link";
 import { aptToOctas, octasToApt } from '@/lib/aptos';
+import { VoteDropdown } from '../market/vote-dropdown';
 
 export interface EventMarketCardSimpleUiProps extends EventMarketData {
   onPlaceBet: (idx: number, amount: number) => void;
@@ -309,28 +310,11 @@ function FrontFooter({
         buttons={[containers]}
       />
       <div className="inline-flex overflow-hidden">
-        <Button
-          variant="ghost"
-          size="icon"
-          className="group hover:text-green-500 hover:bg-green-500/20"
-          onClick={handleVoteUp}
-        >
-          <ThumbsUp className="h-4 w-4" />
-          <span className="text-xs dark:text-neutral-400 group-hover:text-green-500 pl-1">
-            {upVotesSum}
-          </span>
-        </Button>
-        <Button
-          variant="ghost"
-          size="icon"
-          className="group hover:text-red-500 hover:bg-red-500/20"
-          onClick={handleVoteDown}
-        >
-          <ThumbsDown className="h-4 w-4" />
-          <span className="text-xs dark:text-neutral-400 group-hover:text-red-500 pl-1">
-            {downVotesSum}
-          </span>
-        </Button>
+        <VoteDropdown
+          upVotesSum={upVotesSum}
+          downVotesSum={downVotesSum}
+          onVote={(voteUp: boolean) => voteUp ? handleVoteUp() : handleVoteDown()}
+        />
       </div>
       <Button variant="ghost" size="icon" asChild>
         <Link href={`/eventmarkets/${address}`}>

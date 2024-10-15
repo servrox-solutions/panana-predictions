@@ -96,6 +96,7 @@ export const MarketCardSimpleUi: React.FC<MarketCardSimpleUiProps> = ({
         tradingPair={{ one: tradingPairOne, two: tradingPairTwo }} // Updated to use destructured props
         resolveTime={resolveTime}
         betCloseTime={betCloseTime}
+        titleLinkHref={`/markets/${address}`}
         shortVersion
       />
     ),

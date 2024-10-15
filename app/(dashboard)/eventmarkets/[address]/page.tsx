@@ -1,25 +1,12 @@
 import { Card } from "@/components/ui/card";
 import { AvailableMarket } from "@/lib/get-available-markets";
-import { getMarketType } from "@/lib/get-market-type";
-import { initializeMarket } from "@/lib/initialize-market";
-import { Address, EventMarketData, MarketData } from "@/lib/types/market";
+import { Address, EventMarketData } from "@/lib/types/market";
 import { Breadcrumbs } from "@/components/breadcrumbs";
-import { TradingViewWidget } from "@/components/trading-view-widget";
-import { ResolveMarketButton } from "@/components/resolve-market-button";
-import { MarketCardTimeline } from "@/components/market/market-card-timeline";
-import { MarketInfo } from "@/components/market/market-info";
-import { MarketTitle } from "@/components/market/market-title";
 import { getEventMarketType } from "@/lib/get-event-market-type";
 import { initializeEventMarket } from "@/lib/initialize-event-market";
 import { EventMarketCardExtendedUi } from "@/components/eventmarket/event-market-card-extended-ui";
 import Linkify from "linkify-react";
 import { EventMarketInfo } from "@/components/eventmarket/event-market-info";
-import { EVENT_MARKET_ABI } from "@/lib/aptos";
-import { useCallback } from "react";
-import { toast } from "react-toastify";
-import { useWallet } from "@aptos-labs/wallet-adapter-react";
-import { useSubmitVote } from "@/lib/hooks/useSubmitVote";
-import { usePlaceEventMarketBet } from "@/lib/hooks/usePlaceEventMarketBet";
 
 export default async function Market({
   params,
