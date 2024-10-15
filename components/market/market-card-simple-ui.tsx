@@ -227,7 +227,7 @@ export const MarketCardSimpleUi: React.FC<MarketCardSimpleUiProps> = ({
                 downBetsSum,
                 amount,
                 bet === "up"
-              ).toLocaleString()}
+              ).toLocaleString(undefined, { maximumFractionDigits: 2 })}
             </span>
           </Button>
         )}

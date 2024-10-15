@@ -30,7 +30,7 @@ export default function ProfileCard(props: ProfileCardProps) {
         <div className="flex justify-between">
           <div className="flex flex-col">
             <span className="text-gray-500">Balance</span>
-            <span>{balance.toFixed(5).toLocaleString()} APT</span>
+            <span>{balance.toLocaleString(undefined, { maximumFractionDigits: 5 })} APT</span>
           </div>
           <div className="flex flex-col">
             <span className="text-gray-500">Total Transactions</span>

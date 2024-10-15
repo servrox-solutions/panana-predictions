@@ -95,7 +95,7 @@ export function DashboardContent({
             <CardHeader className="pb-2">
               <CardDescription>Total Volume (all assets)</CardDescription>
               <CardTitle className="text-4xl">
-                {isMounted ? `$ ${totalVolume.usd.toLocaleString()}` : "..."}
+                {isMounted ? `$ ${totalVolume.usd.toLocaleString(undefined, { maximumFractionDigits: 2, minimumFractionDigits: 2 })}` : "..."}
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -114,7 +114,7 @@ export function DashboardContent({
                 ${" "}
                 {latestResolvedMarkets
                   .slice(0, 10)
-                  .reduce((prev, cur) => (prev += cur.marketCap.usd), 0)}
+                  .reduce((prev, cur) => (prev += cur.marketCap.usd), 0).toLocaleString(undefined, { maximumFractionDigits: 2, minimumFractionDigits: 2 })}
               </CardTitle>
             </CardHeader>
             <CardContent>

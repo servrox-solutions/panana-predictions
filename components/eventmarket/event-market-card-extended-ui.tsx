@@ -257,7 +257,7 @@ function BettingArea({
       >
         Bet on {buttonText}
         <span className="absolute bottom-0 right-1 -mb-1 text-lg group-hover:text-4xl text-white/30">
-          +{winFactor.toLocaleString()}
+          +{winFactor.toLocaleString(undefined, { maximumFractionDigits: 2 })}
         </span>
       </Button>
     </>
