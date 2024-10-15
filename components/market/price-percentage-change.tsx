@@ -25,7 +25,7 @@ export async function PricePercentageChange({
         "/api/market/price-percentage",
         process.env.NODE_ENV === "development"
           ? "http://localhost:3000"
-          : process.env.NEXT_PUBLIC_URL
+          : "https://app.panana-predictions.xyz"
       ),
       {
         method: "POST",
