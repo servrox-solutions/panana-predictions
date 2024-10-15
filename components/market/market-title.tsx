@@ -10,7 +10,7 @@ export interface MarketTitleProps {
   };
   resolveTime: number;
   betCloseTime: number;
-  titleLinkHref: string;
+  titleLinkHref?: string;
   as?: any;
   className?: string;
   shortVersion?: boolean;
@@ -23,7 +23,7 @@ export const MarketTitle = ({
   as: Tag = "h2",
   className,
   shortVersion = false,
-  titleLinkHref = '#',
+  titleLinkHref,
 }: MarketTitleProps) => {
   const diff = DateTime.fromSeconds(resolveTime).diff(
     DateTime.fromSeconds(betCloseTime)
@@ -66,7 +66,7 @@ export const MarketTitle = ({
       )}
       {shortVersion && (
         <div className="flex">
-          <Link className="dark:text-secondary bg-primary px-1 rounded mx-1 hover:underline" href={titleLinkHref}>
+          <Link className="dark:text-secondary bg-primary px-1 rounded mx-1 hover:underline" href={titleLinkHref ?? ''}>
             {tradingPair.one}/{tradingPair.two}
           </Link>
           <div className="hidden sm:flex items-center">
