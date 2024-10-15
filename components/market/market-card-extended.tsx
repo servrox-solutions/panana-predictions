@@ -2,7 +2,7 @@
 
 import { useMarket } from "@/lib/hooks/useMarket";
 import { AvailableMarket } from "@/lib/get-available-markets";
-import { MarketData } from "@/lib/types/market";
+import { MarketData, MarketType } from "@/lib/types/market";
 import { usePlaceBet } from "@/lib/hooks/usePlaceBet";
 import { useSubmitVote } from "@/lib/hooks/useSubmitVote";
 import { useFilterStore } from "@/lib/atoms/useFilterStore";
@@ -15,7 +15,7 @@ import { MarketCardExtendedUi } from './market-card-extended-ui';
 import { MARKET_ABI } from '@/lib/aptos';
 
 interface MarketCardExtendedProps {
-  availableMarket: AvailableMarket;
+  availableMarket: AvailableMarket<MarketType>;
   initialMarketData?: MarketData;
 }
 
@@ -84,8 +84,8 @@ export const MarketCardExtended: React.FC<MarketCardExtendedProps> = ({
         resolveTime={marketData?.endTime ?? 1337}
         tradingPair={marketData?.tradingPair ?? { one: "APT", two: "USD" }}
         upVotesSum={marketData?.upVotesSum ?? 1337}
-        downVotesSum={marketData?.downVotesSum ?? 1337}
-        upWinFactor={marketData?.upWinFactor ?? 1337}
+        downVotesSum={marketData?.downVotesSum ?? 0.5}
+        upWinFactor={marketData?.upWinFactor ?? 0.5}
         downWinFactor={marketData?.downWinFactor ?? 1337}
         upBetsSum={marketData?.upBetsSum ?? 1337}
         downBetsSum={marketData?.downBetsSum ?? 1337}

@@ -3,7 +3,7 @@
 import { AvailableMarket } from "@/lib/get-available-markets";
 import { Card } from "../ui/card";
 import { useMarket } from "@/lib/hooks/useMarket";
-import { MarketData } from "@/lib/types/market";
+import { MarketData, MarketType } from "@/lib/types/market";
 import { useIsMounted } from "@/lib/hooks/useIsMounted";
 import { getExplorerObjectLink, octasToApt } from "@/lib/aptos";
 import Link from "next/link";
@@ -11,7 +11,7 @@ import { formatAptPrice } from "@/lib/utils";
 import { DateTime } from 'luxon';
 
 interface MarketInfoProps {
-  availableMarket: AvailableMarket;
+  availableMarket: AvailableMarket<MarketType>;
   initialMarketData?: MarketData;
   children?: React.ReactNode;
 }

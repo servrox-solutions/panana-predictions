@@ -3,7 +3,7 @@ import { Card } from "@/components/ui/card";
 import { AvailableMarket } from "@/lib/get-available-markets";
 import { getMarketType } from "@/lib/get-market-type";
 import { initializeMarket } from "@/lib/initialize-market";
-import { Address, MarketData } from "@/lib/types/market";
+import { Address, MarketData, MarketType } from "@/lib/types/market";
 import { Breadcrumbs } from "@/components/breadcrumbs";
 import { TradingViewWidget } from "@/components/trading-view-widget";
 import { ResolveMarketButton } from "@/components/resolve-market-button";
@@ -18,7 +18,7 @@ export default async function Market({
 }) {
   const marketType = await getMarketType(params.address as Address);
 
-  const availableMarket: AvailableMarket = {
+  const availableMarket: AvailableMarket<MarketType> = {
     address: params.address as Address,
     type: marketType,
   };

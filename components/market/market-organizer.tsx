@@ -1,10 +1,10 @@
 import { AvailableMarket } from "@/lib/get-available-markets";
 import { initializeMarket } from "@/lib/initialize-market";
 import { MarketCard } from "./market-card";
-import { MarketData } from "@/lib/types/market";
+import { MarketData, MarketType } from "@/lib/types/market";
 
 export interface MarketOrganizerProps {
-  markets: AvailableMarket[];
+  markets: AvailableMarket<MarketType>[];
 }
 
 export async function MarketOrganizer({ markets }: MarketOrganizerProps) {

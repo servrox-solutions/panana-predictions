@@ -3,7 +3,7 @@
 import { useMarket } from "@/lib/hooks/useMarket";
 import { AvailableMarket } from "@/lib/get-available-markets";
 import { MarketCardSimpleUi } from "./market-card-simple-ui";
-import { MarketData, MessageKind } from "@/lib/types/market";
+import { MarketData, MarketType, MessageKind } from "@/lib/types/market";
 import { usePlaceBet } from "@/lib/hooks/usePlaceBet";
 import { useSubmitVote } from "@/lib/hooks/useSubmitVote";
 import { useMarketData } from "@/lib/hooks/useMarketData";
@@ -18,7 +18,7 @@ import { useLaunchParams, useInitData } from "@telegram-apps/sdk-react";
 import { DateTime } from "luxon";
 
 interface MarketCardProps {
-  availableMarket: AvailableMarket;
+  availableMarket: AvailableMarket<MarketType>;
   initialMarketData?: MarketData;
 }
 
@@ -34,12 +34,12 @@ export const MarketCard: React.FC<MarketCardProps> = ({
     availableMarket,
     3000,
     initialMarketData ??
-      marketDataStore?.find(
-        (market) => market.address === availableMarket.address
-      ) ??
-      filteredMarketData.find(
-        (market) => market.address === availableMarket.address
-      )
+    marketDataStore?.find(
+      (market) => market.address === availableMarket.address
+    ) ??
+    filteredMarketData.find(
+      (market) => market.address === availableMarket.address
+    )
   );
   const { account } = useWallet();
   const { placeBet } = usePlaceBet();
@@ -142,8 +142,8 @@ export const MarketCard: React.FC<MarketCardProps> = ({
       tradingPairTwo: tradingPair.two,
       upVotesSum: marketData?.upVotesSum ?? 1337,
       downVotesSum: marketData?.downVotesSum ?? 1337,
-      upWinFactor: marketData?.upWinFactor ?? 1337,
-      downWinFactor: marketData?.downWinFactor ?? 1337,
+      upWinFactor: marketData?.upWinFactor ?? 0.5,
+      downWinFactor: marketData?.downWinFactor ?? 0.5,
       upBetsSum: marketData?.upBetsSum ?? 1337,
       downBetsSum: marketData?.downBetsSum ?? 1337,
       upBetsCount: marketData?.upBets.size ?? 1337,

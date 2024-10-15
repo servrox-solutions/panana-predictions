@@ -22,18 +22,18 @@ export function addEllipsis(
 }
 
 export function calculateWinFactors(
-  upBetsCount: number,
-  downBetsCount: number,
-  fee: number
-): { upWinFactor: number; downWinFactor: number } {
-  const totalBets = upBetsCount + downBetsCount;
+  bets: number[]
+): number[] {
+  const betsInApt = bets.map(bet => octasToApt(bet));
+  // const upBetsSumApt = octasToApt(upBetsSum);
+  // const downBetsSumApt = octasToApt(downBetsSum);
 
-  const upWinFactor =
-    ((totalBets === 0 ? 1 : totalBets) / (upBetsCount + 1)) * (1 - fee) * 2;
-  const downWinFactor =
-    ((totalBets === 0 ? 1 : totalBets) / (downBetsCount + 1)) * (1 - fee) * 2;
+  const totalBetsSumApt = betsInApt.reduce((prev, cur) => prev + cur, 0);
+  if (totalBetsSumApt === 0) {
+    return new Array(bets.length).fill(1 / betsInApt.length);
+  }
 
-  return { upWinFactor, downWinFactor };
+  return betsInApt.map(bet => bet / totalBetsSumApt);
 }
 
 export function calculateUserWin(
@@ -44,13 +44,18 @@ export function calculateUserWin(
   userBetAmount: number,
   isUp: boolean
 ): number {
+
+  const totalBetSum = upBetsSum + downBetsSum + userBetAmount;
+
   if (isUp) {
-    const potentialBetSum = upBetsSum + userBetAmount;
-    const totalUpPotentialWinnings = upWinFactor * potentialBetSum;
-    const userShare = userBetAmount / potentialBetSum;
-    const userPotentialWin = totalUpPotentialWinnings * userShare;
-    return userPotentialWin;
+    return userBetAmount / totalBetSum;
+    // const potentialBetSum = upBetsSum + userBetAmount;
+    // const totalUpPotentialWinnings = upWinFactor * potentialBetSum;
+    // const userShare = userBetAmount / potentialBetSum;
+    // const userPotentialWin = totalUpPotentialWinnings * userShare;
+    // return userPotentialWin;
   } else {
+    return userBetAmount / totalBetSum;
     const potentialBetSum = downBetsSum + userBetAmount;
     const totalDownPotentialWinnings = downWinFactor * potentialBetSum;
     const userShare = userBetAmount / potentialBetSum;

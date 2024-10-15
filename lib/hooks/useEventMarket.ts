@@ -1,11 +1,11 @@
 import { useState, useEffect, useRef } from "react";
 import { AvailableMarket } from "../get-available-markets";
-import { EventMarketData } from "../types/market";
+import { EventMarketData, EventMarketType } from "../types/market";
 import { initializeEventMarket } from '../initialize-event-market';
 import { useEventMarketData } from './useEventMarketData';
 
 export function useEventMarket(
-  availableMarket: AvailableMarket,
+  availableMarket: AvailableMarket<EventMarketType>,
   autoRefreshInterval: number,
   initialData?: EventMarketData
 ) {
@@ -21,7 +21,6 @@ export function useEventMarket(
 
     // Add or update the market data in the global atom
     addMarketData(newMarketData); // This handles both adding new and updating existing entries
-    console.log("Market attributes updated.");
   };
 
   useEffect(() => {

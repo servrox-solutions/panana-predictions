@@ -2,10 +2,10 @@ import { getEventMarketRessource } from "./get-event-market-ressource";
 
 import { calculateWinFactors } from "./utils";
 import { AvailableMarket } from './get-available-markets';
-import { EventMarketData, Address } from './types/market';
+import { EventMarketData, Address, EventMarketType } from './types/market';
 
 export const initializeEventMarket = async (
-  availableMarket: AvailableMarket
+  availableMarket: AvailableMarket<EventMarketType>
 ): Promise<EventMarketData> => {
   const market = await getEventMarketRessource(availableMarket);
 
@@ -39,11 +39,7 @@ export const initializeEventMarket = async (
 
   const question = market.question;
 
-  const { upWinFactor, downWinFactor } = calculateWinFactors(
-    totalBets.length,
-    downVotesSum,
-    fee
-  );
+  const distribution = calculateWinFactors(market.total_bets.map(x => +x));
 
   const newMarketData: EventMarketData = {
     name,
@@ -57,8 +53,7 @@ export const initializeEventMarket = async (
     userVotes,
     upVotesSum,
     downVotesSum,
-    upWinFactor,
-    downWinFactor,
+    distribution,
     resolvedAt,
     acceptedAt,
     winningAnswerIdx,
@@ -66,6 +61,7 @@ export const initializeEventMarket = async (
     accepted,
     rejectionReason,
     rules: market.rules,
+    category: availableMarket.type,
   };
 
   return newMarketData;

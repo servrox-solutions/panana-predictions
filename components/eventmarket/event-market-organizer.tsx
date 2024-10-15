@@ -1,10 +1,10 @@
 import { AvailableMarket } from "@/lib/get-available-markets";
-import { EventMarketData } from "@/lib/types/market";
+import { EventMarketData, EventMarketType } from "@/lib/types/market";
 import { initializeEventMarket } from '@/lib/initialize-event-market';
 import { EventMarketCard } from './event-market-card';
 
 export interface MarketOrganizerProps {
-  markets: AvailableMarket[];
+  markets: AvailableMarket<EventMarketType>[];
 }
 
 export async function EventMarketOrganizer({ markets }: MarketOrganizerProps) {
@@ -21,7 +21,7 @@ export async function EventMarketOrganizer({ markets }: MarketOrganizerProps) {
             key={`${market.creator}-${index}`}
             availableMarket={{
               address: market.address as `0x${string}`,
-              type: 'Sports' as any,
+              type: market.category,
             }}
             initialMarketData={market}
           />

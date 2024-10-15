@@ -1,6 +1,7 @@
 import { MODULE_ADDRESS_FROM_ABI, surfClientEventMarket, surfClientMarket } from "./aptos";
 import { AvailableMarket } from "./get-available-markets";
 import { getLogger } from "./logger";
+import { EventMarketType } from './types/market';
 
 export interface EventMarketRessource {
   accepted: {
@@ -50,7 +51,7 @@ export interface EventMarketRessource {
 }
 
 export const getEventMarketRessource = async (
-  availableMarket: AvailableMarket
+  availableMarket: AvailableMarket<EventMarketType>
 ): Promise<EventMarketRessource> => {
   const logger = getLogger();
   console.log(availableMarket)

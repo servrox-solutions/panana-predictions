@@ -219,15 +219,7 @@ export const MarketCardSimpleUi: React.FC<MarketCardSimpleUiProps> = ({
               <ChevronsDown className="ml-2 h-4 w-4" />
             )}
             <span className="absolute bottom-0 right-1 -mb-1 text-lg group-hover:text-4xl text-white/30">
-              +
-              {calculateUserWin(
-                upWinFactor,
-                downWinFactor,
-                upBetsSum,
-                downBetsSum,
-                amount,
-                bet === "up"
-              ).toLocaleString(undefined, { maximumFractionDigits: 2 })}
+              {((bet === 'up' ? upWinFactor : downWinFactor) * 100).toFixed(0)} %
             </span>
           </Button>
         )}
@@ -247,7 +239,7 @@ export const MarketCardSimpleUi: React.FC<MarketCardSimpleUiProps> = ({
                     upWinFactor > downWinFactor ? "animate-pulse" : ""
                   )}
                 >
-                  &times;{upWinFactor.toFixed(2)}
+                  {(upWinFactor * 100).toFixed(0)} %
                 </span>
               </Button>
             </div>
@@ -269,7 +261,7 @@ export const MarketCardSimpleUi: React.FC<MarketCardSimpleUiProps> = ({
                     downWinFactor > upWinFactor ? "animate-pulse" : ""
                   )}
                 >
-                  &times;{downWinFactor.toFixed(2)}
+                  {(downWinFactor * 100).toFixed(0)} %
                 </span>
               </Button>
             </div>

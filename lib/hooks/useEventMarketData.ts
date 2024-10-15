@@ -1,6 +1,6 @@
 import { useMemo, useCallback } from "react";
 import { useFuzzySearchList } from "@nozbe/microfuzz/react";
-import { EventMarketData, MarketData } from "@/lib/types/market";
+import { EventMarketData } from "@/lib/types/market";
 import { useFilterStore } from "../atoms/useFilterStore";
 import { useEventMarketDataStore } from '../atoms/useEventMarketDataStore';
 
@@ -37,8 +37,8 @@ export function useEventMarketData() {
       mapToString(item.userVotes),
       item.upVotesSum?.toString() ?? "",
       item.downVotesSum?.toString() ?? "",
-      item.upWinFactor?.toString() ?? "",
-      item.downWinFactor?.toString() ?? "",
+      item.category?.toString() ?? "",
+      item.distribution?.toString() ?? "",
     ],
     [mapToString]
   );
@@ -78,12 +78,13 @@ export function useEventMarketData() {
     [setMarketData]
   );
 
-  const { filter } = useFilterStore("markets");
+  const { filter } = useFilterStore("eventmarkets");
 
   const isVisible = (checkMarket: EventMarketData) => {
     const isInMarketTypeDropdownFilter =
       !filter ||
-      filter.length === 0
+      filter.length === 0 ||
+      filter.includes(checkMarket.category);
 
     const isInSearch =
       !filteredEventMarketData ||

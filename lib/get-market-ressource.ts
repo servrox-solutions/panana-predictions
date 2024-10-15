@@ -1,6 +1,7 @@
 import { MODULE_ADDRESS_FROM_ABI, surfClientMarket } from "./aptos";
 import { AvailableMarket } from "./get-available-markets";
 import { getLogger } from "./logger";
+import { MarketType } from './types/market';
 
 export interface MarketRessource {
   created_at_timestamp: string;
@@ -31,7 +32,7 @@ export interface MarketRessource {
 }
 
 export const getMarketRessource = async (
-  availableMarket: AvailableMarket
+  availableMarket: AvailableMarket<MarketType>
 ): Promise<MarketRessource> => {
   const logger = getLogger();
   const market = await surfClientMarket.resource

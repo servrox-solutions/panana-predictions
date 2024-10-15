@@ -13,11 +13,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ResolvedMarket, ResolvedMarketsTable } from "./resolved-markets-table";
 import { CreatedMarket, CreatedMarketsTable } from "./created-markets-table";
 import { useState } from "react";
-import { FilterDropdown } from "../filter-dropdown";
 import { DateTime } from "luxon";
 import { MarketType } from "@/lib/types/market";
 import { Web3AmountCard } from "../web3-amount-card";
 import { useIsMounted } from "@/lib/hooks/useIsMounted";
+import { MarketFilterDropdown } from '../market/market-filter-dropdown';
 
 export interface DashboardContentProps {
   latestCreatedMarkets: CreatedMarket[];
@@ -175,7 +175,7 @@ export function DashboardContent({
               </TabsTrigger>
             </TabsList>
             <div className="ml-auto flex items-center gap-2">
-              <FilterDropdown
+              <MarketFilterDropdown
                 name="dashboard"
                 items={filterNetworks}
                 preSelected={searchParams?.filter}

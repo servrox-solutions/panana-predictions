@@ -7,24 +7,24 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "./ui/dropdown-menu";
+} from "../ui/dropdown-menu";
 import { ListFilter } from "lucide-react";
-import { Button } from "./ui/button";
+import { Button } from "../ui/button";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useState, useEffect } from "react";
-import { Web3Icon } from "./web3-icon";
+import { Web3Icon } from "../web3-icon";
 import { useFilterStore } from "@/lib/atoms/useFilterStore";
 import { MarketType } from "@/lib/types/market";
 
-interface FilterDropdownProps {
-  name: string;
+interface MarketFilterDropdownProps {
+  name?: string;
   items: MarketType[];
   preSelected?: string | string[];
   onFilterChange?: (filter: MarketType[]) => void;
 }
 
-export const FilterDropdown: React.FC<FilterDropdownProps> = ({
-  name,
+export const MarketFilterDropdown: React.FC<MarketFilterDropdownProps> = ({
+  name = 'markets',
   items,
   preSelected,
   onFilterChange,

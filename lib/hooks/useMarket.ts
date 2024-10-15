@@ -1,11 +1,11 @@
 import { useState, useEffect, useRef } from "react";
 import { AvailableMarket } from "../get-available-markets";
 import { initializeMarket } from "../initialize-market";
-import { MarketData } from "../types/market";
+import { MarketData, MarketType } from "../types/market";
 import { useMarketData } from "./useMarketData";
 
 export function useMarket(
-  availableMarket: AvailableMarket,
+  availableMarket: AvailableMarket<MarketType>,
   autoRefreshInterval: number,
   initialData?: MarketData
 ) {

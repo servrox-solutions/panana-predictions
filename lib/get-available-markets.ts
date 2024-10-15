@@ -1,19 +1,19 @@
 import { surfClientMarketplace } from "@/lib/aptos";
 import { getLogger } from "./logger";
 import { AvailableMarketplace } from "./get-available-marketplaces";
-import { Address, MarketType } from "./types/market";
+import { Address, EventMarketType, MarketType } from "./types/market";
 
-export interface AvailableMarket {
+export interface AvailableMarket<T extends EventMarketType | MarketType> {
   address: Address;
-  type: MarketType;
+  type: T;
 }
 
-export const getAvailableMarkets = async (
+export const getAvailableMarkets = async<T extends EventMarketType | MarketType> (
   marketplaces: AvailableMarketplace[]
-): Promise<AvailableMarket[]> => {
+): Promise<AvailableMarket<T>[]> => {
   if (marketplaces.length === 0) return [];
 
-  const availableMarkets: AvailableMarket[] = [];
+  const availableMarkets: AvailableMarket<T>[] = [];
   const logger = getLogger();
 
   for (const marketplace of marketplaces) {
@@ -27,7 +27,7 @@ export const getAvailableMarkets = async (
         marketAddresses.flat().forEach((marketAddress) => {
           availableMarkets.push({
             address: marketAddress,
-            type: marketplace.typeArgument.split("::").pop() as MarketType,
+            type: marketplace.typeArgument.split("::").pop() as T,
           });
         });
       })

@@ -46,7 +46,7 @@ export function Header() {
         /> */}
       </div>
 
-      <Card className="p-2 text-xs text-center">Early Alpha<br />Aptos Testnet</Card>
+      <Card className="p-2 text-xs text-center">Testnet Alpha</Card>
       <ModeToggle className="hidden sm:flex" />
       <FundWalletButton />
       {/* <WalletReconnect className="hidden sm:flex" /> */}

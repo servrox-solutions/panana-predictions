@@ -1,4 +1,3 @@
-import { FilterDropdown } from "@/components/filter-dropdown";
 import { MarketSwitchView } from "@/components/market/market-switch-view";
 import { getAvailableMarketplaces } from "@/lib/get-available-marketplaces";
 import { getAvailableMarkets } from "@/lib/get-available-markets";
@@ -7,6 +6,8 @@ import { MarketSortDropdown } from '@/components/market/market-sort-dropdown';
 import { MarketCreateModal } from '@/components/market/market-create-modal';
 import { MarketOrganizer } from '@/components/market/market-organizer';
 import { MarketsSearch } from '@/components/market/markets-search';
+import { MarketFilterDropdown } from '@/components/market/market-filter-dropdown';
+import { MarketType } from '@/lib/types/market';
 
 export const revalidate = 30; // in seconds
 // export const revalidate = false; // Infinity (default)
@@ -17,7 +18,7 @@ export default async function Markets({
   searchParams: { [key: string]: string | string[] | undefined };
 }) {
   const marketplaces = await getAvailableMarketplaces();
-  let availableMarkets = await getAvailableMarkets(marketplaces);
+  let availableMarkets = await getAvailableMarkets<MarketType>(marketplaces);
 
   const uniqueAvailableMarkets = Array.from(
     new Set(availableMarkets.map((market) => market.type))
@@ -32,8 +33,7 @@ export default async function Markets({
           <MarketsSearch />
 
           <div className="flex space-x-2">
-            <FilterDropdown
-              name="markets"
+            <MarketFilterDropdown
               items={uniqueAvailableMarkets}
               preSelected={searchParams?.markets}
             />

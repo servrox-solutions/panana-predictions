@@ -1,7 +1,7 @@
 "use client";
 
 import { AvailableMarket } from "@/lib/get-available-markets";
-import { EventMarketData } from "@/lib/types/market";
+import { EventMarketData, EventMarketType } from "@/lib/types/market";
 import { useSubmitVote } from "@/lib/hooks/useSubmitVote";
 import { cn } from "@/lib/utils";
 import { useWallet } from "@aptos-labs/wallet-adapter-react";
@@ -15,7 +15,7 @@ import { EVENT_MARKET_ABI, MARKET_ABI } from '@/lib/aptos';
 import { usePlaceEventMarketBet } from '@/lib/hooks/usePlaceEventMarketBet';
 
 interface EventMarketCardProps {
-  availableMarket: AvailableMarket;
+  availableMarket: AvailableMarket<EventMarketType>;
   initialMarketData?: EventMarketData;
 }
 
@@ -51,7 +51,7 @@ export const EventMarketCard: React.FC<EventMarketCardProps> = ({
         return;
       }
       if (marketData) {
-        const isSuccess = await placeBet(marketData.address, selectedAnswerIdx, amount);
+        const isSuccess = await placeBet(marketData, selectedAnswerIdx, amount);
         if (isSuccess) toast.success("Bet placed successfully.");
       }
     },
@@ -65,7 +65,7 @@ export const EventMarketCard: React.FC<EventMarketCardProps> = ({
         return;
       }
       if (marketData) {
-        const isSuccess = await submitVote(`${EVENT_MARKET_ABI.address}::event_category::Sports`, marketData.address, isVoteUp);
+        const isSuccess = await submitVote(`${EVENT_MARKET_ABI.address}::event_category::${marketData.category}`, marketData.address, isVoteUp);
         if (isSuccess)
           toast.success("Vote submitted successfully.", { autoClose: 2000 });
       }
@@ -82,23 +82,7 @@ export const EventMarketCard: React.FC<EventMarketCardProps> = ({
       style={{ order: marketData ? getPosition(marketData) : 0 }}
     >
       {marketData && <EventMarketCardSimpleUi
-        name={marketData.name}
-        address={marketData.address}
-        creator={marketData.creator}
-        createdAt={marketData.createdAt}
-        minBet={marketData.minBet}
-        fee={marketData.fee}
-        userVotes={marketData.userVotes}
-        upVotesSum={marketData.upVotesSum}
-        downVotesSum={marketData.downVotesSum}
-        upWinFactor={marketData.upWinFactor}
-        downWinFactor={marketData.downWinFactor}
-        totalBets={marketData.totalBets}
-        answers={marketData.answers}
-        accepted={marketData.accepted}
-        rejectionReason={marketData.rejectionReason}
-        question={marketData.question}
-        rules={marketData.rules}
+        marketData={marketData}
         onPlaceBet={onPlaceBet}
         onVote={onVote}
       />

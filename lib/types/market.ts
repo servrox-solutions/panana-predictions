@@ -34,8 +34,7 @@ export interface EventMarketData {
   userVotes: Map<Address, boolean>;
   upVotesSum: number;
   downVotesSum: number;
-  upWinFactor: number;
-  downWinFactor: number;
+  distribution: Array<number>;
   resolvedAt?: number;
   acceptedAt?: number;
   winningAnswerIdx?: number;
@@ -45,11 +44,12 @@ export interface EventMarketData {
   rejectionReason?: string;
   question: string;
   rules: string;
+  category: EventMarketType;
 }
 
 
 export const marketTypes = [`BTC`, `APT`, `SOL`, `USDC`, `ETH`] as const;
-export const eventMarketTypes = ['Sports', 'Politics', 'Other'] as const;
+export const eventMarketTypes = ['Sports', 'Politics'] as const;
 
 export type MarketType = (typeof marketTypes)[number];
 export type EventMarketType = (typeof eventMarketTypes)[number];

@@ -2,10 +2,10 @@ import { DateTime } from "luxon";
 import { getMarketRessource } from "./get-market-ressource";
 import { AvailableMarket } from "./get-available-markets";
 import { calculateWinFactors } from "./utils";
-import { Address, MarketData } from "@/lib/types/market";
+import { Address, MarketData, MarketType } from "@/lib/types/market";
 
 export const initializeMarket = async (
-  availableMarket: AvailableMarket
+  availableMarket: AvailableMarket<MarketType>
 ): Promise<MarketData> => {
   const market = await getMarketRessource(availableMarket);
 
@@ -48,11 +48,10 @@ export const initializeMarket = async (
     two: "USD",
   };
 
-  const { upWinFactor, downWinFactor } = calculateWinFactors(
-    upBets.size,
-    downBets.size,
-    fee
-  );
+  const [upWinFactor, downWinFactor] = calculateWinFactors([
+    upBetsSum,
+    downBetsSum
+  ]);
 
   const newMarketData: MarketData = {
     name,
