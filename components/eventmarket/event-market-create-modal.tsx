@@ -21,6 +21,7 @@ import { toast } from "react-toastify";
 import { useCallback, useMemo, useState } from "react";
 import { creatEventMarket } from '@/lib/create-event-market';
 import { Textarea } from '../ui/textarea';
+import { aptToOctas } from '@/lib/aptos';
 
 export interface EventMarketCreateModalProps {
   marketplaces: AvailableMarketplace[];
@@ -83,7 +84,7 @@ export function EventMarketCreateModal({
       answers: data.answers.map(answer => answer.value),
       rules: data.rules,
       question: data.question,
-      minBet: data.minBet * 10 ** 9,
+      minBet: aptToOctas(data.minBet),
     });
     console.log(res);
 

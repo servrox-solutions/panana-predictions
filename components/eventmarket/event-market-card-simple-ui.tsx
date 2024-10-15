@@ -31,6 +31,7 @@ import {
 } from "react-share";
 import { Address, EventMarketData } from "@/lib/types/market";
 import Link from "next/link";
+import { aptToOctas, octasToApt } from '@/lib/aptos';
 
 export interface EventMarketCardSimpleUiProps extends EventMarketData {
   onPlaceBet: (idx: number, amount: number) => void;
@@ -52,115 +53,115 @@ export const EventMarketCardSimpleUi: React.FC<
   onPlaceBet,
   onVote,
 }) => {
-  const [selectedAnswerIdx, setSelectedAnswerIdx] = useState<
-    number | undefined
-  >(undefined);
-  const [amount, setAmount] = useState<number>(minBet / 10 ** 8);
-  const getSocialMessage = (marketId: string) =>
-    `📊 Participate in the latest prediction market: "${question}"!\n\nJoin the challenge: https://app.panana-predictions.xyz/eventmarkets/${marketId}`;
+    const [selectedAnswerIdx, setSelectedAnswerIdx] = useState<
+      number | undefined
+    >(undefined);
+    const [amount, setAmount] = useState<number>(octasToApt(minBet));
+    const getSocialMessage = (marketId: string) =>
+      `📊 Participate in the latest prediction market: "${question}"!\n\nJoin the challenge: https://app.panana-predictions.xyz/eventmarkets/${marketId}`;
 
-  const handleVoteUp = useCallback(() => onVote(true), [onVote]);
-  const handleVoteDown = useCallback(() => onVote(false), [onVote]);
+    const handleVoteUp = useCallback(() => onVote(true), [onVote]);
+    const handleVoteDown = useCallback(() => onVote(false), [onVote]);
 
-  const containers = useMemo(
-    () => (
-      <div className="grid grid-cols-3 gap-2">
-        <TwitterShareButton className="w-8 h-8" url={getSocialMessage(address)}>
-          <TwitterIcon className="w-8 h-8 rounded-full" />
-        </TwitterShareButton>
-        <TelegramShareButton
-          className="w-8 h-8"
-          url={getSocialMessage(address)}
-        >
-          <TelegramIcon className="w-8 h-8 rounded-full" />
-        </TelegramShareButton>
-        <FacebookShareButton
-          className="w-8 h-8"
-          url={getSocialMessage(address)}
-        >
-          <FacebookIcon className="w-8 h-8 rounded-full" />
-        </FacebookShareButton>
-        <WhatsappShareButton
-          className="w-8 h-8"
-          url={getSocialMessage(address)}
-        >
-          <WhatsappIcon className="w-8 h-8 rounded-full" />
-        </WhatsappShareButton>
-        <EmailShareButton className="w-8 h-8" url={getSocialMessage(address)}>
-          <EmailIcon className="w-8 h-8 rounded-full" />
-        </EmailShareButton>
-        <HatenaShareButton className="w-8 h-8" url={getSocialMessage(address)}>
-          <HatenaIcon className="w-8 h-8 rounded-full" />
-        </HatenaShareButton>
-      </div>
-    ),
-    [address, getSocialMessage]
-  );
-
-  return (
-    <Card
-      className={cn(
-        "w-96 h-56 max-w-full overflow-hidden flex flex-col relative p-0"
-      )}
-    >
-      {/* Background Web3Icon */}
-      <div className="absolute inset-0 z-0 flex items-center justify-start opacity-10">
-        <TrophyIcon className="h-1/2 w-1/2 p-2" />
-      </div>
-
-      {/* Content */}
-      <div className="relative z-10 flex flex-col h-full gap-4">
-        {/* Header */}
-        <FrontHeader
-          question={question}
-          selectedAnswerIdx={selectedAnswerIdx}
-          setSelectedAnswerIdx={setSelectedAnswerIdx}
-          address={address}
-        />
-        <div className="flex flex-col gap-4 px-4">
-          {selectedAnswerIdx === undefined ? (
-            <AnswerSelection
-              answers={answers}
-              handleBet={setSelectedAnswerIdx}
-              upWinFactor={upWinFactor}
-              downWinFactor={downWinFactor}
-            />
-          ) : (
-            <BettingArea
-              buttonText={
-                selectedAnswerIdx !== undefined
-                  ? answers[selectedAnswerIdx]
-                  : "Answer"
-              }
-              winFactor={calculateUserWin(
-                upWinFactor,
-                downWinFactor,
-                1,
-                1,
-                amount,
-                true
-              )}
-              amount={amount * 10 ** 8}
-              selectedAnswerIdx={selectedAnswerIdx}
-              minBet={minBet}
-              setAmount={setAmount}
-              onPlaceBet={onPlaceBet}
-            />
-          )}
-          <FrontFooter
-            containers={containers}
-            handleVoteUp={handleVoteUp}
-            upVotesSum={upVotesSum}
-            handleVoteDown={handleVoteDown}
-            downVotesSum={downVotesSum}
-            address={address}
-            totalBets={totalBets}
-          />
+    const containers = useMemo(
+      () => (
+        <div className="grid grid-cols-3 gap-2">
+          <TwitterShareButton className="w-8 h-8" url={getSocialMessage(address)}>
+            <TwitterIcon className="w-8 h-8 rounded-full" />
+          </TwitterShareButton>
+          <TelegramShareButton
+            className="w-8 h-8"
+            url={getSocialMessage(address)}
+          >
+            <TelegramIcon className="w-8 h-8 rounded-full" />
+          </TelegramShareButton>
+          <FacebookShareButton
+            className="w-8 h-8"
+            url={getSocialMessage(address)}
+          >
+            <FacebookIcon className="w-8 h-8 rounded-full" />
+          </FacebookShareButton>
+          <WhatsappShareButton
+            className="w-8 h-8"
+            url={getSocialMessage(address)}
+          >
+            <WhatsappIcon className="w-8 h-8 rounded-full" />
+          </WhatsappShareButton>
+          <EmailShareButton className="w-8 h-8" url={getSocialMessage(address)}>
+            <EmailIcon className="w-8 h-8 rounded-full" />
+          </EmailShareButton>
+          <HatenaShareButton className="w-8 h-8" url={getSocialMessage(address)}>
+            <HatenaIcon className="w-8 h-8 rounded-full" />
+          </HatenaShareButton>
         </div>
-      </div>
-    </Card>
-  );
-};
+      ),
+      [address, getSocialMessage]
+    );
+
+    return (
+      <Card
+        className={cn(
+          "w-96 h-56 max-w-full overflow-hidden flex flex-col relative p-0"
+        )}
+      >
+        {/* Background Web3Icon */}
+        <div className="absolute inset-0 z-0 flex items-center justify-start opacity-10">
+          <TrophyIcon className="h-1/2 w-1/2 p-2" />
+        </div>
+
+        {/* Content */}
+        <div className="relative z-10 flex flex-col h-full gap-4">
+          {/* Header */}
+          <FrontHeader
+            question={question}
+            selectedAnswerIdx={selectedAnswerIdx}
+            setSelectedAnswerIdx={setSelectedAnswerIdx}
+            address={address}
+          />
+          <div className="flex flex-col gap-4 px-4">
+            {selectedAnswerIdx === undefined ? (
+              <AnswerSelection
+                answers={answers}
+                handleBet={setSelectedAnswerIdx}
+                upWinFactor={upWinFactor}
+                downWinFactor={downWinFactor}
+              />
+            ) : (
+              <BettingArea
+                buttonText={
+                  selectedAnswerIdx !== undefined
+                    ? answers[selectedAnswerIdx]
+                    : "Answer"
+                }
+                winFactor={calculateUserWin(
+                  upWinFactor,
+                  downWinFactor,
+                  1,
+                  1,
+                  amount,
+                  true
+                )}
+                amount={aptToOctas(amount)}
+                selectedAnswerIdx={selectedAnswerIdx}
+                minBet={minBet}
+                setAmount={setAmount}
+                onPlaceBet={onPlaceBet}
+              />
+            )}
+            <FrontFooter
+              containers={containers}
+              handleVoteUp={handleVoteUp}
+              upVotesSum={upVotesSum}
+              handleVoteDown={handleVoteDown}
+              downVotesSum={downVotesSum}
+              address={address}
+              totalBets={totalBets}
+            />
+          </div>
+        </div>
+      </Card>
+    );
+  };
 
 function FrontHeader({
   question,
@@ -220,7 +221,7 @@ function BettingArea({
   return (
     <>
       <DepositBet
-        defaultValue={minBet / 10 ** 8}
+        defaultValue={octasToApt(minBet)}
         onChangeAmount={setAmount}
         currency="APT"
       />

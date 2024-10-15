@@ -4,7 +4,7 @@ import ProfileCard from "@/components/profile/profile-card";
 import Statistics from '@/components/profile/profile-statistics';
 import { Card } from "@/components/ui/card";
 import { WalletReconnect } from "@/components/wallet-reconnect";
-import { MODULE_ADDRESS_FROM_ABI } from "@/lib/aptos";
+import { MODULE_ADDRESS_FROM_ABI, octasToApt } from "@/lib/aptos";
 import { getAccountBalance } from "@/lib/get-account-balance";
 import { getTotalTransactionCount } from "@/lib/get-account-transactions";
 import { NoditClient } from "@/lib/nodit/client";
@@ -49,6 +49,7 @@ export default async function Profile({
     USDC: statisticsPageData.data.usdc.length,
     ETH: statisticsPageData.data.eth.length,
   };
+  console.log(balance)
 
   return (
     <div className="flex justify-center items-center h-full">
@@ -57,7 +58,7 @@ export default async function Profile({
           <ProfileCard
             className="col-span-1"
             address={params.address as Address}
-            balance={balance / 10 ** 9}
+            balance={octasToApt(balance)}
             totalTransactions={totalTransactions}
           />
           <Card className="p-4 flex flex-col gap-2">

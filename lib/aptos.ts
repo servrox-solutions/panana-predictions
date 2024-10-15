@@ -60,3 +60,11 @@ export const isValidAddress = (address: string): boolean => {
     return false;
   }
 }
+
+export const octasToApt = (input: number): number => {
+  return input / (10 ** 8);
+}
+
+export const aptToOctas = (input: number): number => {
+  return input * (10 ** 8);
+}

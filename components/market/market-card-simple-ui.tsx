@@ -25,6 +25,7 @@ import { ShareDropdown } from "./share-dropdown";
 import { VoteDropdown } from "./vote-dropdown";
 import { NotificationDropdown } from "./notification-dropdown";
 import { isTelegramApp } from "@/lib/telegram";
+import { aptToOctas, octasToApt } from '@/lib/aptos';
 export interface MarketCardSimpleUiProps {
   tradingPairOne: MarketType; // Destructured property
   tradingPairTwo: string; // Destructured property
@@ -69,7 +70,7 @@ export const MarketCardSimpleUi: React.FC<MarketCardSimpleUiProps> = ({
   onSetupNotification,
 }) => {
   const [bet, setBet] = useState<"up" | "down" | null>(null);
-  const [amount, setAmount] = useState<number>(minBet / 10 ** 8);
+  const [amount, setAmount] = useState<number>(octasToApt(minBet));
 
   // Memoize the MarketCardTimeline component to prevent unnecessary re-renders
   const MemoizedMarketCardTimeline = useMemo(
@@ -185,14 +186,14 @@ export const MarketCardSimpleUi: React.FC<MarketCardSimpleUiProps> = ({
                 <div className="flex items-center">
                   <Coins className="w-4 h-4" />
                   <span className="text-xs dark:text-neutral-400 pl-1">
-                    {(upBetsSum + downBetsSum) / 10 ** 9} APT
+                    {octasToApt(upBetsSum + downBetsSum)} APT
                   </span>
                 </div>
               </div>
             )}
             {bet && (
               <DepositBet
-                defaultValue={minBet / 10 ** 8}
+                defaultValue={octasToApt(minBet)}
                 onChangeAmount={setAmount}
                 currency="APT"
               />
@@ -208,7 +209,7 @@ export const MarketCardSimpleUi: React.FC<MarketCardSimpleUiProps> = ({
                 ? "w-full font-semibold bg-gradient-to-r from-positive-1 to-positive-2 transition-all hover:to-green-500 text-white relative"
                 : "w-full font-semibold bg-gradient-to-r from-negative-1 to-negative-2 transition-all hover:to-red-500 text-white relative"
             }
-            onClick={() => onPlaceBet(bet === "up", amount * 10 ** 8)}
+            onClick={() => onPlaceBet(bet === "up", aptToOctas(amount))}
           >
             {bet === "up" ? "Bet Up" : "Bet Down"}
             {bet === "up" ? (

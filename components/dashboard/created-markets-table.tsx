@@ -20,7 +20,7 @@ import {
 } from "@/components/ui/table";
 import Link from "next/link";
 import { DateTime } from "luxon";
-import { getExplorerObjectLink } from "@/lib/aptos";
+import { getExplorerObjectLink, octasToApt } from "@/lib/aptos";
 import { Web3Icon } from "../web3-icon";
 import { useIsMounted } from "@/lib/hooks/useIsMounted";
 import { MarketType } from "@/lib/types/market";
@@ -118,7 +118,7 @@ export function CreatedMarketsTable({
                 <Coins className="h-4 w-4 mr-2" />
                 <div className="flex flex-col">
                   <div className="flex gap-2">
-                    {latestCreatedMarket.minBet / 10 ** 9}
+                    {octasToApt(latestCreatedMarket.minBet)}
                   </div>
                 </div>
               </div>
@@ -235,7 +235,7 @@ export function CreatedMarketsTable({
                       Min Bet
                     </span>
                     <div className="flex w-full">
-                      {latestCreatedMarket.minBet / 10 ** 9}
+                      {octasToApt(latestCreatedMarket.minBet)}
                     </div>
                   </div>
                 </div>

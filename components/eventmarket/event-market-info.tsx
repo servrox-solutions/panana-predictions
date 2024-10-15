@@ -3,7 +3,7 @@
 import { AvailableMarket } from "@/lib/get-available-markets";
 import { Card } from "../ui/card";
 import { EventMarketData } from "@/lib/types/market";
-import { getExplorerObjectLink } from "@/lib/aptos";
+import { getExplorerObjectLink, octasToApt } from "@/lib/aptos";
 import Link from "next/link";
 import { useEventMarket } from '@/lib/hooks/useEventMarket';
 
@@ -66,7 +66,7 @@ export const EventMarketInfo: React.FC<EventMarketInfoProps> = ({
             </div>
             <InfoItem
               label="Minimum Bet"
-              value={`APT ${((marketData?.minBet ?? 0) / 10 ** 8).toFixed(2)}`}
+              value={`APT ${(octasToApt((marketData?.minBet ?? 0))).toFixed(2)}`}
             />
             <InfoItem label="Fee" value={`${(marketData?.fee ?? 0) * 100} %`} />
           </div>

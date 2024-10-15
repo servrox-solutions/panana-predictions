@@ -29,13 +29,13 @@ import {
   HatenaIcon,
 } from "react-share";
 import { Address, EventMarketData } from "@/lib/types/market";
-import { EVENT_MARKET_ABI } from "@/lib/aptos";
+import { EVENT_MARKET_ABI, aptToOctas, octasToApt } from "@/lib/aptos";
 import { usePlaceEventMarketBet } from "@/lib/hooks/usePlaceEventMarketBet";
 import { useSubmitVote } from "@/lib/hooks/useSubmitVote";
 import { useWallet } from "@aptos-labs/wallet-adapter-react";
 import { toast } from "react-toastify";
 
-export interface EventMarketCardExtendedUiProps extends EventMarketData {}
+export interface EventMarketCardExtendedUiProps extends EventMarketData { }
 
 export const EventMarketCardExtendedUi: React.FC<
   EventMarketCardExtendedUiProps
@@ -51,147 +51,147 @@ export const EventMarketCardExtendedUi: React.FC<
   accepted,
   question,
 }) => {
-  const [selectedAnswerIdx, setSelectedAnswerIdx] = useState<
-    number | undefined
-  >(undefined);
-  const [amount, setAmount] = useState<number>(minBet / 10 ** 8);
-  const getSocialMessage = (marketId: string) =>
-    `📊 Participate in the latest prediction market: "${question}"!\n\nJoin the challenge: https://app.panana-predictions.xyz/eventmarkets/${marketId}`;
+    const [selectedAnswerIdx, setSelectedAnswerIdx] = useState<
+      number | undefined
+    >(undefined);
+    const [amount, setAmount] = useState<number>(octasToApt(minBet));
+    const getSocialMessage = (marketId: string) =>
+      `📊 Participate in the latest prediction market: "${question}"!\n\nJoin the challenge: https://app.panana-predictions.xyz/eventmarkets/${marketId}`;
 
-  const { account } = useWallet();
-  const { placeBet } = usePlaceEventMarketBet();
-  const { submitVote } = useSubmitVote();
+    const { account } = useWallet();
+    const { placeBet } = usePlaceEventMarketBet();
+    const { submitVote } = useSubmitVote();
 
-  const onPlaceBet = useCallback(
-    async (selectedAnswerIdx: number, amount: number) => {
-      if (!account?.address) {
-        toast.info("Please connect your wallet first.");
-        return;
-      }
-      if (accepted !== true) {
-        toast.info("Betting only possible on accepted markets.");
-        return;
-      }
-      if (address) {
-        const isSuccess = await placeBet(address, selectedAnswerIdx, amount);
-        if (isSuccess) toast.success("Bet placed successfully.");
-      }
-    },
-    [address, accepted, placeBet]
-  );
+    const onPlaceBet = useCallback(
+      async (selectedAnswerIdx: number, amount: number) => {
+        if (!account?.address) {
+          toast.info("Please connect your wallet first.");
+          return;
+        }
+        if (accepted !== true) {
+          toast.info("Betting only possible on accepted markets.");
+          return;
+        }
+        if (address) {
+          const isSuccess = await placeBet(address, selectedAnswerIdx, amount);
+          if (isSuccess) toast.success("Bet placed successfully.");
+        }
+      },
+      [address, accepted, placeBet]
+    );
 
-  const onVote = useCallback(
-    async (isVoteUp: boolean) => {
-      if (!account?.address) {
-        toast.info("Please connect your wallet first.", { autoClose: 2000 });
-        return;
-      }
-      const isSuccess = await submitVote(
-        `${EVENT_MARKET_ABI.address}::event_category::Sports`,
-        address,
-        isVoteUp
-      );
-      if (isSuccess)
-        toast.success("Vote submitted successfully.", { autoClose: 2000 });
-    },
-    [address, submitVote]
-  );
+    const onVote = useCallback(
+      async (isVoteUp: boolean) => {
+        if (!account?.address) {
+          toast.info("Please connect your wallet first.", { autoClose: 2000 });
+          return;
+        }
+        const isSuccess = await submitVote(
+          `${EVENT_MARKET_ABI.address}::event_category::Sports`,
+          address,
+          isVoteUp
+        );
+        if (isSuccess)
+          toast.success("Vote submitted successfully.", { autoClose: 2000 });
+      },
+      [address, submitVote]
+    );
 
-  const containers = useMemo(
-    () => (
-      <div className="grid grid-cols-3 gap-2">
-        <TwitterShareButton className="w-8 h-8" url={getSocialMessage(address)}>
-          <TwitterIcon className="w-8 h-8 rounded-full" />
-        </TwitterShareButton>
-        <TelegramShareButton
-          className="w-8 h-8"
-          url={getSocialMessage(address)}
-        >
-          <TelegramIcon className="w-8 h-8 rounded-full" />
-        </TelegramShareButton>
-        <FacebookShareButton
-          className="w-8 h-8"
-          url={getSocialMessage(address)}
-        >
-          <FacebookIcon className="w-8 h-8 rounded-full" />
-        </FacebookShareButton>
-        <WhatsappShareButton
-          className="w-8 h-8"
-          url={getSocialMessage(address)}
-        >
-          <WhatsappIcon className="w-8 h-8 rounded-full" />
-        </WhatsappShareButton>
-        <EmailShareButton className="w-8 h-8" url={getSocialMessage(address)}>
-          <EmailIcon className="w-8 h-8 rounded-full" />
-        </EmailShareButton>
-        <HatenaShareButton className="w-8 h-8" url={getSocialMessage(address)}>
-          <HatenaIcon className="w-8 h-8 rounded-full" />
-        </HatenaShareButton>
-      </div>
-    ),
-    [address, getSocialMessage]
-  );
-
-  return (
-    <Card className={cn("max-w-full flex flex-col relative p-0")}>
-      {/* Background Web3Icon */}
-      <div className="absolute inset-0 z-0 flex items-center justify-start opacity-10">
-        <TrophyIcon className="h-1/2 w-1/2 p-2" />
-      </div>
-
-      {/* Content */}
-      <div className="relative z-10 flex flex-col gap-4">
-        {/* Header */}
-        <FrontHeader
-          question={question}
-          selectedAnswerIdx={selectedAnswerIdx}
-          setSelectedAnswerIdx={setSelectedAnswerIdx}
-          address={address}
-        />
-        <div className="flex flex-col gap-4 px-4">
-          {selectedAnswerIdx === undefined ? (
-            <AnswerSelection
-              answers={answers}
-              handleBet={setSelectedAnswerIdx}
-              upWinFactor={upWinFactor}
-              downWinFactor={downWinFactor}
-            />
-          ) : (
-            <BettingArea
-              buttonText={
-                selectedAnswerIdx !== undefined
-                  ? answers[selectedAnswerIdx]
-                  : "Answer"
-              }
-              winFactor={calculateUserWin(
-                upWinFactor,
-                downWinFactor,
-                1,
-                1,
-                amount,
-                true
-              )}
-              amount={amount * 10 ** 8}
-              selectedAnswerIdx={selectedAnswerIdx}
-              minBet={minBet}
-              setAmount={setAmount}
-              onPlaceBet={onPlaceBet}
-            />
-          )}
-          <FrontFooter
-            containers={containers}
-            handleVoteUp={() => onVote(true)}
-            upVotesSum={upVotesSum}
-            handleVoteDown={() => onVote(false)}
-            downVotesSum={downVotesSum}
-            address={address}
-            totalBets={totalBets}
-          />
+    const containers = useMemo(
+      () => (
+        <div className="grid grid-cols-3 gap-2">
+          <TwitterShareButton className="w-8 h-8" url={getSocialMessage(address)}>
+            <TwitterIcon className="w-8 h-8 rounded-full" />
+          </TwitterShareButton>
+          <TelegramShareButton
+            className="w-8 h-8"
+            url={getSocialMessage(address)}
+          >
+            <TelegramIcon className="w-8 h-8 rounded-full" />
+          </TelegramShareButton>
+          <FacebookShareButton
+            className="w-8 h-8"
+            url={getSocialMessage(address)}
+          >
+            <FacebookIcon className="w-8 h-8 rounded-full" />
+          </FacebookShareButton>
+          <WhatsappShareButton
+            className="w-8 h-8"
+            url={getSocialMessage(address)}
+          >
+            <WhatsappIcon className="w-8 h-8 rounded-full" />
+          </WhatsappShareButton>
+          <EmailShareButton className="w-8 h-8" url={getSocialMessage(address)}>
+            <EmailIcon className="w-8 h-8 rounded-full" />
+          </EmailShareButton>
+          <HatenaShareButton className="w-8 h-8" url={getSocialMessage(address)}>
+            <HatenaIcon className="w-8 h-8 rounded-full" />
+          </HatenaShareButton>
         </div>
-      </div>
-    </Card>
-  );
-};
+      ),
+      [address, getSocialMessage]
+    );
+
+    return (
+      <Card className={cn("max-w-full flex flex-col relative p-0")}>
+        {/* Background Web3Icon */}
+        <div className="absolute inset-0 z-0 flex items-center justify-start opacity-10">
+          <TrophyIcon className="h-1/2 w-1/2 p-2" />
+        </div>
+
+        {/* Content */}
+        <div className="relative z-10 flex flex-col gap-4">
+          {/* Header */}
+          <FrontHeader
+            question={question}
+            selectedAnswerIdx={selectedAnswerIdx}
+            setSelectedAnswerIdx={setSelectedAnswerIdx}
+            address={address}
+          />
+          <div className="flex flex-col gap-4 px-4">
+            {selectedAnswerIdx === undefined ? (
+              <AnswerSelection
+                answers={answers}
+                handleBet={setSelectedAnswerIdx}
+                upWinFactor={upWinFactor}
+                downWinFactor={downWinFactor}
+              />
+            ) : (
+              <BettingArea
+                buttonText={
+                  selectedAnswerIdx !== undefined
+                    ? answers[selectedAnswerIdx]
+                    : "Answer"
+                }
+                winFactor={calculateUserWin(
+                  upWinFactor,
+                  downWinFactor,
+                  1,
+                  1,
+                  amount,
+                  true
+                )}
+                amount={aptToOctas(amount)}
+                selectedAnswerIdx={selectedAnswerIdx}
+                minBet={minBet}
+                setAmount={setAmount}
+                onPlaceBet={onPlaceBet}
+              />
+            )}
+            <FrontFooter
+              containers={containers}
+              handleVoteUp={() => onVote(true)}
+              upVotesSum={upVotesSum}
+              handleVoteDown={() => onVote(false)}
+              downVotesSum={downVotesSum}
+              address={address}
+              totalBets={totalBets}
+            />
+          </div>
+        </div>
+      </Card>
+    );
+  };
 
 function FrontHeader({
   question,
@@ -246,7 +246,7 @@ function BettingArea({
   return (
     <>
       <DepositBet
-        defaultValue={minBet / 10 ** 8}
+        defaultValue={octasToApt(minBet)}
         onChangeAmount={setAmount}
         currency="APT"
       />
@@ -372,7 +372,7 @@ function FrontFooter({
       <div className="flex flex-1 items-center justify-end">
         <Coins className="w-4 h-4" />
         <span className="text-xs dark:text-neutral-400 pl-1">
-          {(totalBets.reduce((acc, val) => acc + val, 0) / 10 ** 9).toFixed(2)}{" "}
+          {(octasToApt(totalBets.reduce((acc, val) => acc + val, 0))).toFixed(2)}{" "}
           APT
         </span>
       </div>

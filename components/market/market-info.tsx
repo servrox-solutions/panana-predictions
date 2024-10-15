@@ -5,7 +5,7 @@ import { Card } from "../ui/card";
 import { useMarket } from "@/lib/hooks/useMarket";
 import { MarketData } from "@/lib/types/market";
 import { useIsMounted } from "@/lib/hooks/useIsMounted";
-import { getExplorerObjectLink } from "@/lib/aptos";
+import { getExplorerObjectLink, octasToApt } from "@/lib/aptos";
 import Link from "next/link";
 import { formatAptPrice } from "@/lib/utils";
 import { DateTime } from 'luxon';
@@ -65,7 +65,7 @@ export const MarketInfo: React.FC<MarketInfoProps> = ({
             </div>
             <InfoItem
               label="Minimum Bet"
-              value={`APT ${((marketData?.minBet ?? 0) / 10 ** 8).toFixed(2)}`}
+              value={`APT ${(octasToApt(marketData?.minBet ?? 0)).toFixed(2)}`}
             />
             <InfoItem label="Fee" value={`${(marketData?.fee ?? 0) * 100} %`} />
           </div>
