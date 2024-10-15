@@ -1,14 +1,14 @@
 import { aptos } from './aptos';
 
 export interface MarketResolvedEventData {
-creator: string;
+  creator: string;
   market: {
     inner: string;
   }
   dissolved: boolean;
-    market_cap: string;
-    end_price: number;
-    start_price: number;
+  market_cap: string;
+  end_price: number;
+  start_price: number;
   marketplace: {
     inner: string;
   }

@@ -2,6 +2,7 @@ import { ThumbsDown, ThumbsUp } from "lucide-react";
 import { Card } from "../ui/card";
 import { Web3AmountCard } from "../web3-amount-card";
 import { MarketType } from "@/lib/types/market";
+import { octasToApt } from '@/lib/aptos';
 
 export interface StatisticsProps {
   placedBetsSum: number;
@@ -31,7 +32,7 @@ export default function Statistics(props: StatisticsProps) {
       <Card className="p-4 flex flex-col">
         <span className="text-sm text-gray-500">Volume Placed</span>
         <span className="text-lg font-semibold">
-          {(placedBetsSum / 10 ** 9).toFixed(5)} APT
+          {octasToApt(placedBetsSum).toFixed(5)} APT
         </span>
       </Card>
       <Card className="p-4 flex flex-col">

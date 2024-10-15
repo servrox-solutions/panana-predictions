@@ -29,6 +29,7 @@ import { Input } from "../ui/input";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { SimpleContainerDropdown } from "../simple-container-dropdown";
+import { octasToApt } from '@/lib/aptos';
 
 export interface MarketCardSimpleUiProps {
   tradingPair: { one: MarketType; two: string };
@@ -63,7 +64,7 @@ export const MarketCardExtendedUi: React.FC<MarketCardSimpleUiProps> = ({
   onVote,
 }) => {
   const [bet, setBet] = useState<"up" | "down" | null>(null);
-  const [amount, setAmount] = useState<number>(minBet / 10 ** 9);
+  const [amount, setAmount] = useState<number>(octasToApt(minBet));
   const getSocialMessage = (marketId: string) =>
     `📈 Think you can predict the next move in crypto?\nJoin our latest market and put your forecast to the test!\n\nhttps://app.panana-predictions.xyz/markets/${marketId}\n\nOnly on 🍌Panana Predictions!`;
 
@@ -109,7 +110,7 @@ export const MarketCardExtendedUi: React.FC<MarketCardSimpleUiProps> = ({
           type="number"
           step="0.01"
           placeholder="Amount"
-          defaultValue={minBet / 10 ** 9}
+          defaultValue={octasToApt(minBet)}
           onChange={(ev) => setAmount(+ev.target.value)}
           className="text-foreground bg-white/40 dark:bg-black/40"
         />
@@ -184,7 +185,7 @@ export const MarketCardExtendedUi: React.FC<MarketCardSimpleUiProps> = ({
         <div className="flex items-center">
           <Coins className="w-4 h-4" />
           <span className="text-xs pl-1">
-            {(upBetsSum + downBetsSum) / 10 ** 9} APT
+            {octasToApt(upBetsSum + downBetsSum)} APT
           </span>
         </div>
         <div className="flex justify-end space-x-2">

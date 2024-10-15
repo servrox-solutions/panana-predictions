@@ -19,7 +19,7 @@ export const usePlaceEventMarketBet = () => {
         typeArguments: [
           `${EVENT_MARKET_ABI.address}::event_category::Sports`,
         ],
-        functionArguments: [address, selectedAnswerIdx, amount.toString()],
+        functionArguments: [address, selectedAnswerIdx, Math.floor(amount).toString()],
       });
 
       const transactionResponse = await signAndSubmitTransaction({

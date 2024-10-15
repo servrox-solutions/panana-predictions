@@ -22,10 +22,11 @@ import {
 } from "@/components/ui/table";
 import Link from "next/link";
 import { DateTime } from "luxon";
-import { getExplorerObjectLink } from "@/lib/aptos";
+import { getExplorerObjectLink, octasToApt } from "@/lib/aptos";
 import { Web3Icon } from "../web3-icon";
 import { useIsMounted } from "@/lib/hooks/useIsMounted";
 import { MarketType } from "@/lib/types/market";
+import { convertSmallestUnitToFullUnit } from '@/lib/utils';
 
 export interface ResolvedMarket {
   assetSymbol: MarketType;
@@ -136,7 +137,7 @@ export function ResolvedMarketsTable({
                   : "text-negative-1"
                   } relative`}
               >
-                {(latestResolvedMarket.startPrice / 10 ** 9).toFixed(3)} ${" "}
+                {latestResolvedMarket.startPrice.toFixed(3)} ${" "}
                 {latestResolvedMarket.startPrice ===
                   latestResolvedMarket.endPrice ? (
                   <ChevronsLeftRight />
@@ -146,7 +147,7 @@ export function ResolvedMarketsTable({
                 ) : (
                   <ChevronsDown />
                 )}{" "}
-                {(latestResolvedMarket.endPrice / 10 ** 9).toFixed(3)} $
+                {latestResolvedMarket.endPrice.toFixed(3)} $
               </div>
             </TableCell>
             <TableCell className="hidden lg:table-cell">
@@ -188,7 +189,7 @@ export function ResolvedMarketsTable({
                         true
                       )}
                     >
-                      {latestResolvedMarket.marketplaceAddress}
+                      {latestResolvedMarket.creator}
                     </Link>
                   </p>
                 </div>
@@ -281,13 +282,11 @@ export function ResolvedMarketsTable({
                           }`}
                       >
                         <div>
-                          {(latestResolvedMarket.startPrice / 10 ** 9).toFixed(
-                            3
-                          )}{" "}
+                          {latestResolvedMarket.startPrice.toFixed(3)}{" "}
                           $
                         </div>
                         <div>
-                          {(latestResolvedMarket.endPrice / 10 ** 9).toFixed(3)}{" "}
+                          {latestResolvedMarket.endPrice.toFixed(3)}{" "}
                           $
                         </div>
                       </div>

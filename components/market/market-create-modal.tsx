@@ -18,7 +18,7 @@ import { FormField, FormItem, FormLabel, FormMessage, Form } from "../ui/form";
 import { useForm } from "react-hook-form";
 import { createMarket } from "@/lib/create-market";
 import { useWallet } from "@aptos-labs/wallet-adapter-react";
-import { MODULE_ADDRESS_FROM_ABI } from "@/lib/aptos";
+import { MODULE_ADDRESS_FROM_ABI, aptToOctas } from "@/lib/aptos";
 import { Input } from "../ui/input";
 import { AvailableMarketplace } from "@/lib/get-available-marketplaces";
 import { toast } from "react-toastify";
@@ -152,7 +152,7 @@ export function MarketCreateModal({
         .address,
       startTimeTimestampSeconds: Math.floor(startTime.toSeconds()),
       endTimeTimestampSeconds: Math.floor(endTime.toSeconds()),
-      minBet: data.minBet * 10 ** 9,
+      minBet: aptToOctas(data.minBet),
     });
     console.log(res);
 

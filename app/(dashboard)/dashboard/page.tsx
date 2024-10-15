@@ -1,11 +1,12 @@
 import { getMarketCreatedEvents } from "@/lib/get-market-created-events";
 import { getMarketResolvedEvents } from "@/lib/get-market-resolved-events";
 import { fetchPriceUSD } from "@/lib/fetch-price";
-import { MODULE_ADDRESS_FROM_ABI } from "@/lib/aptos";
+import { MODULE_ADDRESS_FROM_ABI, octasToApt } from "@/lib/aptos";
 import { getAvailableMarketplaces } from "@/lib/get-available-marketplaces";
 import { getMarketplaceRessource } from "@/lib/get-marketplace-ressource";
 import { DashboardContent } from "@/components/dashboard/dashboard-content";
 import { MarketType } from "@/lib/types/market";
+import { convertSmallestUnitToFullUnit } from '@/lib/utils';
 
 export interface MarketResolvedEventData {
   market: {
@@ -67,8 +68,8 @@ export default async function Dashboard({
     .map((marketplace) => +marketplace.all_time_volume)
     .reduce((prev, cur) => prev + cur, 0);
   const totalVolume = {
-    apt: totalVolumeApt / 10 ** 9,
-    usd: (totalVolumeApt / 10 ** 9) * price,
+    apt: octasToApt(totalVolumeApt),
+    usd: octasToApt(totalVolumeApt) * price,
   };
 
   const resolvedMarkets = resolvedEvents
@@ -80,11 +81,11 @@ export default async function Dashboard({
         marketAddress: x.market.inner,
         marketplaceAddress: x.marketplace.inner,
         creator: x.creator,
-        startPrice: x.start_price,
-        endPrice: x.end_price,
+        startPrice: (+x.start_price / 10 ** 9),
+        endPrice: (+x.end_price / 10 ** 9),
         marketCap: {
-          asset: +x.market_cap / 10 ** 9,
-          usd: (+x.market_cap / 10 ** 9) * price,
+          asset: convertSmallestUnitToFullUnit(+x.market_cap, symbols[idx]),
+          usd: convertSmallestUnitToFullUnit(+x.market_cap, symbols[idx]) * price,
         },
         dissolved: x.dissolved,
       }))
@@ -135,3 +136,4 @@ export default async function Dashboard({
     </>
   );
 }
+

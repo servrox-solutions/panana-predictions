@@ -32,7 +32,7 @@ export const initializeEventMarket = async (
   const upVotesSum = Number(market.up_votes_sum);
   const downVotesSum = Number(market.down_votes_sum);
 
-  const name = `Event: ${market.question} (ID: ${availableMarket.address})`;
+  const name = `Event: ${market.question}`;
 
   const accepted = market.accepted.vec?.length > 0 ? market.accepted.vec[0] : undefined;
   const rejectionReason: string = market.rejection_reason.vec?.length > 0 ? market.rejection_reason.vec[0] : undefined;

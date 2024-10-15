@@ -340,7 +340,7 @@ function FrontFooter({
       <div className="flex flex-1 items-center justify-end">
         <Coins className="w-4 h-4" />
         <span className="text-xs dark:text-neutral-400 pl-1">
-          {(totalBets.reduce((acc, val) => acc + val, 0) / 10 ** 9).toFixed(2)}{" "}
+          {octasToApt(totalBets.reduce((acc, val) => acc + val, 0)).toFixed(2)}{" "}
           APT
         </span>
       </div>

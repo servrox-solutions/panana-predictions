@@ -19,7 +19,7 @@ export const usePlaceBet = () => {
         typeArguments: [
           `${MARKET_ABI.address}::switchboard_asset::${marketData.tradingPair.one}`,
         ],
-        functionArguments: [marketData.address, betUp, amount.toString()],
+        functionArguments: [marketData.address, betUp, Math.floor(amount).toString()],
       });
 
       const transactionResponse = await signAndSubmitTransaction({

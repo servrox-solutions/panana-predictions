@@ -2,6 +2,7 @@ import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 import { MarketType, MessageKind } from "./types/market";
 import { Duration } from "luxon";
+import { octasToApt } from './aptos';
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -67,7 +68,7 @@ export function extractAsset(input: string): MarketType {
 }
 
 export function formatAptPrice(price: number): string {
-  return (price / 10 ** 9).toFixed(3);
+  return octasToApt(price).toFixed(3);
 }
 
 export const formatTime = (seconds: number): string => {
@@ -93,4 +94,13 @@ export function getMessageByKind(messageKind: MessageKind): string {
 
 export function escapeMarkdownV2(text: string) {
   return text.replace(/([_*\[\]()~`>#+\-=|{}.!\\])/g, "\\$1");
+}
+
+export const convertSmallestUnitToFullUnit = (smallestAmount: number, type: MarketType) => {
+  
+  if (type === 'APT') {
+    return octasToApt(smallestAmount);
+  } else {
+    return smallestAmount / 10 ** 9;
+  }
 }

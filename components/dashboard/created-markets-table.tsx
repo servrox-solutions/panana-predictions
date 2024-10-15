@@ -174,7 +174,7 @@ export function CreatedMarketsTable({
                         true
                       )}
                     >
-                      {latestCreatedMarket.marketplaceAddress}
+                      {latestCreatedMarket.creator}
                     </Link>
                   </p>
                 </div>
