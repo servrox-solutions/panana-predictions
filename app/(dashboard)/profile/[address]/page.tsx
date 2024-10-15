@@ -27,8 +27,11 @@ export default async function Profile({
     noditClient.fetchProfileStatisticsData(params.address),
   ]);
 
-  const totalInteractions =
+  const totalInteractionsAssetMarkets =
     statisticsPageData.data.market_interactions.aggregate.count;
+
+  const totalInteractionsEventMarkets =
+    statisticsPageData.data.event_market_interactions.aggregate.count;
 
   const placedBetsSum =
     statisticsPageData.data.placed_bets.aggregate.sum.amount;
@@ -80,7 +83,8 @@ export default async function Profile({
         <Statistics
           createdMarkets={createdMarketDetails}
           bettedMarkets={bettedMarketDetails}
-          totalInteractions={totalInteractions}
+          totalInteractionsAssetMarkets={totalInteractionsAssetMarkets}
+          totalInteractionsEventMarkets={totalInteractionsEventMarkets}
           placedBetsSum={placedBetsSum}
           totalVotes={totalVotes}
         />

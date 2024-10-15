@@ -5,6 +5,7 @@ export interface StatisticsPageResponse {
 export interface Data {
   created_markets: CreatedMarkets
   market_interactions: MarketInteractions
+  event_market_interactions: MarketInteractions
   total_votes: TotalVotes
   apt: unknown[]
   btc: unknown[]

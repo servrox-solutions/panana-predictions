@@ -2,6 +2,7 @@ import { ModeToggle } from "./mode-toggle";
 import { WalletSelector } from "./wallet-selector";
 import { Logo } from "./sidenav/logo";
 import { FundWalletButton } from './fund-wallet-button';
+import { Card } from './ui/card';
 
 export function Header() {
   return (
@@ -36,7 +37,7 @@ export function Header() {
       <div className="block sm:hidden">
         <Logo />
       </div>
-      <div className="relative ml-auto flex-1 md:grow-0">
+      <div className="relative grow flex-1">
         {/* <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
         <Input
           type="search"
@@ -45,6 +46,7 @@ export function Header() {
         /> */}
       </div>
 
+      <Card className="p-2 text-xs text-center">Early Alpha<br />Aptos Testnet</Card>
       <ModeToggle className="hidden sm:flex" />
       <FundWalletButton />
       {/* <WalletReconnect className="hidden sm:flex" /> */}

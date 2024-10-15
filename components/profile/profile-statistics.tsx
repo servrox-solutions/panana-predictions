@@ -6,7 +6,8 @@ import { octasToApt } from '@/lib/aptos';
 
 export interface StatisticsProps {
   placedBetsSum: number;
-  totalInteractions: number;
+  totalInteractionsAssetMarkets: number;
+  totalInteractionsEventMarkets: number;
   createdMarkets: { [key in MarketType]: number };
   bettedMarkets: { [key in MarketType]: number };
   totalVotes: number;
@@ -16,12 +17,12 @@ export interface StatisticsProps {
 export default function Statistics(props: StatisticsProps) {
   const {
     totalVotes,
-    totalInteractions,
+    totalInteractionsAssetMarkets,
+    totalInteractionsEventMarkets,
     bettedMarkets,
     placedBetsSum,
     createdMarkets
   } = props;
-
   return (
     <div className="grid grid-cols-2 gap-4 text-muted dark:text-white">
       <Web3AmountCard
@@ -32,7 +33,7 @@ export default function Statistics(props: StatisticsProps) {
       <Card className="p-4 flex flex-col">
         <span className="text-sm text-gray-500">Volume Placed</span>
         <span className="text-lg font-semibold">
-          {octasToApt(placedBetsSum).toFixed(5)} APT
+          {octasToApt(placedBetsSum).toLocaleString(undefined, { maximumFractionDigits: 2 })} APT
         </span>
       </Card>
       <Card className="p-4 flex flex-col">
@@ -52,9 +53,16 @@ export default function Statistics(props: StatisticsProps) {
       />
 
       <Card className="p-4 flex flex-col">
-        <span className="text-sm text-gray-500">Interactions with Markets</span>
+        <span className="text-sm text-gray-500">Interactions with Asset Markets</span>
         <span className="text-lg font-semibold">
-          {totalInteractions.toLocaleString()}
+          {totalInteractionsAssetMarkets.toLocaleString()}
+        </span>
+      </Card>
+
+      <Card className="p-4 flex flex-col">
+        <span className="text-sm text-gray-500">Interactions with Event Markets</span>
+        <span className="text-lg font-semibold">
+          {totalInteractionsEventMarkets.toLocaleString()}
         </span>
       </Card>
 
