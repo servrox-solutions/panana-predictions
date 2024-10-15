@@ -25,7 +25,9 @@ import { ShareDropdown } from "./share-dropdown";
 import { VoteDropdown } from "./vote-dropdown";
 import { NotificationDropdown } from "./notification-dropdown";
 import { isTelegramApp } from "@/lib/telegram";
-import { aptToOctas, octasToApt } from '@/lib/aptos';
+import { aptToOctas, octasToApt } from "@/lib/aptos";
+import { PricePercentageChange } from "./price-percentage-change";
+
 export interface MarketCardSimpleUiProps {
   tradingPairOne: MarketType; // Destructured property
   tradingPairTwo: string; // Destructured property
@@ -98,9 +100,22 @@ export const MarketCardSimpleUi: React.FC<MarketCardSimpleUiProps> = ({
         betCloseTime={betCloseTime}
         titleLinkHref={`/markets/${address}`}
         shortVersion
+        showTime={false}
       />
     ),
     [tradingPairOne, tradingPairTwo, resolveTime, betCloseTime]
+  );
+
+  const MemoizedPricePercentageChange = useMemo(
+    () => (
+      <PricePercentageChange
+        tradingPair={tradingPairOne}
+        createdAt={createTime}
+        startTime={startTime}
+        endTime={resolveTime}
+      />
+    ),
+    [createTime, startTime, resolveTime]
   );
 
   return (
@@ -123,6 +138,7 @@ export const MarketCardSimpleUi: React.FC<MarketCardSimpleUiProps> = ({
         <div className="flex justify-between items-center max-w-full">
           <div className="flex flex-nowrap text-left">
             {MemoizedMarketTitle}
+            {MemoizedPricePercentageChange}
           </div>
           {!bet && (
             <div className="flex-1 text-nowrap text-right">

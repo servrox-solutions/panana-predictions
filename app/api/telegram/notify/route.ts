@@ -1,4 +1,5 @@
 import { sendNotificationSetupMessage } from "@/lib/send-telegram-message";
+import { NextResponse } from "next/server";
 
 export async function POST(request: Request) {
   const {
@@ -16,5 +17,5 @@ export async function POST(request: Request) {
     true
   );
 
-  return Response.json({ success: true });
+  return NextResponse.json({ success: true });
 }

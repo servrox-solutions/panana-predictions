@@ -1,7 +1,7 @@
 import { cn } from "@/lib/utils";
 import { TrendingUpDown } from "lucide-react";
 import { DateTime, Duration } from "luxon";
-import Link from 'next/link';
+import Link from "next/link";
 
 export interface MarketTitleProps {
   tradingPair: {
@@ -14,6 +14,7 @@ export interface MarketTitleProps {
   as?: any;
   className?: string;
   shortVersion?: boolean;
+  showTime?: boolean;
 }
 
 export const MarketTitle = ({
@@ -23,6 +24,7 @@ export const MarketTitle = ({
   as: Tag = "h2",
   className,
   shortVersion = false,
+  showTime = true,
   titleLinkHref,
 }: MarketTitleProps) => {
   const diff = DateTime.fromSeconds(resolveTime).diff(
@@ -66,15 +68,20 @@ export const MarketTitle = ({
       )}
       {shortVersion && (
         <div className="flex">
-          <Link className="dark:text-secondary bg-primary px-1 rounded mx-1 hover:underline" href={titleLinkHref ?? ''}>
+          <Link
+            className="dark:text-secondary bg-primary px-1 rounded mx-1 hover:underline"
+            href={titleLinkHref ?? ""}
+          >
             {tradingPair.one}/{tradingPair.two}
           </Link>
-          <div className="hidden sm:flex items-center">
-            <TrendingUpDown className="pr-2 dark:text-neutral-400" />
-            <span className="font-normal dark:text-neutral-400 text-sm truncate">
-              {toHuman(diff)}
-            </span>
-          </div>
+          {showTime && (
+            <div className="hidden sm:flex items-center">
+              <TrendingUpDown className="pr-2 dark:text-neutral-400" />
+              <span className="font-normal dark:text-neutral-400 text-sm truncate">
+                {toHuman(diff)}
+              </span>
+            </div>
+          )}
         </div>
       )}
     </Tag>
