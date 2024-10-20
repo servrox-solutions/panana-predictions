@@ -1,5 +1,5 @@
 import { TrendingDown, TrendingUp } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 export interface PricePercentageChangeProps {
   tradingPair: string;
@@ -19,7 +19,7 @@ export async function PricePercentageChange({
     priceChangePhaseTwo: number;
   } | null>(null);
 
-  const getPriceChange = async () => {
+  const getPriceChange = useCallback(async () => {
     const priceChangeResponse = await fetch(
       new URL(
         "/api/market/price-percentage",
@@ -38,8 +38,9 @@ export async function PricePercentageChange({
       }
     );
     const priceChange = await priceChangeResponse.json();
+    console.log(priceChange)
     setPriceChange(priceChange);
-  };
+  }, [tradingPair, createdAt, startTime, endTime, setPriceChange]);
 
   useEffect(() => {
     getPriceChange();
@@ -67,7 +68,7 @@ export async function PricePercentageChange({
                 <span
                   className={`bg-gradient-to-r ${gradientFrom} ${gradientTo} inline-block text-transparent bg-clip-text text-xs pl-1`}
                 >
-                  {changeValue.toFixed(2)}%
+                  {(changeValue ?? 0).toFixed(2)}%
                 </span>
               </>
             );

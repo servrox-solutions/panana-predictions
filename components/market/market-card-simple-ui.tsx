@@ -115,7 +115,7 @@ export const MarketCardSimpleUi: React.FC<MarketCardSimpleUiProps> = ({
         endTime={resolveTime}
       />
     ),
-    [createTime, startTime, resolveTime]
+    [tradingPairOne, createTime, startTime, resolveTime]
   );
 
   return (
