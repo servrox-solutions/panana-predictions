@@ -11,11 +11,12 @@ import { NoditClient } from "@/lib/nodit/client";
 import { MarketType } from "@/lib/types/market";
 import { Address } from "@/lib/types/market";
 
-export default async function Profile({
-  params,
-}: {
-  params: { address: Address };
-}) {
+export default async function Profile(
+  props: {
+    params: Promise<{ address: Address }>;
+  }
+) {
+  const params = await props.params;
   const noditClient = new NoditClient(
     MODULE_ADDRESS_FROM_ABI,
     process.env.NODIT_API_KEY as Address

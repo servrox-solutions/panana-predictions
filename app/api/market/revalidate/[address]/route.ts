@@ -6,9 +6,9 @@ type ResponseData = {
   message: string
 }
  
-export async function POST(req: NextRequest, context: { params: { address: string } }) {
+export async function POST(req: NextRequest, context: { params: Promise<{ address: string }> }) {
 
-    const address = context.params.address;
+    const address = (await context.params).address;
     revalidatePath('/markets');
     revalidatePath('/eventmarkets');
     revalidatePath(`/markets/${address}`);

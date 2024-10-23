@@ -24,11 +24,12 @@ export interface MarketResolvedEventData {
 // revalidate page cache every X seconds
 export const revalidate = 120;
 
-export default async function Dashboard({
-  searchParams,
-}: {
-  searchParams: { [key: string]: string | string[] | undefined };
-}) {
+export default async function Dashboard(
+  props: {
+    searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+  }
+) {
+  const searchParams = await props.searchParams;
   const marketplaces = await getAvailableMarketplaces();
   const symbols = marketplaces.map((marketplace) => {
     const parts = marketplace.typeArgument.split("::");

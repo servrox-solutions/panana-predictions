@@ -8,7 +8,9 @@ export interface AvailableMarket<T extends EventMarketType | MarketType> {
   type: T;
 }
 
-export const getAvailableMarkets = async<T extends EventMarketType | MarketType> (
+export const getAvailableMarkets = async <
+  T extends EventMarketType | MarketType
+>(
   marketplaces: AvailableMarketplace[]
 ): Promise<AvailableMarket<T>[]> => {
   if (marketplaces.length === 0) return [];
@@ -17,7 +19,6 @@ export const getAvailableMarkets = async<T extends EventMarketType | MarketType>
   const logger = getLogger();
 
   for (const marketplace of marketplaces) {
-    console.log(marketplace)
     await surfClientMarketplace.view
       .available_markets({
         typeArguments: [`${marketplace.typeArgument}`],

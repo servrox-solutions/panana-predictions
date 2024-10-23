@@ -27,8 +27,8 @@ const items: SidenavItem[] = [
   },
 ];
 
-export function NavigationBar() {
-  const headerList = headers();
+export async function NavigationBar() {
+  const headerList = await headers();
   const pathname = headerList.get("x-current-path");
 
   return (

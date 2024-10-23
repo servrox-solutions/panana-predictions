@@ -1,18 +1,12 @@
 "use client";
 
-import React, { useState, useMemo, useCallback } from "react";
+import React, { useState, useMemo, useCallback, Fragment } from "react";
 import { Button } from "../ui/button";
 import { cn } from "@/lib/utils";
 import { SimpleContainerDropdown } from "../simple-container-dropdown";
 import { Card } from "../ui/card";
 import DepositBet from "../deposit-bet";
-import {
-  ChartLine,
-  Coins,
-  Share2,
-  TrophyIcon,
-  Undo2,
-} from "lucide-react";
+import { ChartLine, Coins, Share2, TrophyIcon, Undo2 } from "lucide-react";
 import {
   TwitterShareButton,
   TelegramShareButton,
@@ -29,9 +23,9 @@ import {
 } from "react-share";
 import { Address, EventMarketData } from "@/lib/types/market";
 import Link from "next/link";
-import { aptToOctas, octasToApt } from '@/lib/aptos';
-import { VoteDropdown } from '../market/vote-dropdown';
-import { EventIcon } from '../event-icon';
+import { aptToOctas, octasToApt } from "@/lib/aptos";
+import { VoteDropdown } from "../market/vote-dropdown";
+import { EventIcon } from "../event-icon";
 
 export interface EventMarketCardSimpleUiProps {
   onPlaceBet: (idx: number, amount: number) => void;
@@ -223,7 +217,10 @@ function BettingArea({
       >
         Bet on {buttonText}
         <span className="absolute bottom-0 right-1 -mb-1 text-lg group-hover:text-4xl text-white/30">
-          {(100 * winFactor).toLocaleString(undefined, { maximumFractionDigits: 2 })} %
+          {(100 * winFactor).toLocaleString(undefined, {
+            maximumFractionDigits: 2,
+          })}{" "}
+          %
         </span>
       </Button>
     </>
@@ -233,7 +230,7 @@ function BettingArea({
 function AnswerSelection({
   answers,
   handleBet,
-  distribution
+  distribution,
 }: {
   answers: string[];
   handleBet: (idx: number) => void;
@@ -242,7 +239,7 @@ function AnswerSelection({
   return (
     <div className="grid grid-cols-3 gap-2 flex-grow-1 w-full overflow-y-auto max-h-[100px] min-h-[100px]">
       {answers.map((answer, idx) => (
-        <>
+        <Fragment key={idx}>
           <div className="col-span-2">{answer}</div>
           <Button
             className="group w-full h-6 font-semibold bg-gradient-to-r from-positive-1 to-positive-2 transition-all hover:to-green-500 text-white relative"
@@ -258,7 +255,7 @@ function AnswerSelection({
               {(distribution[idx] * 100).toFixed(0)} %
             </span>
           </Button>
-        </>
+        </Fragment>
       ))}
     </div>
   );
@@ -300,7 +297,9 @@ function FrontFooter({
         <VoteDropdown
           upVotesSum={upVotesSum}
           downVotesSum={downVotesSum}
-          onVote={(voteUp: boolean) => voteUp ? handleVoteUp() : handleVoteDown()}
+          onVote={(voteUp: boolean) =>
+            voteUp ? handleVoteUp() : handleVoteDown()
+          }
         />
       </div>
       <Button variant="ghost" size="icon" asChild>

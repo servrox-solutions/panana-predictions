@@ -5,11 +5,12 @@ import { getEventMarketType } from "@/lib/get-event-market-type";
 import { initializeEventMarket } from "@/lib/initialize-event-market";
 import { EventMarketInfo } from "@/components/eventmarket/event-market-info";
 
-export default async function Market({
-  params,
-}: {
-  params: { address: string };
-}) {
+export default async function Market(
+  props: {
+    params: Promise<{ address: string }>;
+  }
+) {
+  const params = await props.params;
   const marketType = await getEventMarketType(params.address as Address);
 
   const availableMarket: AvailableMarket<EventMarketType> = {

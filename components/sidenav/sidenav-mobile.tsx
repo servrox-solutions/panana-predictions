@@ -7,8 +7,8 @@ import { sidenavItems } from "./sidenav-items";
 import { Logo } from "./logo";
 import { DebugSidenavMobileItem } from "./debug-sidenav-mobile-item";
 
-export function SidenavMobile() {
-  const headerList = headers();
+export async function SidenavMobile() {
+  const headerList = await headers();
   const pathname = headerList.get("x-current-path");
 
   return (

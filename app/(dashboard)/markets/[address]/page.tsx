@@ -11,11 +11,12 @@ import { MarketCardTimeline } from '@/components/market/market-card-timeline';
 import { MarketInfo } from '@/components/market/market-info';
 import { MarketTitle } from '@/components/market/market-title';
 
-export default async function Market({
-  params,
-}: {
-  params: { address: string };
-}) {
+export default async function Market(
+  props: {
+    params: Promise<{ address: string }>;
+  }
+) {
+  const params = await props.params;
   const marketType = await getMarketType(params.address as Address);
 
   const availableMarket: AvailableMarket<MarketType> = {

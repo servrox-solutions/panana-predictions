@@ -12,11 +12,12 @@ import { MarketType } from '@/lib/types/market';
 export const revalidate = 30; // in seconds
 // export const revalidate = false; // Infinity (default)
 
-export default async function Markets({
-  searchParams,
-}: {
-  searchParams: { [key: string]: string | string[] | undefined };
-}) {
+export default async function Markets(
+  props: {
+    searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+  }
+) {
+  const searchParams = await props.searchParams;
   const marketplaces = await getAvailableMarketplaces();
   let availableMarkets = await getAvailableMarkets<MarketType>(marketplaces);
 

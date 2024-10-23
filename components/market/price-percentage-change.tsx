@@ -1,3 +1,5 @@
+"use client";
+
 import { TrendingDown, TrendingUp } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 
@@ -8,7 +10,7 @@ export interface PricePercentageChangeProps {
   endTime: number;
 }
 
-export async function PricePercentageChange({
+export function PricePercentageChange({
   tradingPair,
   createdAt,
   startTime,
@@ -38,7 +40,6 @@ export async function PricePercentageChange({
       }
     );
     const priceChange = await priceChangeResponse.json();
-    console.log(priceChange)
     setPriceChange(priceChange);
   }, [tradingPair, createdAt, startTime, endTime, setPriceChange]);
 

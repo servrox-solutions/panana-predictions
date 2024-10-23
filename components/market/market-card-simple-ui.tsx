@@ -13,7 +13,7 @@ import {
 
 import React, { useState, useMemo, useCallback } from "react";
 import { Button } from "../ui/button";
-import { calculateUserWin, cn } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 import { MarketCardTimeline } from "./market-card-timeline";
 import Link from "next/link";
 import { MarketTitle } from "./market-title";
@@ -235,7 +235,8 @@ export const MarketCardSimpleUi: React.FC<MarketCardSimpleUiProps> = ({
               <ChevronsDown className="ml-2 h-4 w-4" />
             )}
             <span className="absolute bottom-0 right-1 -mb-1 text-lg group-hover:text-4xl text-white/30">
-              {((bet === 'up' ? upWinFactor : downWinFactor) * 100).toFixed(0)} %
+              {((bet === "up" ? upWinFactor : downWinFactor) * 100).toFixed(0)}{" "}
+              %
             </span>
           </Button>
         )}
