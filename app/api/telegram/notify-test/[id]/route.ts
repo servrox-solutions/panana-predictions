@@ -1,4 +1,4 @@
-import { sendNewsNotification } from "@/lib/send-telegram-message";
+import { sendNewsNotification } from "@/lib/send-telegram-news-notification";
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 
