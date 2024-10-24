@@ -2,7 +2,7 @@ export const dynamic = "force-dynamic";
 
 export const fetchCache = "force-no-store";
 
-import { Bot, webhookCallback } from "grammy";
+import { Bot, InlineKeyboard, webhookCallback } from "grammy";
 import { Menu } from "@grammyjs/menu";
 import { storeTelegramUser } from "@/lib/supabase/store-telegram-user";
 import { sendDebugMessage } from "@/lib/send-telegram-message";
@@ -149,6 +149,123 @@ bot.callbackQuery("notification-setup", async (ctx) => {
   }
 
   await ctx.answerCallbackQuery();
+});
+
+bot.callbackQuery("news-2-switchboard", async (ctx) => {
+  const message = `🔮 <b><a href="https://switchboard.xyz/">Switchboard Oracles</a></b>
+We use Switchboard Oracles to fetch real-time crypto prices directly inside our smart contracts. This ensures that all market predictions are based on accurate and up-to-date data, giving you confidence in your predictions.`;
+
+  const menu = new InlineKeyboard()
+    .text("📊 NODIT", "news-2-nodit")
+    .text("📈 MEXC", "news-2-mexc")
+    .text("🖥️ TradingView", "news-2-tradingview")
+    .row()
+    .text("↸", "news-2-close");
+
+  bot.api.sendMessage(ctx.from.id, message, {
+    parse_mode: "HTML",
+    link_preview_options: { is_disabled: true },
+    reply_markup: menu,
+  });
+
+  if (
+    ctx.callbackQuery?.message?.message_id &&
+    ctx.callbackQuery?.message?.text !== undefined
+  ) {
+    bot.api.deleteMessage(ctx.from.id, ctx.callbackQuery.message.message_id);
+  }
+
+  await ctx.answerCallbackQuery();
+});
+
+bot.callbackQuery("news-2-nodit", async (ctx) => {
+  const message = `📊 <b><a href="https://nodit.io/">NODIT</a></b>
+Historical data is key for any prediction market. That's why we’ve integrated NODIT to query historical data on the Aptos network. This allows us to offer in-depth insights, so you can make well-informed predictions based on past trends.`;
+
+  const menu = new InlineKeyboard()
+    .text("🔮 Switchboard Oracles", "news-2-switchboard")
+    .text("📈 MEXC", "news-2-mexc")
+    .text("🖥️ TradingView", "news-2-tradingview")
+    .row()
+    .text("↸", "news-2-close");
+
+  bot.api.sendMessage(ctx.from.id, message, {
+    parse_mode: "HTML",
+    link_preview_options: { is_disabled: true },
+    reply_markup: menu,
+  });
+
+  if (
+    ctx.callbackQuery?.message?.message_id &&
+    ctx.callbackQuery?.message?.text !== undefined
+  ) {
+    bot.api.deleteMessage(ctx.from.id, ctx.callbackQuery.message.message_id);
+  }
+
+  await ctx.answerCallbackQuery();
+});
+
+bot.callbackQuery("news-2-mexc", async (ctx) => {
+  const message = `📈 <b><a href="https://www.mexc.com/">MEXC</a></b>
+We utilize MEXC to pull Kline data and analyze market trends. This gives you a clear view of market movements, helping you make smarter, more strategic predictions.`;
+
+  const menu = new InlineKeyboard()
+    .text("🔮 Switchboard Oracles", "news-2-switchboard")
+    .text("📊 NODIT", "news-2-nodit")
+    .text("🖥️ TradingView", "news-2-tradingview")
+    .row()
+    .text("↸", "news-2-close");
+
+  bot.api.sendMessage(ctx.from.id, message, {
+    parse_mode: "HTML",
+    link_preview_options: { is_disabled: true },
+    reply_markup: menu,
+  });
+
+  if (
+    ctx.callbackQuery?.message?.message_id &&
+    ctx.callbackQuery?.message?.text !== undefined
+  ) {
+    bot.api.deleteMessage(ctx.from.id, ctx.callbackQuery.message.message_id);
+  }
+
+  await ctx.answerCallbackQuery();
+});
+
+bot.callbackQuery("news-2-tradingview", async (ctx) => {
+  console.log(ctx);
+  const message = `🖥️ <b><a href="https://www.tradingview.com/">TradingView</a></b>
+For a seamless user experience, we display professional-grade crypto charts through TradingView. With this integration, you can visually track price trends and market fluctuations in real time, right within our platform.`;
+
+  const menu = new InlineKeyboard()
+    .text("🔮 Switchboard Oracles", "news-2-switchboard")
+    .text("📊 NODIT", "news-2-nodit")
+    .text("📈 MEXC", "news-2-mexc")
+    .row()
+    .text("↸", "news-2-close");
+
+  bot.api.sendMessage(ctx.from.id, message, {
+    parse_mode: "HTML",
+    link_preview_options: { is_disabled: true },
+    reply_markup: menu,
+  });
+
+  if (
+    ctx.callbackQuery?.message?.message_id &&
+    ctx.callbackQuery?.message?.text !== undefined
+  ) {
+    bot.api.deleteMessage(ctx.from.id, ctx.callbackQuery.message.message_id);
+  }
+
+  await ctx.answerCallbackQuery();
+});
+
+bot.callbackQuery("news-2-close", async (ctx) => {
+  if (ctx.callbackQuery?.message?.message_id) {
+    bot.api.deleteMessage(ctx.from.id, ctx.callbackQuery.message.message_id);
+  }
+
+  await ctx.answerCallbackQuery({ text: "🍌" });
 });
 
 export const POST = webhookCallback(bot, "std/http");
