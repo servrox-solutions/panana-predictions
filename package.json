@@ -5,7 +5,7 @@
   "author": "servrox solutions",
   "license": "UNLICENSED",
   "private": true,
-  "packageManager": "pnpm@9.12.2",
+  "packageManager": "pnpm@9.12.3",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -50,6 +50,7 @@
     "@telegram-apps/sdk-react": "^1.1.3",
     "@thalalabs/surf": "^1.7.3",
     "@theothergothamdev/mexc-sdk": "^1.2.2",
+    "@vercel/analytics": "^1.3.2",
     "@web3icons/react": "3.10.1",
     "aptos": "^1.21.0",
     "class-variance-authority": "^0.7.0",

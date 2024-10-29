@@ -4,6 +4,7 @@ import "./globals.css";
 import { ClientProvider } from "@/components/providers/client-provider";
 import "react-toastify/dist/ReactToastify.css";
 import { ToastContainer } from "react-toastify";
+import { Analytics } from "@vercel/analytics/react";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -34,6 +35,7 @@ export default function RootLayout({
       >
         <ClientProvider>{children}</ClientProvider>
         <ToastContainer theme="dark" stacked={true} />
+        <Analytics />
       </body>
     </html>
   );
