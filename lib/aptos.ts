@@ -8,8 +8,8 @@ import { TxnBuilderTypes } from "aptos";
 
 const config = new AptosConfig({
   network: Network.TESTNET,
-  fullnode: `https://aptos-testnet.nodit.io/${process.env.NODIT_API_KEY}/v1`,
-  indexer: `https://aptos-testnet.nodit.io/${process.env.NODIT_API_KEY}/v1/graphql`,
+  fullnode: `https://aptos-testnet.nodit.io/${process.env.NEXT_PUBLIC_NODIT_API_KEY}/v1`,
+  indexer: `https://aptos-testnet.nodit.io/${process.env.NEXT_PUBLIC_NODIT_API_KEY}/v1/graphql`,
 });
 export const aptos = new Aptos(config);
 export const surfClientMarketplace =

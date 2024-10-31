@@ -1,7 +1,7 @@
 import { ModeToggle } from "@/components/mode-toggle";
 import { MoonPayBuyWidgetButton } from "@/components/moon-pay-buy-widget-button";
 import ProfileCard from "@/components/profile/profile-card";
-import Statistics from '@/components/profile/profile-statistics';
+import Statistics from "@/components/profile/profile-statistics";
 import { Card } from "@/components/ui/card";
 import { WalletReconnect } from "@/components/wallet-reconnect";
 import { MODULE_ADDRESS_FROM_ABI, octasToApt } from "@/lib/aptos";
@@ -11,15 +11,13 @@ import { NoditClient } from "@/lib/nodit/client";
 import { MarketType } from "@/lib/types/market";
 import { Address } from "@/lib/types/market";
 
-export default async function Profile(
-  props: {
-    params: Promise<{ address: Address }>;
-  }
-) {
+export default async function Profile(props: {
+  params: Promise<{ address: Address }>;
+}) {
   const params = await props.params;
   const noditClient = new NoditClient(
     MODULE_ADDRESS_FROM_ABI,
-    process.env.NODIT_API_KEY as Address
+    process.env.NEXT_PUBLIC_NODIT_API_KEY as Address
   );
 
   const [balance, totalTransactions, statisticsPageData] = await Promise.all([
@@ -53,7 +51,6 @@ export default async function Profile(
     USDC: statisticsPageData.data.usdc.length,
     ETH: statisticsPageData.data.eth.length,
   };
-  console.log(balance)
 
   return (
     <div className="flex justify-center items-center h-full">
