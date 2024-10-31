@@ -4,10 +4,13 @@ import { ABI as MarketplaceAbi } from "./marketplace-abi";
 import { ABI as MarketAbi } from "./market-abi";
 import { ABI as EventMarketAbi } from "./event-market-abi";
 import { Address } from "./types/market";
-import { TxnBuilderTypes } from 'aptos';
+import { TxnBuilderTypes } from "aptos";
 
-
-const config = new AptosConfig({ network: Network.TESTNET });
+const config = new AptosConfig({
+  network: Network.TESTNET,
+  fullnode: `https://aptos-testnet.nodit.io/${process.env.NODIT_API_KEY}/v1`,
+  indexer: `https://aptos-testnet.nodit.io/${process.env.NODIT_API_KEY}/v1/graphql`,
+});
 export const aptos = new Aptos(config);
 export const surfClientMarketplace =
   createSurfClient(aptos).useABI(MarketplaceAbi);
@@ -59,12 +62,12 @@ export const isValidAddress = (address: string): boolean => {
   } catch (err: unknown) {
     return false;
   }
-}
+};
 
 export const octasToApt = (input: number): number => {
-  return input / (10 ** 8);
-}
+  return input / 10 ** 8;
+};
 
 export const aptToOctas = (input: number): number => {
-  return input * (10 ** 8);
-}
+  return input * 10 ** 8;
+};
