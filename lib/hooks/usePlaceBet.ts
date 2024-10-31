@@ -1,5 +1,5 @@
 import { createEntryPayload } from "@thalalabs/surf";
-import { MARKET_ABI, aptos } from "@/lib/aptos";
+import { MARKET_ABI } from "@/lib/aptos";
 import { MarketData } from "@/lib/types/market";
 import { useWallet } from "@aptos-labs/wallet-adapter-react";
 
@@ -19,7 +19,11 @@ export const usePlaceBet = () => {
         typeArguments: [
           `${MARKET_ABI.address}::switchboard_asset::${marketData.tradingPair.one}`,
         ],
-        functionArguments: [marketData.address, betUp, Math.floor(amount).toString()],
+        functionArguments: [
+          marketData.address,
+          betUp,
+          Math.floor(amount).toString(),
+        ],
       });
 
       const transactionResponse = await signAndSubmitTransaction({
