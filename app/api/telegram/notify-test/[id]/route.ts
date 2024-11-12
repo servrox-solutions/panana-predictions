@@ -17,6 +17,7 @@ export async function GET(
 
   try {
     // sendNewsNotification([134685150, 206250454], id);
+    // sendNewsNotification([134685150], id);
     sendNewsNotification([], id);
   } catch (error) {
     console.error("Error sending news notification:", error);
