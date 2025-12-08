@@ -239,6 +239,47 @@ Thanks for the energy you bring ⚡️ let’s keep building and go bananas toge
 
       break;
     }
+    case 10: {
+      messageOne = `⏰ <b>Countdown: 10 minutes!</b> ⏰
+
+Hey guys 🍌 the official <a href="https://aptosfoundation.org/events/code-collision">Code Collision Hackathon</a> winners will be announced in 10 minutes (9am ET) on <a href="https://x.com/Aptos"><b>X</b></a>! 🍌🔥
+
+Taking the <i>MOVE</i> to build Panana Predictions created the Panana fam 💪🍌— which will in any case continue to grow! 🕺💃
+
+Stay tuned for the big reveal! 🚀
+`;
+
+      imageUrl = "https://app.panana-predictions.xyz/peeltos_banner.gif";
+
+      menuOne.url(
+        "Join our Community Group 🍌",
+        `https://t.me/panana_predictions`
+      );
+
+      break;
+    }
+    case 11: {
+      messageOne = `🎉 <b>And the Results Are In</b> 🎉
+
+We are the <tg-spoiler><b>WINNER 🏆</b></tg-spoiler> of the <b>DeFi / RWA Code Challenge</b> and were even able to win more challenges 🍌🔥
+
+1️⃣🏆 <b>DeFi / RWA</b> <a href="https://x.com/Aptos/status/1857423397824913666">see here</a>  
+1️⃣🏆 <b>Aptos Indexer Challenge with Nodit</b> <a href="https://x.com/Aptos/status/1857423552229838934">see here</a>    
+2️⃣🏆 <b>Mizu Wallet's Telegram Integration Challenge</b> <a href="https://x.com/Aptos/status/1857423640629014725">see here</a>  
+#️⃣🏆 <b>MEXC Venture's Choice</b> <a href="https://x.com/Aptos/status/1857423619225432369">see here</a>
+
+Congratulations to <b>all the winners</b> and the incredible <i>MOVES</i> during the hackathon 🥳 We’re <b>proud</b> of our placement and so <b>grateful</b> for the support along the way! This is just the beginning—let’s keep building 🚀🍌🔥
+`;
+
+      imageUrl = "https://app.panana-predictions.xyz/1.jpg";
+
+      menuOne.url(
+        "Join the Winner Group 🍌",
+        `https://t.me/panana_predictions`
+      );
+
+      break;
+    }
     default: {
       throw new Error("Invalid newsId: " + newsId);
     }
@@ -247,6 +288,7 @@ Thanks for the energy you bring ⚡️ let’s keep building and go bananas toge
   telegramUserIds.forEach((telegramUserId) => {
     bot.api
       .sendPhoto(telegramUserId, imageUrl, {
+        // TODO: sendAnimation check if imageUrl ends with .gif
         caption: messageOne,
         parse_mode: "HTML",
         reply_markup: menuOne,
