@@ -18,11 +18,11 @@ export const WalletProvider = ({ children }: PropsWithChildren) => {
         network:
           (process.env.NEXT_PUBLIC_APP_NETWORK as Network) ?? Network.TESTNET,
         aptosApiKey: process.env.NEXT_PUBLIC_APTOS_API_KEY,
-        aptosConnect: {
+        aptosConnect: process.env.NODE_ENV === "production" ? {
           dappId: "6a12f6e7-bfdc-4401-b019-a0bea0260cf3",
           dappName: "Panana Predictions",
           dappImageURI: "https://app.panana-predictions.xyz/mr_peeltos.png",
-        },
+        } : undefined,
         mizuwallet: {
           manifestURL:
             "https://assets.mz.xyz/static/config/mizuwallet-connect-manifest.json",

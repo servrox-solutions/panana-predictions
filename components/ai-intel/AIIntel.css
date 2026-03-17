@@ -1,0 +1,92 @@
+.ai-intel-card {
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  border: 1px solid #7c3aed;
+  border-radius: 12px;
+  padding: 16px;
+  margin: 16px 0;
+  color: white;
+  font-family: Arial, sans-serif;
+}
+
+.ai-intel-card.loading {
+  text-align: center;
+  padding: 20px;
+  color: #a78bfa;
+  font-size: 14px;
+}
+
+.ai-intel-header {
+  font-size: 16px;
+  font-weight: bold;
+  color: #a78bfa;
+  margin-bottom: 14px;
+  border-bottom: 1px solid #7c3aed44;
+  padding-bottom: 8px;
+}
+
+.ai-intel-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.ai-intel-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+  background: #ffffff10;
+  border-radius: 8px;
+  padding: 10px;
+}
+
+.ai-intel-stat .label {
+  font-size: 11px;
+  color: #94a3b8;
+  margin-bottom: 4px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.ai-intel-stat .value {
+  font-size: 28px;
+  font-weight: bold;
+}
+
+.value.market { color: #60a5fa; }
+.value.ai-low  { color: #f87171; }
+.value.ai-high { color: #34d399; }
+
+.ai-intel-divider {
+  color: #475569;
+  font-size: 13px;
+}
+
+.ai-intel-badge {
+  flex: 1;
+  text-align: center;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.badge.sentiment {
+  background: #ffffff15;
+}
+
+.edge-high   { background: #7f1d1d; color: #fca5a5; }
+.edge-medium { background: #78350f; color: #fcd34d; }
+.edge-low    { background: #14532d; color: #86efac; }
+
+.ai-intel-signal {
+  background: #ffffff08;
+  border-left: 3px solid #7c3aed;
+  padding: 10px 12px;
+  border-radius: 0 8px 8px 0;
+  font-size: 13px;
+  color: #cbd5e1;
+  line-height: 1.5;
+}

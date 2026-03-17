@@ -1,4 +1,4 @@
-
+import AIIntel from "@/components/ai-intel/AIIntel";
 import { Card } from "@/components/ui/card";
 import { AvailableMarket } from "@/lib/get-available-markets";
 import { getMarketType } from "@/lib/get-market-type";
@@ -44,6 +44,7 @@ export default async function Market(
             className="text-lg"
           />
         </Card>
+        <AIIntel question={`${marketData.tradingPair.one}/${marketData.tradingPair.two}`} />
 
         <div
           className={`justify-self-end w-full md:w-auto ${marketData.endPrice && "hidden"

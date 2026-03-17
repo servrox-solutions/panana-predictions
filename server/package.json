@@ -3,9 +3,10 @@
   "module": "index.ts",
   "type": "module",
   "devDependencies": {
-    "@types/bun": "latest",
+    "@types/node": "latest",
     "@types/js-yaml": "^4.0.9",
     "@types/luxon": "^3.4.2",
+    "@types/node": "^25.5.0",
     "@types/node-schedule": "^2.1.7"
   },
   "peerDependencies": {
@@ -16,7 +17,9 @@
     "@supabase/supabase-js": "^2.45.4",
     "@thalalabs/surf": "^1.7.3",
     "axios": "^1.7.7",
+    "cors": "^2.8.6",
     "croner": "^8.1.2",
+    "express": "^5.2.1",
     "grammy": "^1.30.0",
     "js-yaml": "^4.1.0",
     "luxon": "^3.5.0",
