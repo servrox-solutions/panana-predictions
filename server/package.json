@@ -15,7 +15,7 @@
     "@aptos-labs/ts-sdk": "^1.27.1",
     "@supabase/supabase-js": "^2.45.4",
     "@thalalabs/surf": "^1.7.3",
-    "axios": "^1.7.7",
+    "axios": "^1.15.2",
     "croner": "^8.1.2",
     "grammy": "^1.30.0",
     "js-yaml": "^4.1.0",
