@@ -24,7 +24,7 @@
     "@aptos-labs/ts-sdk": "^1.30.0",
     "@aptos-labs/wallet-adapter-react": "^3.7.1",
     "@grammyjs/menu": "^1.2.2",
-    "@hookform/resolvers": "^3.9.0",
+    "@hookform/resolvers": "^5.0.0",
     "@moonpay/moonpay-js": "^0.7.0",
     "@moonpay/moonpay-react": "^1.8.2",
     "@nozbe/microfuzz": "^1.0.0",
