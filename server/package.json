@@ -9,7 +9,7 @@
     "@types/node-schedule": "^2.1.7"
   },
   "peerDependencies": {
-    "typescript": "^5.0.0"
+    "typescript": "^5.0.0 || ^6.0.0"
   },
   "dependencies": {
     "@aptos-labs/ts-sdk": "^1.27.1",
