@@ -21,8 +21,8 @@ importers:
         specifier: ^3.9.0
         version: 3.9.0(react-hook-form@7.53.1)
       '@moonpay/moonpay-js':
-        specifier: ^0.6.2
-        version: 0.6.2
+        specifier: ^0.7.0
+        version: 0.7.6
       '@moonpay/moonpay-react':
         specifier: ^1.8.2
         version: 1.8.2
@@ -855,8 +855,8 @@ packages:
   '@molt/types@0.2.0':
     resolution: {integrity: sha512-p6ChnEZDGjg9PYPec9BK6Yp5/DdSrYQvXTBAtgrnqX6N36cZy37ql1c8Tc5LclfIYBNG7EZp8NBcRTYJwyi84g==}
 
-  '@moonpay/moonpay-js@0.6.2':
-    resolution: {integrity: sha512-TRSy5vae121smUbe2W340jbTldbsXktLIx3fZjiriTPSm2JvEw5sKgOpJ7PiUYVzS0nrNXXNFkY2M2xPgatx0g==}
+  '@moonpay/moonpay-js@0.7.6':
+    resolution: {integrity: sha512-amTGu+8p2c/svbmmrYUKaBftgKoiJDrW2ohyZAplsIFMc8VoXM0sC+UuKatMmuPe4BE0WMpYJuJCMULDPR4hUg==}
 
   '@moonpay/moonpay-react@1.8.2':
     resolution: {integrity: sha512-zzG6y/Y41pCVoOu7So2qpINSediVSSN/T5xviOGTBlO874SAvTSVe/7G0aASdRVHP5lwd6NyBjSZZs1ODm/uCQ==}
@@ -5037,7 +5037,7 @@ snapshots:
     dependencies:
       ts-toolbelt: 9.6.0
 
-  '@moonpay/moonpay-js@0.6.2': {}
+  '@moonpay/moonpay-js@0.7.6': {}
 
   '@moonpay/moonpay-react@1.8.2': {}
 

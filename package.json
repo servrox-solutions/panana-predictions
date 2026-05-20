@@ -25,7 +25,7 @@
     "@aptos-labs/wallet-adapter-react": "^3.7.1",
     "@grammyjs/menu": "^1.2.2",
     "@hookform/resolvers": "^3.9.0",
-    "@moonpay/moonpay-js": "^0.6.2",
+    "@moonpay/moonpay-js": "^0.7.0",
     "@moonpay/moonpay-react": "^1.8.2",
     "@nozbe/microfuzz": "^1.0.0",
     "@radix-ui/react-collapsible": "^1.1.1",
