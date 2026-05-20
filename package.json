@@ -21,7 +21,7 @@
     "supabase:types": "bunx supabase gen types --lang=typescript --project-id \"xhhtyzounaczdijqltcz\" --schema secure_schema > lib/supabase/database.types.ts"
   },
   "dependencies": {
-    "@aptos-labs/ts-sdk": "^1.30.0",
+    "@aptos-labs/ts-sdk": "^6.0.0",
     "@aptos-labs/wallet-adapter-react": "^3.7.1",
     "@grammyjs/menu": "^1.2.2",
     "@hookform/resolvers": "^3.9.0",
