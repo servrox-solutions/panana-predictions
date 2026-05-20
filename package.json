@@ -47,7 +47,7 @@
     "@supabase/ssr": "^0.10.0",
     "@tabler/icons-react": "^3.20.0",
     "@telegram-apps/init-data-node": "^1.1.1",
-    "@telegram-apps/sdk-react": "^1.1.3",
+    "@telegram-apps/sdk-react": "^3.0.0",
     "@thalalabs/surf": "^1.7.3",
     "@theothergothamdev/mexc-sdk": "^1.2.2",
     "@vercel/analytics": "^1.3.2",
