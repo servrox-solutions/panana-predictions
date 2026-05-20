@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 import { ClientProvider } from "@/components/providers/client-provider";
+import { SuppressWalletErrors } from "@/components/suppress-wallet-errors";
 import "react-toastify/dist/ReactToastify.css";
 import { ToastContainer } from "react-toastify";
 import { Analytics } from "@vercel/analytics/react";
@@ -33,6 +34,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
+        <SuppressWalletErrors />
         <ClientProvider>{children}</ClientProvider>
         <ToastContainer theme="dark" stacked={true} />
         <Analytics />
