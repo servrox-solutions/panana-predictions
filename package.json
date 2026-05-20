@@ -51,7 +51,7 @@
     "@thalalabs/surf": "^1.7.3",
     "@theothergothamdev/mexc-sdk": "^1.2.2",
     "@vercel/analytics": "^2.0.0",
-    "@web3icons/react": "3.10.1",
+    "@web3icons/react": "4.1.17",
     "aptos": "^1.21.0",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
