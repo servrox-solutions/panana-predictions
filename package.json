@@ -58,7 +58,7 @@
     "cmdk": "1.0.0",
     "coingecko-api-v3": "^0.0.31",
     "date-fns": "^4.1.0",
-    "framer-motion": "^11.11.9",
+    "framer-motion": "^12.0.0",
     "grammy": "^1.30.0",
     "jotai": "^2.10.1",
     "linkify-react": "^4.1.3",
