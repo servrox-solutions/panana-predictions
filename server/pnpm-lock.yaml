@@ -18,8 +18,8 @@ dependencies:
     specifier: ^1.7.7
     version: 1.7.7
   croner:
-    specifier: ^8.1.2
-    version: 8.1.2
+    specifier: ^10.0.0
+    version: 10.0.1
   grammy:
     specifier: ^1.30.0
     version: 1.30.0
@@ -350,8 +350,8 @@ packages:
       luxon: 3.5.0
     dev: false
 
-  /croner@8.1.2:
-    resolution: {integrity: sha512-ypfPFcAXHuAZRCzo3vJL6ltENzniTjwe/qsLleH1V2/7SRDjgvRQyrLmumFTLmjFax4IuSxfGXEn79fozXcJog==}
+  /croner@10.0.1:
+    resolution: {integrity: sha512-ixNtAJndqh173VQ4KodSdJEI6nuioBWI0V1ITNKhZZsO0pEMoDxz539T4FTTbSZ/xIOSuDnzxLVRqBVSvPNE2g==}
     engines: {node: '>=18.0'}
     dev: false
 
