@@ -187,8 +187,8 @@ importers:
         specifier: ^1.0.11
         version: 1.0.11
       '@twa-dev/types':
-        specifier: ^7.10.0
-        version: 7.10.0
+        specifier: ^8.0.0
+        version: 8.0.2
       '@types/luxon':
         specifier: ^3.4.2
         version: 3.4.2
@@ -1837,8 +1837,8 @@ packages:
   '@tsconfig/svelte@1.0.13':
     resolution: {integrity: sha512-5lYJP45Xllo4yE/RUBccBT32eBlRDbqN8r1/MIvQbKxW3aFqaYPCNgm8D5V20X4ShHcwvYWNlKg3liDh1MlBoA==}
 
-  '@twa-dev/types@7.10.0':
-    resolution: {integrity: sha512-BXHyNLXy+cPbOZ2qQq5ArPKcP4kUfuX3YBSFT0XUxtMNWAzvyMuYAiq59UTfQ8OnELXlfChrAoIT3c2pujBtcQ==}
+  '@twa-dev/types@8.0.2':
+    resolution: {integrity: sha512-ICQ6n4NaUPPzV3/GzflVQS6Nnu5QX2vr9OlOG8ZkFf3rSJXzRKazrLAbZlVhCPPWkIW3MMuELPsE6tByrA49qA==}
 
   '@types/cacheable-request@6.0.3':
     resolution: {integrity: sha512-IQ3EbTzGxIigb1I3qPZc1rWJnH0BmSKv5QYTalEwweFvyBDLSAe24zP0le/hyi7ecGfZVlIVAg4BZqb8WBwKqw==}
@@ -5899,7 +5899,7 @@ snapshots:
 
   '@tsconfig/svelte@1.0.13': {}
 
-  '@twa-dev/types@7.10.0': {}
+  '@twa-dev/types@8.0.2': {}
 
   '@types/cacheable-request@6.0.3':
     dependencies:
