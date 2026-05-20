@@ -114,8 +114,8 @@ importers:
         specifier: 1.0.0
         version: 1.0.0(@types/react-dom@19.2.3(@types/react@19.2.15))(@types/react@19.2.15)(react-dom@19.2.6)
       coingecko-api-v3:
-        specifier: ^0.0.29
-        version: 0.0.29
+        specifier: ^0.0.31
+        version: 0.0.31
       date-fns:
         specifier: ^4.1.0
         version: 4.1.0
@@ -2268,8 +2268,8 @@ packages:
       react: ^18.0.0
       react-dom: ^18.0.0
 
-  coingecko-api-v3@0.0.29:
-    resolution: {integrity: sha512-4aF0mU6Pwmo78W4NsPbMslU3ooeSa2Dq8a8PFR+5+wWcWvTBMiUZgfy9UvybynYVsnvYCoyxtNwxTiMZBeZh4w==}
+  coingecko-api-v3@0.0.31:
+    resolution: {integrity: sha512-X+9SdZivtX0xKfmIl6ST3/Z+T5sFIQF00e599rg0vgxAR4wNBq6RnAVzo8HgLZm7H77RX7vApFdluR7vPKLbGQ==}
 
   color-convert@1.9.3:
     resolution: {integrity: sha512-QfAUtd+vFdAtFQcC8CCyYt1fYWxSqAiK2cSD6zDB8N3cpsEBAvRxp9zOGg6G/SHHJYAT88/az/IuDGALsNVbGg==}
@@ -6407,7 +6407,7 @@ snapshots:
       - '@types/react'
       - '@types/react-dom'
 
-  coingecko-api-v3@0.0.29:
+  coingecko-api-v3@0.0.31:
     dependencies:
       https: 1.0.0
 

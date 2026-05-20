@@ -56,7 +56,7 @@
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
     "cmdk": "1.0.0",
-    "coingecko-api-v3": "^0.0.29",
+    "coingecko-api-v3": "^0.0.31",
     "date-fns": "^4.1.0",
     "framer-motion": "^11.11.9",
     "grammy": "^1.30.0",
