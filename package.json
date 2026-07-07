@@ -22,7 +22,7 @@
   },
   "dependencies": {
     "@aptos-labs/ts-sdk": "^1.30.0",
-    "@aptos-labs/wallet-adapter-react": "^3.7.1",
+    "@aptos-labs/wallet-adapter-react": "^8.0.0",
     "@grammyjs/menu": "^1.2.2",
     "@hookform/resolvers": "^5.0.0",
     "@moonpay/moonpay-js": "^0.7.0",
